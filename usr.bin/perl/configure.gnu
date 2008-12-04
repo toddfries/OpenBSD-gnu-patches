@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# $Id: configure.gnu,v 1.6 2003/12/03 03:02:19 millert Exp $
+# $Id: configure.gnu,v 1.7 2008/09/29 17:35:56 millert Exp $
 #
 # GNU configure-like front end to metaconfig's Configure.
 #
@@ -16,8 +16,8 @@
 # include this script in your own package.
 #
 # $Log: configure.gnu,v $
-# Revision 1.6  2003/12/03 03:02:19  millert
-# Resolve conflicts for perl 5.8.2, remove old files, and add OpenBSD-specific scaffolding
+# Revision 1.7  2008/09/29 17:35:56  millert
+# fix conflicts and merge in local changes to perl 5.10.0
 #
 # Revision 3.0.1.1  1995/07/25  14:16:21  ram
 # patch56: created

@@ -1,5 +1,5 @@
 #
-# $Id: tr_utf8.t,v 1.4 2006/03/28 19:23:13 millert Exp $
+# $Id: tr_utf8.t,v 1.5 2008/09/29 17:36:20 millert Exp $
 #
 # This script is written intentionally in UTF-8
 # Requires Encode 1.83 or better
@@ -31,7 +31,7 @@ BEGIN {
 }
 
 use strict;
-use Test::More tests => 7;
+use Test::More tests => 8;
 
 use encoding 'utf8';
 
@@ -67,4 +67,12 @@ is($str, $hiragana, "s/// # hiragana -> katakana");
   $line =~ tr/bcdeghijklmnprstvwxyz$02578/בצדעגהיײקלמנפּרסטװשכיזשױתײחא/;
   is($line, "aבצדעfגהיײקלמנoפqּרסuטװשכיזש1ױ34ת6ײח9", "[perl #16843]");
 }
+
+{
+  # [perl #40641]
+  my $str = qq/Gebääääääääääääääääääääude/;
+  my $reg = qr/Gebääääääääääääääääääääude/;
+  ok($str =~ /$reg/, "[perl #40641]");
+}
+
 __END__

@@ -1,163 +1,102 @@
 #!./perl
 
-BEGIN {
-    chdir 't' if -d 't';
-    @INC = qw(. ../lib);
-}
-
-require "test.pl";
-plan( tests => 57 );
+print "1..31\n";
 
 @foo = (1, 2, 3, 4);
-cmp_ok($foo[0], '==', 1, 'first elem');
-cmp_ok($foo[3], '==', 4, 'last elem');
+if ($foo[0] == 1 && $foo[3] == 4) {print "ok 1\n";} else {print "not ok 1\n";}
 
 $_ = join(':',@foo);
-cmp_ok($_, 'eq', '1:2:3:4', 'join list');
+if ($_ eq '1:2:3:4') {print "ok 2\n";} else {print "not ok 2\n";}
 
 ($a,$b,$c,$d) = (1,2,3,4);
-cmp_ok("$a;$b;$c;$d", 'eq', '1;2;3;4', 'list assign');
+if ("$a;$b;$c;$d" eq '1;2;3;4') {print "ok 3\n";} else {print "not ok 3\n";}
 
 ($c,$b,$a) = split(/ /,"111 222 333");
-cmp_ok("$a;$b;$c",'eq','333;222;111','list split on space');
+if ("$a;$b;$c" eq '333;222;111') {print "ok 4\n";} else {print "not ok 4\n";}
 
 ($a,$b,$c) = ($c,$b,$a);
-cmp_ok("$a;$b;$c",'eq','111;222;333','trio rotate');
+if ("$a;$b;$c" eq '111;222;333') {print "ok 5\n";} else {print "not ok 5 $a;$b;$c\n";}
 
 ($a, $b) = ($b, $a);
-cmp_ok("$a-$b",'eq','222-111','duo swap');
-
-($a, $b) = ($b, $a) = ($a, $b);
-cmp_ok("$a-$b",'eq','222-111','duo swap swap');
+if ("$a;$b;$c" eq '222;111;333') {print "ok 6\n";} else {print "not ok 6\n";}
 
 ($a, $b[1], $c{2}, $d) = (1, 2, 3, 4);
-cmp_ok($a,'==',1,'assign scalar in list');
-cmp_ok($b[1],'==',2,'assign aelem in list');
-cmp_ok($c{2},'==',3,'assign helem in list');
-cmp_ok($d,'==',4,'assign last scalar in list');
+if ($a eq 1) {print "ok 7\n";} else {print "not ok 7\n";}
+if ($b[1] eq 2) {print "ok 8\n";} else {print "not ok 8\n";}
+if ($c{2} eq 3) {print "ok 9\n";} else {print "not ok 9\n";}
+if ($d eq 4) {print "ok 10\n";} else {print "not ok 10\n";}
 
 @foo = (1,2,3,4,5,6,7,8);
 ($a, $b, $c, $d) = @foo;
-cmp_ok("$a/$b/$c/$d",'eq','1/2/3/4','long list assign');
-
-@foo = (1,2);
-($a, $b, $c, $d) = @foo;
-cmp_ok($a,'==',1,'short list 1 defined');
-cmp_ok($b,'==',2,'short list 2 defined');
-ok(!defined($c),'short list 3 undef');
-ok(!defined($d),'short list 4 undef');
+print "#11	$a;$b;$c;$d eq 1;2;3;4\n";
+if ("$a;$b;$c;$d" eq '1;2;3;4') {print "ok 11\n";} else {print "not ok 11\n";}
 
 @foo = @bar = (1);
-cmp_ok(join(':',@foo,@bar),'eq','1:1','list reassign');
-
-@foo = @bar = (2,3);
-cmp_ok(join(':',join('+',@foo),join('-',@bar)),'eq','2+3:2-3','long list reassign');
+if (join(':',@foo,@bar) eq '1:1') {print "ok 12\n";} else {print "not ok 12\n";}
 
 @foo = ();
 @foo = 1+2+3;
-cmp_ok(join(':',@foo),'eq','6','scalar assign to array');
+if (join(':',@foo) eq '6') {print "ok 13\n";} else {print "not ok 13\n";}
 
-{
-    my ($a, $b, $c);
-    for ($x = 0; $x < 3; $x = $x + 1) {
-        ($a, $b, $c) = 
-              $x == 0 ?  ('a','b','c')
-            : $x == 1 ?  ('d','e','f')
-            :            ('g','h','i')
-        ;
-        if ($x == 0) {
-            cmp_ok($a,'eq','a','ternary for a 1');
-            cmp_ok($b,'eq','b','ternary for b 1');
-            cmp_ok($c,'eq','c','ternary for c 1');
-        }
-        if ($x == 1) {
-            cmp_ok($a,'eq','d','ternary for a 2');
-            cmp_ok($b,'eq','e','ternary for b 2');
-            cmp_ok($c,'eq','f','ternary for c 2');
-        }
-        if ($x == 2) {
-            cmp_ok($a,'eq','g','ternary for a 3');
-            cmp_ok($b,'eq','h','ternary for b 3');
-            cmp_ok($c,'eq','i','ternary for c 3');
-        }
-    }
+for ($x = 0; $x < 3; $x++) {
+    ($a, $b, $c) = 
+	    $x == 0?
+		    ('ok ', 14, "\n"):
+	    $x == 1?
+		    ('ok ', 15, "\n"):
+	    # default
+		    ('ok ', 16, "\n");
+
+    print $a,$b,$c;
 }
 
-{
-    my ($a, $b, $c);
-    for ($x = 0; $x < 3; $x = $x + 1) {
-        ($a, $b, $c) = do {
-            if ($x == 0) {
-                ('a','b','c');
-            }
-            elsif ($x == 1) {
-                ('d','e','f');
-            }
-            else {
-                ('g','h','i');
-            }
-        };
-        if ($x == 0) {
-            cmp_ok($a,'eq','a','block for a 1');
-            cmp_ok($b,'eq','b','block for b 1');
-            cmp_ok($c,'eq','c','block for c 1');
-        }
-        if ($x == 1) {
-            cmp_ok($a,'eq','d','block for a 2');
-            cmp_ok($b,'eq','e','block for b 2');
-            cmp_ok($c,'eq','f','block for c 2');
-        }
-        if ($x == 2) {
-            cmp_ok($a,'eq','g','block for a 3');
-            cmp_ok($b,'eq','h','block for b 3');
-            cmp_ok($c,'eq','i','block for c 3');
-        }
-    }
-}
-
-$x = 666;
 @a = ($x == 12345 || (1,2,3));
-cmp_ok(join('*',@a),'eq','1*2*3','logical or f');
+if (join('',@a) eq '123') {print "ok 17\n";} else {print "not ok 17\n";}
 
 @a = ($x == $x || (4,5,6));
-cmp_ok(join('*',@a),'eq','1','logical or t');
+if (join('',@a) eq '1') {print "ok 18\n";} else {print "not ok 18\n";}
 
-cmp_ok(join('',1,2,(3,4,5)),'eq','12345','list ..(...)');
-cmp_ok(join('',(1,2,3,4,5)),'eq','12345','list (.....)');
-cmp_ok(join('',(1,2,3,4),5),'eq','12345','list (....).');
-cmp_ok(join('',1,(2,3,4),5),'eq','12345','list .(...).');
-cmp_ok(join('',1,2,(3,4),5),'eq','12345','list ..(..).');
-cmp_ok(join('',1,2,3,(4),5),'eq','12345','list ...(.).');
-cmp_ok(join('',(1,2),3,(4,5)),'eq','12345','list (..).(..)');
+if (join('',1,2,(3,4,5)) eq '12345'){print "ok 19\n";}else{print "not ok 19\n";}
+if (join('',(1,2,3,4,5)) eq '12345'){print "ok 20\n";}else{print "not ok 20\n";}
+if (join('',(1,2,3,4),5) eq '12345'){print "ok 21\n";}else{print "not ok 21\n";}
+if (join('',1,(2,3,4),5) eq '12345'){print "ok 22\n";}else{print "not ok 22\n";}
+if (join('',1,2,(3,4),5) eq '12345'){print "ok 23\n";}else{print "not ok 23\n";}
+if (join('',1,2,3,(4),5) eq '12345'){print "ok 24\n";}else{print "not ok 24\n";}
 
+for ($x = 0; $x < 3; $x++) {
+    ($a, $b, $c) = do {
+	    if ($x == 0) {
+		('ok ', 25, "\n");
+	    }
+	    elsif ($x == 1) {
+		('ok ', 26, "\n");
+	    }
+	    else {
+		('ok ', 27, "\n");
+	    }
+	};
+
+    print $a,$b,$c;
+}
+
+# slices
 {
     my @a = (0, undef, undef, 3);
     my @b = @a[1,2];
     my @c = (0, undef, undef, 3)[1, 2];
-    cmp_ok(scalar(@b),'==',scalar(@c),'slice and slice');
-    cmp_ok(scalar(@c),'==',2,'slice len');
+    print "not " unless @b == @c and @c == 2;
+    print "ok 28\n";
 
     @b = (29, scalar @c[()]);
-    cmp_ok(join(':',@b),'eq','29:','slice ary nil');
+    print "not " if join(':',@b) ne '29:';
+    print "ok 29\n";
 
     my %h = (a => 1);
     @b = (30, scalar @h{()});
-    cmp_ok(join(':',@b),'eq','30:','slice hash nil');
+    print "not " if join(':',@b) ne '30:';
+    print "ok 30\n";
 
     my $size = scalar(()[1..1]);
-    cmp_ok($size,'==','0','size nil');
+    print "not " if $size != 0;
+    print "ok 31\n";
 }
-
-{
-    # perl #39882
-    sub test_zero_args {
-        my $test_name = shift;
-        is(scalar(@_), 0, $test_name);
-    }
-    test_zero_args("simple list slice",      (10,11)[2,3]);
-    test_zero_args("grepped list slice",     grep(1, (10,11)[2,3]));
-    test_zero_args("sorted list slice",      sort((10,11)[2,3]));
-    test_zero_args("assigned list slice",    my @tmp = (10,11)[2,3]);
-    test_zero_args("do-returned list slice", do { (10,11)[2,3]; });
-}
-

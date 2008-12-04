@@ -27,5 +27,4 @@ WriteMakefile(
 	Test		=> 0,
 	warnings	=> 0,
     },
-    'MAN3PODS'		=> {},
 );

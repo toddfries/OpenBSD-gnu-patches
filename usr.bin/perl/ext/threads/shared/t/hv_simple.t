@@ -1,45 +1,41 @@
-use strict;
 use warnings;
 
 BEGIN {
-    if ($ENV{'PERL_CORE'}){
-        chdir 't';
-        unshift @INC, '../lib';
-    }
-    use Config;
-    if (! $Config{'useithreads'}) {
-        print("1..0 # Skip: Perl not compiled with 'useithreads'\n");
-        exit(0);
+#    chdir 't' if -d 't';
+#    push @INC ,'../lib';
+    require Config; import Config;
+    unless ($Config{'useithreads'}) {
+        print "1..0 # Skip: no useithreads\n";
+        exit 0;
     }
 }
 
-use ExtUtils::testlib;
 
 sub ok {
     my ($id, $ok, $name) = @_;
 
+    $name = '' unless defined $name;
     # You have to do it this way or VMS will get confused.
-    if ($ok) {
-        print("ok $id - $name\n");
-    } else {
-        print("not ok $id - $name\n");
-        printf("# Failed test at line %d\n", (caller)[2]);
-    }
+    print $ok ? "ok $id - $name\n" : "not ok $id - $name\n";
 
-    return ($ok);
+    printf "# Failed test at line %d\n", (caller)[2] unless $ok;
+
+    return $ok;
 }
 
-BEGIN {
-    $| = 1;
-    print("1..16\n");   ### Number of tests that will be run ###
-};
+sub skip {
+    my ($id, $ok, $name) = @_;
+    print "ok $id # skip _thrcnt - $name \n";
+}
 
+
+
+use ExtUtils::testlib;
+use strict;
+BEGIN { print "1..15\n" };
 use threads;
 use threads::shared;
-ok(1, 1, 'Loaded');
-
-### Start of Testing ###
-
+ok(1,1,"loaded");
 my %hash;
 share(%hash);
 $hash{"foo"} = "bar";
@@ -74,7 +70,3 @@ ok(14, exists $hash{1}, "Check numeric key");
 
 threads->create(sub { %hash = () })->join();
 ok(15, keys %hash == 0, "Check clear");
-
-ok(16, is_shared(%hash), "Check for sharing");
-
-# EOF

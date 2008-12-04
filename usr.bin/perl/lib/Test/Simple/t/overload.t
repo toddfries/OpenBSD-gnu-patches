@@ -37,12 +37,6 @@ sub new {
 
 package main;
 
-local $SIG{__DIE__} = sub {
-    my($call_file, $call_line) = (caller)[1,2];
-    fail("SIGDIE accidentally called");
-    diag("From $call_file at $call_line");
-};
-
 my $obj = Overloaded->new('foo', 42);
 isa_ok $obj, 'Overloaded';
 

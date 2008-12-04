@@ -899,9 +899,6 @@ static const struct compair comtable[] =
 #ifdef __sparc__
     {"s", "! "},			/* assembler	 */
 #endif
-#ifdef __sparc64__
-    {"s", "! "},			/* assembler	 */
-#endif
 #ifdef __mc68000__
     {"s", "| "},			/* assembler	 */
 #endif

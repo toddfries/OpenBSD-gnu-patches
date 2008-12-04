@@ -1,9 +1,13 @@
 package sort;
 
-our $VERSION = '2.01';
+our $VERSION = '1.02';
 
-# The hints for pp_sort are now stored in $^H{sort}; older versions
-# of perl used the global variable $sort::hints. -- rjh 2005-12-19
+# Currently the hints for pp_sort are stored in the global variable
+# $sort::hints. An improvement would be to store them in $^H{SORT} and have
+# this information available somewhere in the listop OP_SORT, to allow lexical
+# scoping of this pragma. -- rgs 2002-04-30
+
+our $hints	       = 0;
 
 $sort::quicksort_bit   = 0x00000001;
 $sort::mergesort_bit   = 0x00000002;
@@ -19,18 +23,18 @@ sub import {
 	Carp::croak("sort pragma requires arguments");
     }
     local $_;
-    $^H{sort} //= 0;
+    no warnings 'uninitialized';	# bitops would warn
     while ($_ = shift(@_)) {
 	if (/^_q(?:uick)?sort$/) {
-	    $^H{sort} &= ~$sort::sort_bits;
-	    $^H{sort} |=  $sort::quicksort_bit;
+	    $hints &= ~$sort::sort_bits;
+	    $hints |=  $sort::quicksort_bit;
 	} elsif ($_ eq '_mergesort') {
-	    $^H{sort} &= ~$sort::sort_bits;
-	    $^H{sort} |=  $sort::mergesort_bit;
+	    $hints &= ~$sort::sort_bits;
+	    $hints |=  $sort::mergesort_bit;
 	} elsif ($_ eq 'stable') {
-	    $^H{sort} |=  $sort::stable_bit;
+	    $hints |=  $sort::stable_bit;
 	} elsif ($_ eq 'defaults') {
-	    $^H{sort} =   0;
+	    $hints =   0;
 	} else {
 	    require Carp;
 	    Carp::croak("sort: unknown subpragma '$_'");
@@ -48,11 +52,11 @@ sub unimport {
     no warnings 'uninitialized';	# bitops would warn
     while ($_ = shift(@_)) {
 	if (/^_q(?:uick)?sort$/) {
-	    $^H{sort} &= ~$sort::sort_bits;
+	    $hints &= ~$sort::sort_bits;
 	} elsif ($_ eq '_mergesort') {
-	    $^H{sort} &= ~$sort::sort_bits;
+	    $hints &= ~$sort::sort_bits;
 	} elsif ($_ eq 'stable') {
-	    $^H{sort} &= ~$sort::stable_bit;
+	    $hints &= ~$sort::stable_bit;
 	} else {
 	    require Carp;
 	    Carp::croak("sort: unknown subpragma '$_'");
@@ -62,10 +66,10 @@ sub unimport {
 
 sub current {
     my @sort;
-    if ($^H{sort}) {
-	push @sort, 'quicksort' if $^H{sort} & $sort::quicksort_bit;
-	push @sort, 'mergesort' if $^H{sort} & $sort::mergesort_bit;
-	push @sort, 'stable'    if $^H{sort} & $sort::stable_bit;
+    if ($hints) {
+	push @sort, 'quicksort' if $hints & $sort::quicksort_bit;
+	push @sort, 'mergesort' if $hints & $sort::mergesort_bit;
+	push @sort, 'stable'    if $hints & $sort::stable_bit;
     }
     push @sort, 'mergesort' unless @sort;
     join(' ', @sort);
@@ -88,10 +92,7 @@ sort - perl pragma to control sort() behaviour
 
     use sort '_qsort';		# alias for quicksort
 
-    my $current;
-    BEGIN {
-	$current = sort::current();	# identify prevailing algorithm
-    }
+    my $current = sort::current();	# identify prevailing algorithm
 
 =head1 DESCRIPTION
 
@@ -151,10 +152,33 @@ have exactly the same effect, leaving the choice of sort algorithm open.
 
 =head1 CAVEATS
 
-As of Perl 5.10, this pragma is lexically scoped and takes effect
-at compile time. In earlier versions its effect was global and took
-effect at run-time; the documentation suggested using C<eval()> to
-change the behaviour:
+This pragma is not lexically scoped: its effect is global to the program
+it appears in.  That means the following will probably not do what you
+expect, because I<both> pragmas take effect at compile time, before
+I<either> C<sort()> happens.
+
+  { use sort "_quicksort";
+    print sort::current . "\n";
+    @a = sort @b;
+  }
+  { use sort "stable";
+    print sort::current . "\n";
+    @c = sort @d;
+  }
+  # prints:
+  # quicksort stable
+  # quicksort stable
+
+You can achieve the effect you probably wanted by using C<eval()>
+to defer the pragmas until run time.  Use the quoted argument
+form of C<eval()>, I<not> the BLOCK form, as in
+
+  eval { use sort "_quicksort" }; # WRONG
+
+or the effect will still be at compile time.
+Reset to default options before selecting other subpragmas
+(in case somebody carelessly left them on) and after sorting,
+as a courtesy to others.
 
   { eval 'use sort qw(defaults _quicksort)'; # force quicksort
     eval 'no sort "stable"';      # stability not wanted
@@ -167,30 +191,11 @@ change the behaviour:
     @c = sort @d;
     eval 'use sort "defaults"';   # clean up, for others
   }
+  # prints:
+  # quicksort
+  # stable
 
-Such code no longer has the desired effect, for two reasons.
-Firstly, the use of C<eval()> means that the sorting algorithm
-is not changed until runtime, by which time it's too late to
-have any effect. Secondly, C<sort::current> is also called at
-run-time, when in fact the compile-time value of C<sort::current>
-is the one that matters.
-
-So now this code would be written:
-
-  { use sort qw(defaults _quicksort); # force quicksort
-    no sort "stable";      # stability not wanted
-    my $current;
-    BEGIN { $current = print sort::current; }
-    print "$current\n";
-    @a = sort @b;
-    # Pragmas go out of scope at the end of the block
-  }
-  { use sort qw(defaults stable);     # force stability
-    my $current;
-    BEGIN { $current = print sort::current; }
-    print "$current\n";
-    @c = sort @d;
-  }
+Scoping for this pragma may change in future versions.
 
 =cut
 

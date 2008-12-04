@@ -121,20 +121,19 @@ int
 target_auxv_parse (struct target_ops *ops, char **readptr, char *endptr,
 		   CORE_ADDR *typep, CORE_ADDR *valp)
 {
-  const int sizeof_auxv_type = TYPE_LENGTH (builtin_type_int);
-  const int sizeof_auxv_val = TYPE_LENGTH (builtin_type_void_data_ptr);
+  const int sizeof_auxv_field = TYPE_LENGTH (builtin_type_void_data_ptr);
   char *ptr = *readptr;
 
   if (endptr == ptr)
     return 0;
 
-  if (endptr - ptr < (sizeof_auxv_type + sizeof_auxv_val))
+  if (endptr - ptr < sizeof_auxv_field * 2)
     return -1;
 
-  *typep = extract_unsigned_integer (ptr, sizeof_auxv_type);
-  ptr += sizeof_auxv_val;	/* Alignment. */
-  *valp = extract_unsigned_integer (ptr, sizeof_auxv_val);
-  ptr += sizeof_auxv_val;
+  *typep = extract_unsigned_integer (ptr, sizeof_auxv_field);
+  ptr += sizeof_auxv_field;
+  *valp = extract_unsigned_integer (ptr, sizeof_auxv_field);
+  ptr += sizeof_auxv_field;
 
   *readptr = ptr;
   return 1;
@@ -267,8 +266,6 @@ fprint_target_auxv (struct ui_file *file, struct target_ops *ops)
 	  break;
 	}
       ++ents;
-      if (type == AT_NULL)
-	break;
     }
 
   xfree (data);

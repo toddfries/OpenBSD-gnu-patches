@@ -2,9 +2,8 @@ package ExtUtils::MM_Any;
 
 use strict;
 use vars qw($VERSION @ISA);
-$VERSION = '6.42';
+$VERSION = '0.13';
 
-use Carp;
 use File::Spec;
 BEGIN { @ISA = qw(File::Spec); }
 
@@ -236,24 +235,6 @@ sub wraplist {
 }
 
 
-=head3 maketext_filter
-
-    my $filter_make_text = $mm->maketext_filter($make_text);
-
-The text of the Makefile is run through this method before writing to
-disk.  It allows systems a chance to make portability fixes to the
-Makefile.
-
-By default it does nothing.
-
-This method is protected and not intended to be called outside of
-MakeMaker.
-
-=cut
-
-sub maketext_filter { return $_[1] }
-
-
 =head3 cd  I<Abstract>
 
   my $subdir_cmd = $MM->cd($subdir, @cmds);
@@ -343,28 +324,7 @@ this is the max size of a shell command line.
 $self->{_MAX_EXEC_LEN} is set by this method, but only for testing purposes.
 
 
-=head3 make
 
-    my $make = $MM->make;
-
-Returns the make variant we're generating the Makefile for.  This attempts
-to do some normalization on the information from %Config or the user.
-
-=cut
-
-sub make {
-    my $self = shift;
-
-    my $make = lc $self->{MAKE};
-
-    # Truncate anything like foomake6 to just foomake.
-    $make =~ s/^(\w+make).*/$1/;
-
-    # Turn gnumake into gmake.
-    $make =~ s/^gnu/g/;
-
-    return $make;
-}
 
 
 =head2 Targets
@@ -666,7 +626,7 @@ confused or something gets snuck in before the real 'all' target.
 
 sub makemakerdflt_target {
     return <<'MAKE_FRAG';
-makemakerdflt : all
+makemakerdflt: all
 	$(NOECHO) $(NOOP)
 MAKE_FRAG
 
@@ -692,6 +652,10 @@ sub manifypods_target {
     # populate manXpods & dependencies:
     foreach my $name (keys %{$self->{MAN1PODS}}, keys %{$self->{MAN3PODS}}) {
         $dependencies .= " \\\n\t$name";
+    }
+
+    foreach my $name (keys %{$self->{MAN3PODS}}) {
+        $dependencies .= " \\\n\t$name"
     }
 
     my $manify = <<END;
@@ -722,7 +686,10 @@ Generate the metafile target.
 
 Writes the file META.yml YAML encoded meta-data about the module in
 the distdir.  The format follows Module::Build's as closely as
-possible.
+possible.  Additionally, we include:
+
+    version_from
+    installdirs
 
 =cut
 
@@ -730,50 +697,28 @@ sub metafile_target {
     my $self = shift;
 
     return <<'MAKE_FRAG' if $self->{NO_META};
-metafile :
+metafile:
 	$(NOECHO) $(NOOP)
 MAKE_FRAG
 
     my $prereq_pm = '';
     foreach my $mod ( sort { lc $a cmp lc $b } keys %{$self->{PREREQ_PM}} ) {
         my $ver = $self->{PREREQ_PM}{$mod};
-        $prereq_pm .= sprintf "\n    %-30s %s", "$mod:", $ver;
+        $prereq_pm .= sprintf "    %-30s %s\n", "$mod:", $ver;
     }
 
-    my $author_value = defined $self->{AUTHOR}
-        ? "\n    - $self->{AUTHOR}"
-        : undef;
-
-    # Use a list to preserve order.
-    my @meta_to_mm = (
-        name         => $self->{DISTNAME},
-        version      => $self->{VERSION},
-        abstract     => $self->{ABSTRACT},
-        license      => $self->{LICENSE},
-        author       => $author_value,
-        generated_by => 
-                "ExtUtils::MakeMaker version $ExtUtils::MakeMaker::VERSION",
-        distribution_type => $self->{PM} ? 'module' : 'script',
-    );
-
-    my $meta = "--- #YAML:1.0\n";
-
-    while( @meta_to_mm ) {
-        my($key, $val) = splice @meta_to_mm, 0, 2;
-
-        $val = '~' unless defined $val;
-
-        $meta .= sprintf "%-20s %s\n", "$key:", $val;
-    };
-
-    $meta .= <<"YAML";
-requires:     $prereq_pm
-meta-spec:
-    url:     http://module-build.sourceforge.net/META-spec-v1.3.html
-    version: 1.3
+    my $meta = <<YAML;
+# http://module-build.sourceforge.net/META-spec.html
+#XXXXXXX This is a prototype!!!  It will change in the future!!! XXXXX#
+name:         $self->{DISTNAME}
+version:      $self->{VERSION}
+version_from: $self->{VERSION_FROM}
+installdirs:  $self->{INSTALLDIRS}
+requires:
+$prereq_pm
+distribution_type: module
+generated_by: ExtUtils::MakeMaker version $ExtUtils::MakeMaker::VERSION
 YAML
-
-    $meta .= $self->{EXTRA_META} if $self->{EXTRA_META};
 
     my @write_meta = $self->echo($meta, 'META_new.yml');
 
@@ -994,28 +939,6 @@ MAKE_FRAG
 Methods which help initialize the MakeMaker object and macros.
 
 
-=head3 init_ABSTRACT
-
-    $mm->init_ABSTRACT
-
-=cut
-
-sub init_ABSTRACT {
-    my $self = shift;
-
-    if( $self->{ABSTRACT_FROM} and $self->{ABSTRACT} ) {
-        warn "Both ABSTRACT_FROM and ABSTRACT are set.  ".
-             "Ignoring ABSTRACT_FROM.\n";
-        return;
-    }
-
-    if ($self->{ABSTRACT_FROM}){
-        $self->{ABSTRACT} = $self->parse_abstract($self->{ABSTRACT_FROM}) or
-            carp "WARNING: Setting ABSTRACT via file ".
-                 "'$self->{ABSTRACT_FROM}' failed\n";
-    }
-}
-
 =head3 init_INST
 
     $mm->init_INST;
@@ -1078,12 +1001,12 @@ INSTALLDIRS) and *PREFIX.
 sub init_INSTALL {
     my($self) = shift;
 
-    if( $self->{ARGS}{INSTALL_BASE} and $self->{ARGS}{PREFIX} ) {
-        die "Only one of PREFIX or INSTALL_BASE can be given.  Not both.\n";
+    if( $self->{ARGS}{INSTALLBASE} and $self->{ARGS}{PREFIX} ) {
+        die "Only one of PREFIX or INSTALLBASE can be given.  Not both.\n";
     }
 
-    if( $self->{ARGS}{INSTALL_BASE} ) {
-        $self->init_INSTALL_from_INSTALL_BASE;
+    if( $self->{ARGS}{INSTALLBASE} ) {
+        $self->init_INSTALL_from_INSTALLBASE;
     }
     else {
         $self->init_INSTALL_from_PREFIX;
@@ -1123,18 +1046,11 @@ sub init_INSTALL_from_PREFIX {
 
     $self->{INSTALLSITEBIN} ||= '$(INSTALLBIN)'
       unless $Config{installsitebin};
-    $self->{INSTALLSITESCRIPT} ||= '$(INSTALLSCRIPT)'
-      unless $Config{installsitescript};
 
     unless( $Config{installvendorbin} ) {
         $self->{INSTALLVENDORBIN} ||= $Config{usevendorprefix} 
                                     ? $Config{installbin}
                                     : '';
-    }
-    unless( $Config{installvendorscript} ) {
-        $self->{INSTALLVENDORSCRIPT} ||= $Config{usevendorprefix}
-                                       ? $Config{installscript}
-                                       : '';
     }
 
 
@@ -1195,12 +1111,6 @@ sub init_INSTALL_from_PREFIX {
                          d => 'bin' },
         script      => { s => $iprefix,
                          t => 'perl',
-                         d => 'bin' },
-        vendorscript=> { s => $vprefix,
-                         t => 'vendor',
-                         d => 'bin' },
-        sitescript  => { s => $sprefix,
-                         t => 'site',
                          d => 'bin' },
     );
     
@@ -1309,9 +1219,9 @@ sub init_INSTALL_from_PREFIX {
 }
 
 
-=head3 init_from_INSTALL_BASE
+=head3 init_from_INSTALLBASE
 
-    $mm->init_from_INSTALL_BASE
+    $mm->init_from_INSTALLBASE
 
 =cut
 
@@ -1324,11 +1234,11 @@ my %map = (
           );
 $map{script} = $map{bin};
 
-sub init_INSTALL_from_INSTALL_BASE {
+sub init_INSTALL_from_INSTALLBASE {
     my $self = shift;
 
     @{$self}{qw(PREFIX VENDORPREFIX SITEPREFIX PERLPREFIX)} = 
-                                                         '$(INSTALL_BASE)';
+                                                         '$(INSTALLBASE)';
 
     my %install;
     foreach my $thing (keys %map) {
@@ -1337,13 +1247,14 @@ sub init_INSTALL_from_INSTALL_BASE {
             my $key = "INSTALL".$dir.$uc_thing;
 
             $install{$key} ||= 
-              $self->catdir('$(INSTALL_BASE)', @{$map{$thing}});
+              $self->catdir('$(INSTALLBASE)', @{$map{$thing}});
         }
     }
 
     # Adjust for variable quirks.
     $install{INSTALLARCHLIB} ||= delete $install{INSTALLARCH};
     $install{INSTALLPRIVLIB} ||= delete $install{INSTALLLIB};
+    delete @install{qw(INSTALLVENDORSCRIPT INSTALLSITESCRIPT)};
 
     foreach my $key (keys %install) {
         $self->{$key} ||= $install{$key};
@@ -1395,8 +1306,9 @@ sub init_VERSION {
     if ($self->{VERSION_FROM}){
         $self->{VERSION} = $self->parse_version($self->{VERSION_FROM});
         if( $self->{VERSION} eq 'undef' ) {
-            carp("WARNING: Setting VERSION via file ".
-                 "'$self->{VERSION_FROM}' failed\n");
+            require Carp;
+            Carp::carp("WARNING: Setting VERSION via file ".
+                       "'$self->{VERSION_FROM}' failed\n");
         }
     }
 
@@ -1449,7 +1361,8 @@ Defines at least these macros.
   MAKEFILE_OLD
   MAKE_APERL_FILE   File used by MAKE_APERL
 
-  SHELL             Program used to run shell commands
+  SHELL             Program used to run
+                    shell commands
 
   ECHO              Print text adding a newline on the end
   RM_F              Remove a file 
@@ -1462,7 +1375,7 @@ Defines at least these macros.
                     file
 
   UMASK_NULL        Nullify umask
-  DEV_NULL          Suppress all command output
+  DEV_NULL          Supress all command output
 
 
 =head3 init_DIRFILESEP  I<Abstract>
@@ -1522,19 +1435,7 @@ sub init_platform {
 }
 
 
-=head3 init_MAKE
 
-    $mm->init_MAKE
-
-Initialize MAKE from either a MAKE environment variable or $Config{make}.
-
-=cut
-
-sub init_MAKE {
-    my $self = shift;
-
-    $self->{MAKE} ||= $ENV{MAKE} || $Config{make};
-}
 
 
 =head2 Tools
@@ -1727,7 +1628,7 @@ sub installvars {
     return qw(PRIVLIB SITELIB  VENDORLIB
               ARCHLIB SITEARCH VENDORARCH
               BIN     SITEBIN  VENDORBIN
-              SCRIPT  SITESCRIPT  VENDORSCRIPT
+              SCRIPT
               MAN1DIR SITEMAN1DIR VENDORMAN1DIR
               MAN3DIR SITEMAN3DIR VENDORMAN3DIR
              );

@@ -13,7 +13,7 @@ require Exporter;
 use vars qw/@ISA $VERSION/;
 @ISA = qw(Exporter);
 
-$VERSION = '0.13';
+$VERSION = '0.12';
 
 sub api_version() { 1; }
 
@@ -35,11 +35,6 @@ sub _new
   }                                                                             
 
 sub _from_hex
-  {
-  # not used
-  }
-
-sub _from_oct
   {
   # not used
   }
@@ -160,11 +155,6 @@ sub _as_hex
 sub _as_bin
   {
   sprintf("0b%b",${$_[1]});
-  }
-
-sub _as_oct
-  {
-  sprintf("0%o",${$_[1]});
   }
 
 ##############################################################################
@@ -346,7 +336,7 @@ the same terms as Perl itself.
 
 =head1 AUTHOR
 
-Tels http://bloodgate.com in 2001 - 2007.
+Tels http://bloodgate.com in 2001.
 
 =head1 SEE ALSO
 

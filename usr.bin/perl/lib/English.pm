@@ -1,9 +1,9 @@
 package English;
 
-our $VERSION = '1.04';
+our $VERSION = '1.02';
 
 require Exporter;
-@ISA = qw(Exporter);
+@ISA = (Exporter);
 
 =head1 NAME
 
@@ -64,7 +64,7 @@ sub import {
 	       }
 	    || do {
 		require Carp ;
-		Carp::croak("Can't create English for match leftovers: $@") ;
+		Carp::croak "Can't create English for match leftovers: $@" ;
 	    }
 	) ;
     }
@@ -225,6 +225,7 @@ sub import {
 
 #	*ARRAY_BASE				= *[	;
 #	*OFMT					= *#	;
+#	*MULTILINE_MATCHING			= **	;
 #	*OLD_PERL_VERSION			= *]	;
 
 1;

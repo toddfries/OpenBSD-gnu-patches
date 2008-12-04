@@ -3,13 +3,13 @@ GIMME_V                        # E
 G_VOID                         # E
 HEf_SVKEY                      # E
 HeHASH                         # U
-HeKEY                          # U
+HeKEY                          # E
 HeKLEN                         # U
-HePV                           # U
-HeSVKEY                        # U
-HeSVKEY_force                  # U
-HeSVKEY_set                    # U
-HeVAL                          # U
+HePV                           # E
+HeSVKEY                        # E
+HeSVKEY_force                  # E
+HeSVKEY_set                    # E
+HeVAL                          # E
 SvSetMagicSV                   # U
 SvSetMagicSV_nosteal           # U
 SvSetSV_nosteal                # U
@@ -18,40 +18,38 @@ SvTAINTED_off                  # U
 SvTAINTED_on                   # U
 block_gimme                    # U
 call_list                      # U
-cv_const_sv                    # U
-delimcpy                       # U
+cv_const_sv                    # E
+delimcpy                       # E
 do_open                        # E (Perl_do_open)
-form                           # U
-gv_autoload4                   # U
+form                           # E
+gv_autoload4                   # E
 gv_efullname3                  # U
-gv_fetchmethod_autoload        # U
+gv_fetchmethod_autoload        # E
 gv_fullname3                   # U
 hv_delayfree_ent               # U
-hv_delete_ent                  # U
+hv_delete_ent                  # E
 hv_exists_ent                  # U
-hv_fetch_ent                   # U
+hv_fetch_ent                   # E
 hv_free_ent                    # U
-hv_iterkeysv                   # U
+hv_iterkeysv                   # E
 hv_ksplit                      # U
-hv_store_ent                   # U
+hv_store_ent                   # E
 ibcmp_locale                   # U
 my_failure_exit                # U
 my_memcmp                      # U
 my_pclose                      # E (Perl_my_pclose)
 my_popen                       # E (Perl_my_popen)
-newSVpvf                       # U
+newSVpvf                       # E
 rsignal                        # E
 rsignal_state                  # E
 save_I16                       # U
 save_gp                        # U
-share_hek                      # E
 start_subparse                 # E (Perl_start_subparse)
 sv_catpvf                      # U
 sv_catpvf_mg                   # U
 sv_cmp_locale                  # U
 sv_derived_from                # U
 sv_gets                        # E (Perl_sv_gets)
-sv_magic_portable              # U
 sv_setpvf                      # U
 sv_setpvf_mg                   # U
 sv_taint                       # U
@@ -64,5 +62,4 @@ sv_vsetpvf                     # U
 sv_vsetpvf_mg                  # U
 sv_vsetpvfn                    # U
 unsharepvn                     # U
-vnewSVpvf                      # U
-warner                         # U
+vnewSVpvf                      # E

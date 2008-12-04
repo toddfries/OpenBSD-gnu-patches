@@ -37,8 +37,3 @@
    fun:realloc
    obj:/lib/libdl-2.*.so
 }
-{
-   dlopen
-   Memcheck:Addr4
-   obj:/lib/ld-2.*.so
-}

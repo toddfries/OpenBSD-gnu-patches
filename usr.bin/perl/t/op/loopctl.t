@@ -30,17 +30,14 @@
 # Feel free to add more here.
 #
 #  -- .robin. <robin@kitsite.com>  2001-03-13
-BEGIN {
-    chdir 't' if -d 't';
-    @INC = qw(. ../lib);
-}
 
-require "test.pl";
-plan( tests => 47 );
+print "1..44\n";
 
 my $ok;
 
-TEST1: {
+## while() loop without a label
+
+TEST1: { # redo
 
   $ok = 0;
 
@@ -62,9 +59,9 @@ TEST1: {
   }
   $ok = 0;
 }
-cmp_ok($ok,'==',1,'no label on while()');
+print ($ok ? "ok 1\n" : "not ok 1\n");
 
-TEST2: {
+TEST2: { # next (succesful)
 
   $ok = 0;
 
@@ -86,9 +83,9 @@ TEST2: {
   }
   $ok = 0;
 }
-cmp_ok($ok,'==',1,'no label on while() successful next');
+print ($ok ? "ok 2\n" : "not ok 2\n");
 
-TEST3: {
+TEST3: { # next (unsuccesful)
 
   $ok = 0;
 
@@ -112,9 +109,9 @@ TEST3: {
   }
   $ok = $been_in_loop && $been_in_continue;
 }
-cmp_ok($ok,'==',1,'no label on while() unsuccessful next');
+print ($ok ? "ok 3\n" : "not ok 3\n");
 
-TEST4: {
+TEST4: { # last
 
   $ok = 0;
 
@@ -136,9 +133,12 @@ TEST4: {
   }
   $ok = 1;
 }
-cmp_ok($ok,'==',1,'no label on while() last');
+print ($ok ? "ok 4\n" : "not ok 4\n");
 
-TEST5: {
+
+## until() loop without a label
+
+TEST5: { # redo
 
   $ok = 0;
 
@@ -160,9 +160,9 @@ TEST5: {
   }
   $ok = 0;
 }
-cmp_ok($ok,'==',1,'no label on until()');
+print ($ok ? "ok 5\n" : "not ok 5\n");
 
-TEST6: {
+TEST6: { # next (succesful)
 
   $ok = 0;
 
@@ -184,9 +184,9 @@ TEST6: {
   }
   $ok = 0;
 }
-cmp_ok($ok,'==',1,'no label on until() successful next');
+print ($ok ? "ok 6\n" : "not ok 6\n");
 
-TEST7: {
+TEST7: { # next (unsuccesful)
 
   $ok = 0;
 
@@ -210,9 +210,9 @@ TEST7: {
   }
   $ok = $been_in_loop && $been_in_continue;
 }
-cmp_ok($ok,'==',1,'no label on until() unsuccessful next');
+print ($ok ? "ok 7\n" : "not ok 7\n");
 
-TEST8: {
+TEST8: { # last
 
   $ok = 0;
 
@@ -234,9 +234,11 @@ TEST8: {
   }
   $ok = 1;
 }
-cmp_ok($ok,'==',1,'no label on until() last');
+print ($ok ? "ok 8\n" : "not ok 8\n");
 
-TEST9: {
+## for(@array) loop without a label
+
+TEST9: { # redo
 
   $ok = 0;
 
@@ -257,9 +259,9 @@ TEST9: {
   }
   $ok = 0;
 }
-cmp_ok($ok,'==',1,'no label on for(@array)');
+print ($ok ? "ok 9\n" : "not ok 9\n");
 
-TEST10: {
+TEST10: { # next (succesful)
 
   $ok = 0;
 
@@ -280,9 +282,9 @@ TEST10: {
   }
   $ok = 0;
 }
-cmp_ok($ok,'==',1,'no label on for(@array) successful next');
+print ($ok ? "ok 10\n" : "not ok 10\n");
 
-TEST11: {
+TEST11: { # next (unsuccesful)
 
   $ok = 0;
 
@@ -305,9 +307,9 @@ TEST11: {
   }
   $ok = $been_in_loop && $been_in_continue;
 }
-cmp_ok($ok,'==',1,'no label on for(@array) unsuccessful next');
+print ($ok ? "ok 11\n" : "not ok 11\n");
 
-TEST12: {
+TEST12: { # last
 
   $ok = 0;
 
@@ -328,9 +330,11 @@ TEST12: {
   }
   $ok = 1;
 }
-cmp_ok($ok,'==',1,'no label on for(@array) last');
+print ($ok ? "ok 12\n" : "not ok 12\n");
 
-TEST13: {
+## for(;;) loop without a label
+
+TEST13: { # redo
 
   $ok = 0;
 
@@ -347,9 +351,9 @@ TEST13: {
   }
   $ok = 0;
 }
-cmp_ok($ok,'==',1,'no label on for(;;)');
+print ($ok ? "ok 13\n" : "not ok 13\n");
 
-TEST14: {
+TEST14: { # next (successful)
 
   $ok = 0;
 
@@ -364,9 +368,9 @@ TEST14: {
   }
   $ok = 0;
 }
-cmp_ok($ok,'==',1,'no label on for(;;) successful next');
+print ($ok ? "ok 14\n" : "not ok 14\n");
 
-TEST15: {
+TEST15: { # next (unsuccesful)
 
   $ok = 0;
 
@@ -385,9 +389,9 @@ TEST15: {
   }
   $ok = $been_in_loop;
 }
-cmp_ok($ok,'==',1,'no label on for(;;) unsuccessful next');
+print ($ok ? "ok 15\n" : "not ok 15\n");
 
-TEST16: {
+TEST16: { # last
 
   $ok = 0;
 
@@ -403,9 +407,11 @@ TEST16: {
   }
   $ok = 1;
 }
-cmp_ok($ok,'==',1,'no label on for(;;) last');
+print ($ok ? "ok 16\n" : "not ok 16\n");
 
-TEST17: {
+## bare block without a label
+
+TEST17: { # redo
 
   $ok = 0;
   my $first_time = 1;
@@ -427,9 +433,9 @@ TEST17: {
   }
   $ok = 0;
 }
-cmp_ok($ok,'==',1,'no label on bare block');
+print ($ok ? "ok 17\n" : "not ok 17\n");
 
-TEST18: {
+TEST18: { # next
 
   $ok = 0;
   {
@@ -442,9 +448,9 @@ TEST18: {
   }
   $ok = 0;
 }
-cmp_ok($ok,'==',1,'no label on bare block next');
+print ($ok ? "ok 18\n" : "not ok 18\n");
 
-TEST19: {
+TEST19: { # last
 
   $ok = 0;
   {
@@ -457,11 +463,14 @@ TEST19: {
   }
   $ok = 1;
 }
-cmp_ok($ok,'==',1,'no label on bare block last');
+print ($ok ? "ok 19\n" : "not ok 19\n");
+
 
 ### Now do it all again with labels
 
-TEST20: {
+## while() loop with a label
+
+TEST20: { # redo
 
   $ok = 0;
 
@@ -483,9 +492,9 @@ TEST20: {
   }
   $ok = 0;
 }
-cmp_ok($ok,'==',1,'label on while()');
+print ($ok ? "ok 20\n" : "not ok 20\n");
 
-TEST21: {
+TEST21: { # next (succesful)
 
   $ok = 0;
 
@@ -507,9 +516,9 @@ TEST21: {
   }
   $ok = 0;
 }
-cmp_ok($ok,'==',1,'label on while() successful next');
+print ($ok ? "ok 21\n" : "not ok 21\n");
 
-TEST22: {
+TEST22: { # next (unsuccesful)
 
   $ok = 0;
 
@@ -533,9 +542,9 @@ TEST22: {
   }
   $ok = $been_in_loop && $been_in_continue;
 }
-cmp_ok($ok,'==',1,'label on while() unsuccessful next');
+print ($ok ? "ok 22\n" : "not ok 22\n");
 
-TEST23: {
+TEST23: { # last
 
   $ok = 0;
 
@@ -557,9 +566,12 @@ TEST23: {
   }
   $ok = 1;
 }
-cmp_ok($ok,'==',1,'label on while() last');
+print ($ok ? "ok 23\n" : "not ok 23\n");
 
-TEST24: {
+
+## until() loop with a label
+
+TEST24: { # redo
 
   $ok = 0;
 
@@ -581,9 +593,9 @@ TEST24: {
   }
   $ok = 0;
 }
-cmp_ok($ok,'==',1,'label on until()');
+print ($ok ? "ok 24\n" : "not ok 24\n");
 
-TEST25: {
+TEST25: { # next (succesful)
 
   $ok = 0;
 
@@ -605,9 +617,9 @@ TEST25: {
   }
   $ok = 0;
 }
-cmp_ok($ok,'==',1,'label on until() successful next');
+print ($ok ? "ok 25\n" : "not ok 25\n");
 
-TEST26: {
+TEST26: { # next (unsuccesful)
 
   $ok = 0;
 
@@ -631,9 +643,9 @@ TEST26: {
   }
   $ok = $been_in_loop && $been_in_continue;
 }
-cmp_ok($ok,'==',1,'label on until() unsuccessful next');
+print ($ok ? "ok 26\n" : "not ok 26\n");
 
-TEST27: {
+TEST27: { # last
 
   $ok = 0;
 
@@ -655,9 +667,11 @@ TEST27: {
   }
   $ok = 1;
 }
-cmp_ok($ok,'==',1,'label on until() last');
+print ($ok ? "ok 27\n" : "not ok 27\n");
 
-TEST28: {
+## for(@array) loop with a label
+
+TEST28: { # redo
 
   $ok = 0;
 
@@ -678,9 +692,9 @@ TEST28: {
   }
   $ok = 0;
 }
-cmp_ok($ok,'==',1,'label on for(@array)');
+print ($ok ? "ok 28\n" : "not ok 28\n");
 
-TEST29: {
+TEST29: { # next (succesful)
 
   $ok = 0;
 
@@ -701,9 +715,9 @@ TEST29: {
   }
   $ok = 0;
 }
-cmp_ok($ok,'==',1,'label on for(@array) successful next');
+print ($ok ? "ok 29\n" : "not ok 29\n");
 
-TEST30: {
+TEST30: { # next (unsuccesful)
 
   $ok = 0;
 
@@ -726,9 +740,9 @@ TEST30: {
   }
   $ok = $been_in_loop && $been_in_continue;
 }
-cmp_ok($ok,'==',1,'label on for(@array) unsuccessful next');
+print ($ok ? "ok 30\n" : "not ok 30\n");
 
-TEST31: {
+TEST31: { # last
 
   $ok = 0;
 
@@ -749,9 +763,11 @@ TEST31: {
   }
   $ok = 1;
 }
-cmp_ok($ok,'==',1,'label on for(@array) last');
+print ($ok ? "ok 31\n" : "not ok 31\n");
 
-TEST32: {
+## for(;;) loop with a label
+
+TEST32: { # redo
 
   $ok = 0;
 
@@ -768,9 +784,9 @@ TEST32: {
   }
   $ok = 0;
 }
-cmp_ok($ok,'==',1,'label on for(;;)');
+print ($ok ? "ok 32\n" : "not ok 32\n");
 
-TEST33: {
+TEST33: { # next (successful)
 
   $ok = 0;
 
@@ -785,9 +801,9 @@ TEST33: {
   }
   $ok = 0;
 }
-cmp_ok($ok,'==',1,'label on for(;;) successful next');
+print ($ok ? "ok 33\n" : "not ok 33\n");
 
-TEST34: {
+TEST34: { # next (unsuccesful)
 
   $ok = 0;
 
@@ -806,9 +822,9 @@ TEST34: {
   }
   $ok = $been_in_loop;
 }
-cmp_ok($ok,'==',1,'label on for(;;) unsuccessful next');
+print ($ok ? "ok 34\n" : "not ok 34\n");
 
-TEST35: {
+TEST35: { # last
 
   $ok = 0;
 
@@ -824,9 +840,11 @@ TEST35: {
   }
   $ok = 1;
 }
-cmp_ok($ok,'==',1,'label on for(;;) last');
+print ($ok ? "ok 35\n" : "not ok 35\n");
 
-TEST36: {
+## bare block with a label
+
+TEST36: { # redo
 
   $ok = 0;
   my $first_time = 1;
@@ -848,9 +866,9 @@ TEST36: {
   }
   $ok = 0;
 }
-cmp_ok($ok,'==',1,'label on bare block');
+print ($ok ? "ok 36\n" : "not ok 36\n");
 
-TEST37: {
+TEST37: { # next
 
   $ok = 0;
   LABEL37: {
@@ -863,9 +881,9 @@ TEST37: {
   }
   $ok = 0;
 }
-cmp_ok($ok,'==',1,'label on bare block next');
+print ($ok ? "ok 37\n" : "not ok 37\n");
 
-TEST38: {
+TEST38: { # last
 
   $ok = 0;
   LABEL38: {
@@ -878,7 +896,9 @@ TEST38: {
   }
   $ok = 1;
 }
-cmp_ok($ok,'==',1,'label on bare block last');
+print ($ok ? "ok 38\n" : "not ok 38\n");
+
+### Now test nested constructs
 
 TEST39: {
     $ok = 0;
@@ -902,7 +922,10 @@ TEST39: {
       $ok = 0;
     }
 }
-cmp_ok($ok,'==',1,'nested constructs');
+print ($ok ? "ok 39\n" : "not ok 39\n");
+
+
+### Test that loop control is dynamicly scoped.
 
 sub test_last_label { last TEST40 }
 
@@ -911,7 +934,7 @@ TEST40: {
     test_last_label();
     $ok = 0;
 }
-cmp_ok($ok,'==',1,'dynamically scoped label');
+print ($ok ? "ok 40\n" : "not ok 40\n");
 
 sub test_last { last }
 
@@ -920,7 +943,7 @@ TEST41: {
     test_last();
     $ok = 0;
 }
-cmp_ok($ok,'==',1,'dynamically scoped');
+print ($ok ? "ok 41\n" : "not ok 41\n");
 
 
 # [perl #27206] Memory leak in continue loop
@@ -933,48 +956,27 @@ cmp_ok($ok,'==',1,'dynamically scoped');
     {
 	($n-- && bless {}, 'X') && redo;
     }
-    cmp_ok($late_free,'==',0,"bug 27206: redo memory leak");
+    print $late_free ? "not " : "", "ok 42 - redo memory leak\n";
 
     $n = 10; $late_free = 0;
     {
 	($n-- && bless {}, 'X') && redo;
     }
     continue { }
-    cmp_ok($late_free,'==',0,"bug 27206: redo with continue memory leak");
+    print $late_free ? "not " : "", "ok 43 - redo with continue memory leak\n";
 }
 
-# ensure that redo doesn't clear a lexical declared in the condition
+
 
 {
-    my $i = 1;
-    while (my $x = $i) {
-	$i++;
-	redo if $i == 2;
-	cmp_ok($x,'==',1,"while/redo lexical life");
-	last;
-    }
-    $i = 1;
-    until (! (my $x = $i)) {
-	$i++;
-	redo if $i == 2;
-	cmp_ok($x,'==',1,"until/redo lexical life");
-	last;
-    }
-    for ($i = 1; my $x = $i; ) {
-	$i++;
-	redo if $i == 2;
-	cmp_ok($x,'==',1,"for/redo lexical life");
-	last;
-    }
+    # [perl #37725]
 
-}
-
-{
     $a37725[3] = 1; # use package var
     $i = 2;
     for my $x (reverse @a37725) {
 	$x = $i++;
     }
-    cmp_ok("@a37725",'eq',"5 4 3 2",'bug 27725: reverse with empty slots bug');
+    print "@a37725" == "5 4 3 2" ? "" : "not ",
+	"ok 44 - reverse with empty slots (@a37725)\n";
 }
 

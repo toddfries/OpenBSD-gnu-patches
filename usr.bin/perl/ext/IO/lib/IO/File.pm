@@ -137,7 +137,7 @@ require Exporter;
 
 @ISA = qw(IO::Handle IO::Seekable Exporter);
 
-$VERSION = "1.14";
+$VERSION = "1.13";
 
 @EXPORT = @IO::Seekable::EXPORT;
 
@@ -181,9 +181,13 @@ sub open {
 	} elsif ($mode =~ /:/) {
 	    return open($fh, $mode, $file) if @_ == 3;
 	    croak 'usage: $fh->open(FILENAME, IOLAYERS)';
-	} else {
-            return open($fh, IO::Handle::_open_mode_string($mode), $file);
-        }
+	}
+	if (defined($file) && length($file)
+	    && ! File::Spec->file_name_is_absolute($file))
+	{
+	    $file = File::Spec->rel2abs($file);
+	}
+	$file = IO::Handle::_open_mode_string($mode) . " $file\0";
     }
     open($fh, $file);
 }

@@ -34,7 +34,7 @@ for (@prgs){
     print TEST "$prog\n";
     close TEST or die "Could not close: $!";
     my $results = $Is_VMS ?
-                      `$^X "-I[-.lib]" $switch $tmpfile 2>&1` :
+                      `MCR $^X "-I[-.lib]" $switch $tmpfile 2>&1` :
 		  $Is_MSWin32 ?  
 		      `.\\perl -I../lib $switch $tmpfile 2>&1` :
 		  $Is_NetWare ?  

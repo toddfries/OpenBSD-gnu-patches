@@ -52,12 +52,10 @@ my $SAMPLE_TESTS = $ENV{PERL_CORE}
 
 my $strap = Test::Harness::Straps->new;
 isa_ok( $strap, 'Test::Harness::Straps' );
-$strap->set_callback(
-    sub {
-        my($self, $line, $type, $totals) = @_;
-        push @out, $type;
-    }
-);
+$strap->{callback} = sub {
+    my($self, $line, $type, $totals) = @_;
+    push @out, $type;
+};
 
 for my $test ( sort keys %samples ) {
     my $expect = $samples{$test};

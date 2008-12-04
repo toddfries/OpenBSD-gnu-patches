@@ -209,15 +209,13 @@ sub addhistory {}
 
 sub findConsole {
     my $console;
-    my $consoleOUT;
 
     if ($^O eq 'MacOS') {
         $console = "Dev:Console";
     } elsif (-e "/dev/tty") {
 	$console = "/dev/tty";
     } elsif (-e "con" or $^O eq 'MSWin32') {
-       $console = 'CONIN$';
-       $consoleOUT = 'CONOUT$';
+	$console = "con";
     } else {
 	$console = "sys\$command";
     }
@@ -233,10 +231,10 @@ sub findConsole {
       }
     }
 
-    $consoleOUT = $console unless defined $consoleOUT;
+    my $consoleOUT = $console;
     $console = "&STDIN" unless defined $console;
     if (!defined $consoleOUT) {
-      $consoleOUT = defined fileno(STDERR) && $^O ne 'MSWin32' ? "&STDERR" : "&STDOUT";
+      $consoleOUT = defined fileno(STDERR) ? "&STDERR" : "&STDOUT";
     }
     ($console,$consoleOUT);
 }
@@ -249,13 +247,8 @@ sub new {
   if (@_==2) {
     my($console, $consoleOUT) = $_[0]->findConsole;
 
-
-    # the Windows CONIN$ needs GENERIC_WRITE mode to allow
-    # a SetConsoleMode() if we end up using Term::ReadKey
-    open FIN, (  $^O eq 'MSWin32' && $console eq 'CONIN$' ) ? "+<$console" :
-                                                              "<$console";
-    open FOUT,">$consoleOUT";
-
+    open(FIN, "<$console"); 
+    open(FOUT,">$consoleOUT");
     #OUT->autoflush(1);		# Conflicts with debugger?
     my $sel = select(FOUT);
     $| = 1;				# for DB::OUT
@@ -294,16 +287,9 @@ sub Attribs { {} }
 my %features = (tkRunning => 1, ornaments => 1, 'newTTY' => 1);
 sub Features { \%features }
 
-sub get_line {
-  my $self = shift;
-  my $in = $self->IN;
-  local ($/) = "\n";
-  return scalar <$in>;
-}
-
 package Term::ReadLine;		# So late to allow the above code be defined?
 
-our $VERSION = '1.03';
+our $VERSION = '1.02';
 
 my ($which) = exists $ENV{PERL_RL} ? split /\s+/, $ENV{PERL_RL} : undef;
 if ($which) {

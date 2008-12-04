@@ -93,7 +93,7 @@ Boston, MA 02111-1307, USA.  */
 
 #undef SUBTARGET_EXTRA_ASM_SPEC
 #define SUBTARGET_EXTRA_ASM_SPEC	\
-  "-matpcs %{fpic|fPIC|fpie|fPIE:-k}"
+  "-matpcs %{fpic:-k} %{fPIC:-k}"
 
 /* Default floating point model is soft-VFP.
    FIXME: -mhard-float currently implies FPA.  */

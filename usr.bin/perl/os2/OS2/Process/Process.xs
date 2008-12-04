@@ -315,12 +315,18 @@ DeclWinFunc_CACHE(BOOL, CreateFrameControls,
 DeclWinFunc_CACHE(BOOL, OpenClipbrd, (HAB hab), (hab));
 DeclWinFunc_CACHE(BOOL, EmptyClipbrd, (HAB hab), (hab));
 DeclWinFunc_CACHE(BOOL, CloseClipbrd, (HAB hab), (hab));
+DeclWinFunc_CACHE(HWND, QueryClipbrdViewer, (HAB hab), (hab));
+DeclWinFunc_CACHE(HWND, QueryClipbrdOwner, (HAB hab), (hab));
 DeclWinFunc_CACHE(BOOL, QueryClipbrdFmtInfo, (HAB hab, ULONG fmt, PULONG prgfFmtInfo), (hab, fmt, prgfFmtInfo));
 DeclWinFunc_CACHE(ULONG, QueryClipbrdData, (HAB hab, ULONG fmt), (hab, fmt));
 DeclWinFunc_CACHE(HWND, SetClipbrdViewer, (HAB hab, HWND hwnd), (hab, hwnd));
 DeclWinFunc_CACHE(HWND, SetClipbrdOwner, (HAB hab, HWND hwnd), (hab, hwnd));
 DeclWinFunc_CACHE(ULONG, EnumClipbrdFmts, (HAB hab, ULONG fmt), (hab, fmt));
 DeclWinFunc_CACHE(ATOM, AddAtom, (HATOMTBL hAtomTbl, PCSZ pszAtomName),
+		  (hAtomTbl, pszAtomName));
+DeclWinFunc_CACHE(ATOM, FindAtom, (HATOMTBL hAtomTbl, PCSZ pszAtomName),
+		  (hAtomTbl, pszAtomName));
+DeclWinFunc_CACHE(ATOM, DeleteAtom, (HATOMTBL hAtomTbl, PCSZ pszAtomName),
 		  (hAtomTbl, pszAtomName));
 DeclWinFunc_CACHE(ULONG, QueryAtomUsage, (HATOMTBL hAtomTbl, ATOM atom),
 		  (hAtomTbl, atom));
@@ -332,6 +338,7 @@ DeclWinFunc_CACHE(ULONG, QueryAtomName,
 DeclWinFunc_CACHE(HATOMTBL, QuerySystemAtomTable, (VOID), ());
 DeclWinFunc_CACHE(HATOMTBL, CreateAtomTable, (ULONG initial, ULONG buckets),
 		  (initial, buckets));
+DeclWinFunc_CACHE(HATOMTBL, DestroyAtomTable, (HATOMTBL hAtomTbl), (hAtomTbl));
 DeclWinFunc_CACHE(ULONG, MessageBox, (HWND hwndParent, HWND hwndOwner, PCSZ pszText, PCSZ pszCaption, ULONG idWindow, ULONG flStyle), (hwndParent, hwndOwner, pszText, pszCaption, idWindow, flStyle));
 DeclWinFunc_CACHE(ULONG, MessageBox2,
 		  (HWND hwndParent, HWND hwndOwner, PCSZ pszText,
@@ -346,13 +353,6 @@ DeclWinFunc_CACHE(HPOINTER, QuerySysPointer,
 DeclWinFunc_CACHE(BOOL, Alarm, (HWND hwndDesktop, ULONG rgfType), (hwndDesktop, rgfType));
 DeclWinFunc_CACHE(BOOL, FlashWindow, (HWND hwndFrame, BOOL fFlash), (hwndFrame, fFlash));
 
-#if 0		/* Need to have the entry points described in the parent */
-DeclWinFunc_CACHE(BOOL, QueryClassInfo, (HAB hab, char* pszClassName, PCLASSINFO pClassInfo), (hab, pszClassName, pClassInfo));
-
-#define _QueryClassInfo(hab, pszClassName, pClassInfo)	\
-	QueryClassInfo(hab, pszClassName, (PCLASSINFO)pClassInfo)
-
-#endif
 
 /* These functions do not croak on error */
 DeclWinFunc_CACHE_survive(BOOL, SetClipbrdData,
@@ -378,16 +378,6 @@ DeclWinFunc_CACHE_resetError(HWND, GetNextWindow, (HENUM henum), (henum))
 DeclWinFunc_CACHE_resetError(BOOL, IsWindowEnabled, (HWND hwnd), (hwnd))
 DeclWinFunc_CACHE_resetError(BOOL, IsWindowVisible, (HWND hwnd), (hwnd))
 DeclWinFunc_CACHE_resetError(BOOL, IsWindowShowing, (HWND hwnd), (hwnd))
-DeclWinFunc_CACHE_resetError(ATOM, FindAtom, (HATOMTBL hAtomTbl, PCSZ pszAtomName),
-			     (hAtomTbl, pszAtomName));
-DeclWinFunc_CACHE_resetError(ATOM, DeleteAtom, (HATOMTBL hAtomTbl, ATOM atom),
-			     (hAtomTbl, atom));
-DeclWinFunc_CACHE_resetError(HATOMTBL, DestroyAtomTable, (HATOMTBL hAtomTbl), (hAtomTbl));
-DeclWinFunc_CACHE_resetError(HWND, QueryClipbrdViewer, (HAB hab), (hab));
-DeclWinFunc_CACHE_resetError(HWND, QueryClipbrdOwner, (HAB hab), (hab));
-
-#define _DeleteAtom		DeleteAtom
-#define _DestroyAtomTable	DestroyAtomTable
 
 /* No die()ing on error */
 DeclWinFunc_CACHE_survive(BOOL, IsWindow, (HAB hab, HWND hwnd), (hab, hwnd))
@@ -531,22 +521,15 @@ myWinQueryActiveDesktopPathname()
 SV *
 myWinQueryAtomName(ATOM atom, HATOMTBL hAtomTbl)
 {
-  ULONG len = QueryAtomLength(hAtomTbl, atom);
-
-  if (len) {			/* Probably always so... */
+    ULONG len = QueryAtomLength(hAtomTbl, atom);
     SV *sv = newSVpvn("",0);
     STRLEN n_a;
 
     SvGROW(sv, len + 1);
-    len = QueryAtomName(hAtomTbl, atom, SvPV(sv, n_a), len + 1);
-    if (len) {			/* Probably always so... */
-      SvCUR_set(sv, len);
-      *SvEND(sv) = 0;
-      return sv;
-    }
-    SvREFCNT_dec(sv);
-  }
-  return &PL_sv_undef;
+    QueryAtomName(hAtomTbl, atom, SvPV(sv, n_a), len);
+    SvCUR_set(sv, len);
+    *SvEND(sv) = 0;
+    return sv;
 }
 
 #define myWinQueryClipbrdFmtInfo	QueryClipbrdFmtInfo
@@ -556,28 +539,26 @@ void
 ClipbrdData_set(SV *sv, int convert_nl, unsigned long fmt, unsigned long rgfFmtInfo, HAB hab)
 {
     STRLEN len;
-    char *buf;
-    char *pByte = 0, *s, c;
-    ULONG nls = 0, rc, handle;
+    char *buf = SvPV_force(sv, len);
+    char *pByte = 0, *s = buf, c;
+    ULONG nls = 0, rc;
 
-    if (rgfFmtInfo & CFI_POINTER) {
-      s = buf = SvPV_force(sv, len);
-      if (convert_nl) {
+    if (convert_nl) {
 	while ((c = *s++)) {
 	    if (c == '\r' && *s == '\n')
 		s++;
 	    else if (c == '\n')
 		nls++;
 	}
-      }
+    }
 
-      if (CheckOSError(DosAllocSharedMem((PPVOID)&pByte, 0, len + nls + 1,
+    if (CheckOSError(DosAllocSharedMem((PPVOID)&pByte, 0, len + nls + 1,
 				       PAG_WRITE | PAG_COMMIT | OBJ_GIVEABLE | OBJ_GETTABLE)))
 	croak_with_os2error("ClipbrdData_set: DosAllocSharedMem error");
 
-      if (!nls)
+    if (!nls)
 	memcpy(pByte, buf, len + 1);
-      else {
+    else {
 	char *t = pByte, *e = buf + len;
 
 	while (buf < e) {
@@ -585,54 +566,12 @@ ClipbrdData_set(SV *sv, int convert_nl, unsigned long fmt, unsigned long rgfFmtI
 	    if (c == '\n' && (t == pByte + 1 || t[-2] != '\r'))
 		t[-1] = '\r', *t++ = '\n';
 	}
-      }
-      handle = (ULONG)pByte;
-    } else {
-      handle = (ULONG)SvUV(sv);
     }
 
-    if (!SetClipbrdData(hab, handle, fmt, rgfFmtInfo)) {
-	if (fmt & CFI_POINTER)
-	    DosFreeMem((PPVOID)&pByte);
+    if (!SetClipbrdData(hab, (ULONG)pByte, fmt, rgfFmtInfo)) {
+	DosFreeMem((PPVOID)&pByte);
 	croak_with_os2error("ClipbrdData_set: WinSetClipbrdData error");
     }
-}
-
-ULONG
-QueryMemoryRegionSize(ULONG addr, ULONG *flagp, ULONG len, I32 interrupt)
-{
-    ULONG l, f;				/* Modifiable copy */
-    ULONG rc;
-
-    do {
-	l = len;
-	rc = DosQueryMem((void *)addr, &l, &f);
-    } while ( interrupt ? 0 : rc == ERROR_INTERRUPT );
-
-    /* We assume this is not about addr */
-/*
-    if (rc == ERROR_INVALID_ADDRESS)
-	return 0xFFFFFFFF;
-*/
-    os2cp_croak(rc,"QueryMemoryRegionSize");
-    if (flagp)
-	*flagp = f;
-    return l;
-}
-
-static ULONG
-default_fmtInfo(ULONG fmt)
-{
-   switch (fmt) {
-     case CF_PALETTE:	/* Actually, fmtInfo not documented for palette... */
-     case CF_BITMAP:
-     case CF_METAFILE:
-     case CF_DSPBITMAP:
-     case CF_DSPMETAFILE:
-	return CFI_HANDLE;
-     default:
-	return CFI_POINTER;
-   }
 }
 
 #if 0
@@ -1356,55 +1295,6 @@ sidOf(int pid)
   return sid;
 }
 
-STRLEN
-StrLen(ULONG addr, ULONG lim, I32 unitsize)
-{
-    switch (unitsize) {
-      case 1:
-	{
-	    char *s = (char *)addr;
-	    char *s1 = s, *e = (char *)(addr + lim);
-
-	    while (s < e && *s)
-		s++;
-	    return s - s1;
-	}
-	break;
-      case 2:
-	{
-	    short *s = (short *)addr;
-	    short *s1 = s, *e = (short *)(addr + lim);
-
-	    while (s < e && *s)
-		s++;
-	    return (char*)s - (char*)s1;
-	}
-	break;
-      case 4:
-	{
-	    int *s = (int *)addr;
-	    int *s1 = s, *e = (int *)(addr + lim);
-
-	    while (s < e && *s)
-		s++;
-	    return (char*)s - (char*)s1;
-	}
-	break;
-      case 8:
-	{
-	    long long *s = (long long *)addr;
-	    long long *s1 = s, *e = (long long *)(addr + lim);
-
-	    while (s < e && *s)
-		s++;
-	    return (char*)s - (char*)s1;
-	}
-	break;
-      default:
-	croak("StrLen: unknown unitsize %d", (int)unitsize);
-    }
-}
-
 #define ulMPFROMSHORT(i)		((unsigned long)MPFROMSHORT(i))
 #define ulMPVOID()			((unsigned long)MPVOID)
 #define ulMPFROMCHAR(i)			((unsigned long)MPFROMCHAR(i))
@@ -1477,8 +1367,6 @@ swentries_list()
 
 void
 ResetWinError()
-   POSTCALL:
-	XSRETURN_YES;
 
 int
 WindowText_set(HWND hwndFrame, char *title)
@@ -1615,8 +1503,6 @@ _kbdStatus(int handle = 0)
 
 void
 _kbdStatus_set(SV *sv, int handle = 0)
-   POSTCALL:
-	XSRETURN_YES;
 
 SV*
 _vioConfig(int which = 0, int handle = 0)
@@ -1626,51 +1512,38 @@ _vioMode()
 
 void
 _vioMode_set(SV *buffer)
-   POSTCALL:
-	XSRETURN_YES;
 
 SV*
 _vioState(int what, int first = -1, int count = -1)
 
 void
 _vioState_set(SV *buffer)
-   POSTCALL:
-	XSRETURN_YES;
 
 SV*
 vioFont( int type = 0, OUTLIST int w, OUTLIST int h)
 
 void
 vioFont_set(SV *buffer, int cellwidth, int cellheight, int type = 0)
-   POSTCALL:
-	XSRETURN_YES;
 
 NO_OUTPUT bool
-_ClipbrdData_set(unsigned long ulData, unsigned long fmt = CF_TEXT, unsigned long rgfFmtInfo = default_fmtInfo(fmt), HAB hab = perl_hab_GET())
+_ClipbrdData_set(unsigned long ulData, unsigned long fmt = CF_TEXT, unsigned long rgfFmtInfo = ((fmt == CF_TEXT || fmt == CF_DSPTEXT) ? CFI_POINTER : CFI_HANDLE), HAB hab = perl_hab_GET())
     PROTOTYPE: DISABLE
     C_ARGS: hab, ulData, fmt, rgfFmtInfo
     POSTCALL:
 	if (CheckWinError(RETVAL))
 	    croak_with_os2error("_ClipbrdData_set() error");
-	XSRETURN_YES;
 
 void
-ClipbrdData_set(SV *text, int convert_nl = 1, unsigned long fmt = CF_TEXT, unsigned long rgfFmtInfo = default_fmtInfo(fmt), HAB hab = perl_hab_GET())
+ClipbrdData_set(SV *text, int convert_nl = 1, unsigned long fmt = CF_TEXT, unsigned long rgfFmtInfo = ((fmt == CF_TEXT || fmt == CF_DSPTEXT) ? CFI_POINTER : CFI_HANDLE), HAB hab = perl_hab_GET())
     PROTOTYPE: DISABLE
-    POSTCALL:
-	XSRETURN_YES;
 
 void
 ClipbrdOwner_set(HWND hwnd, HAB hab = perl_hab_GET())
     C_ARGS: hab, hwnd
-    POSTCALL:
-	XSRETURN_YES;
 
 void
 ClipbrdViewer_set(HWND hwnd, HAB hab = perl_hab_GET())
     C_ARGS: hab, hwnd
-    POSTCALL:
-	XSRETURN_YES;
 
 unsigned long
 EnumClipbrdFmts(unsigned long fmt = 0, HAB hab = perl_hab_GET())
@@ -1685,31 +1558,15 @@ FindAtom(char *pszAtomName, HATOMTBL hAtomTbl = QuerySystemAtomTable())
     C_ARGS: hAtomTbl, pszAtomName
 
 unsigned long
-_DeleteAtom(ATOM atom, HATOMTBL hAtomTbl = QuerySystemAtomTable())
-    PROTOTYPE: DISABLE
-    C_ARGS: hAtomTbl, atom
-
-#if 0
-
-unsigned long
-WinDeleteAtom(ATOM atom, HATOMTBL hAtomTbl = QuerySystemAtomTable())
-    C_ARGS: hAtomTbl, atom
-
-#endif
+DeleteAtom(char *pszAtomName, HATOMTBL hAtomTbl = QuerySystemAtomTable())
+    C_ARGS: hAtomTbl, pszAtomName
 
 void
 Alarm(unsigned long rgfType = WA_ERROR, HWND hwndDesktop = HWND_DESKTOP)
     C_ARGS: hwndDesktop, rgfType
-    POSTCALL:
-	XSRETURN_YES;
 
 void
 FlashWindow(HWND hwndFrame, bool fFlash)
-    POSTCALL:
-	XSRETURN_YES;
-
-STRLEN
-StrLen(ULONG addr, ULONG lim, I32 unitsize = 1)
 
 MODULE = OS2::Process		PACKAGE = OS2::Process	PREFIX = myQuery
 
@@ -1747,9 +1604,6 @@ QueryClipbrdData(unsigned long fmt = CF_TEXT, HAB hab = perl_hab_GET())
     C_ARGS: hab, fmt
     PROTOTYPE: DISABLE
 
-ULONG
-QueryMemoryRegionSize(ULONG addr, OUTLIST ULONG flagp, ULONG len = 0xFFFFFFFF - addr, I32 interrupt = 1)
-
 unsigned long
 QueryClipbrdViewer(HAB hab = perl_hab_GET())
 
@@ -1758,13 +1612,9 @@ QueryClipbrdOwner(HAB hab = perl_hab_GET())
 
 void
 CloseClipbrd(HAB hab = perl_hab_GET())
-    POSTCALL:
-	XSRETURN_YES;
 
 void
 EmptyClipbrd(HAB hab = perl_hab_GET())
-   POSTCALL:
-	XSRETURN_YES;
 
 bool
 OpenClipbrd(HAB hab = perl_hab_GET())
@@ -1776,9 +1626,6 @@ QueryAtomUsage(ATOM atom, HATOMTBL hAtomTbl = QuerySystemAtomTable())
 unsigned long
 QueryAtomLength(ATOM atom, HATOMTBL hAtomTbl = QuerySystemAtomTable())
     C_ARGS: hAtomTbl, atom
-   POSTCALL:
-	if (!RETVAL)
-	    XSRETURN_EMPTY;
 
 unsigned long
 QuerySystemAtomTable()
@@ -1791,8 +1638,7 @@ unsigned long
 CreateAtomTable(unsigned long initial = 0, unsigned long buckets = 0)
 
 unsigned long
-_DestroyAtomTable(HATOMTBL hAtomTbl)
-    PROTOTYPE: DISABLE
+DestroyAtomTable(HATOMTBL hAtomTbl)
 
 
 MODULE = OS2::Process		PACKAGE = OS2::Process	PREFIX = myWinQuery
@@ -1827,20 +1673,20 @@ myWinSwitchToProgram(HSWITCH hsw = switch_of(NULLHANDLE, getpid()))
 #if 0
 
 unsigned long
-myWinMessageBox(unsigned long pszText, char* pszCaption = "Perl script message", unsigned long flStyle = MB_CANCEL | MB_ICONHAND, HWND hwndParent = HWND_DESKTOP, HWND hwndOwner = HWND_DESKTOP, unsigned long idWindow = 0)
+myWinMessageBox(unsigned long pszText, char* pszCaption = "Perl script error", unsigned long flStyle = MB_CANCEL | MB_ICONHAND, HWND hwndParent = HWND_DESKTOP, HWND hwndOwner = HWND_DESKTOP, unsigned long idWindow = 0)
     C_ARGS: hwndParent, hwndOwner, pszText, pszCaption, idWindow, flStyle
 
 #endif
 
 unsigned long
-_MessageBox(char* pszText, char* pszCaption = "Perl script message", unsigned long flStyle = MB_CANCEL | MB_INFORMATION | MB_MOVEABLE, HWND hwndParent = HWND_DESKTOP, HWND hwndOwner = NULLHANDLE, unsigned long idWindow = 0)
+_MessageBox(char* pszText, char* pszCaption = "Perl script error", unsigned long flStyle = MB_CANCEL | MB_INFORMATION | MB_MOVEABLE, HWND hwndParent = HWND_DESKTOP, HWND hwndOwner = NULLHANDLE, unsigned long idWindow = 0)
     C_ARGS: hwndParent, hwndOwner, pszText, pszCaption, idWindow, flStyle
     POSTCALL:
 	if (RETVAL == MBID_ERROR)
 	    RETVAL = 0;
 
 unsigned long
-_MessageBox2(char *pszText, char* pmb2info, char *pszCaption = "Perl script message", HWND hwndParent = HWND_DESKTOP, HWND hwndOwner = NULLHANDLE, unsigned long idWindow = 0)
+_MessageBox2(char *pszText, char* pmb2info, char *pszCaption, HWND hwndParent = HWND_DESKTOP, HWND hwndOwner = NULLHANDLE, unsigned long idWindow = 0)
     C_ARGS: hwndParent, hwndOwner, pszText, pszCaption, idWindow, (PMB2INFO)pmb2info
     POSTCALL:
 	if (RETVAL == MBID_ERROR)

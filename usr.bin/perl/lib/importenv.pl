@@ -1,3 +1,5 @@
+;# $RCSfile: importenv.pl,v $$Revision: 1.7 $$Date: 2003/12/03 03:02:36 $
+
 ;# This file, when interpreted, pulls the environment into normal variables.
 ;# Usage:
 ;#	require 'importenv.pl';

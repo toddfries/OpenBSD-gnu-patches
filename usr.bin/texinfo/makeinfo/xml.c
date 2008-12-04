@@ -1,5 +1,5 @@
 /* xml.c -- xml output.
-   $Id: xml.c,v 1.2 2008/10/08 07:09:37 otto Exp $
+   $Id: xml.c,v 1.1.1.2 2006/07/17 16:03:49 espie Exp $
 
    Copyright (C) 2001, 2002, 2003, 2004 Free Software Foundation, Inc.
 
@@ -698,8 +698,7 @@ xml_indent (void)
   if (xml_indentation_increment > 0)
     {
       int i;
-      if (output_paragraph_offset > 0
-	  && output_paragraph[output_paragraph_offset-1] != '\n')
+      if (output_paragraph[output_paragraph_offset-1] != '\n')
         insert ('\n');
       for (i = 0; i < element_stack_index * xml_indentation_increment; i++)
         insert (' ');
@@ -713,8 +712,7 @@ xml_start_para (void)
       || !xml_element_list[xml_current_element()].contains_para)
     return;
 
-  while (output_paragraph_offset > 0
-         && output_paragraph[output_paragraph_offset-1] == '\n')
+  while (output_paragraph[output_paragraph_offset-1] == '\n')
     output_paragraph_offset--;
   xml_indent ();
 
@@ -732,8 +730,7 @@ xml_end_para (void)
   if (!xml_in_para || xml_in_footnote)
     return;
 
-  while (output_paragraph_offset > 0
-	 && cr_or_whitespace(output_paragraph[output_paragraph_offset-1]))
+  while (cr_or_whitespace(output_paragraph[output_paragraph_offset-1]))
     output_paragraph_offset--;
 
   insert_string ("</para>");
@@ -908,14 +905,12 @@ xml_insert_element_with_attribute (elt, arg, format, va_alist)
   /* Eat one newline before </example> and the like.  */
   if (!docbook && arg == END
       && (xml_element_list[elt].keep_space || elt == GROUP)
-      && output_paragraph_offset > 0
       && output_paragraph[output_paragraph_offset-1] == '\n')
     output_paragraph_offset--;
 
   /* And eat whitespace before </entry> in @multitables.  */
   if (arg == END && elt == ENTRY)
-      while (output_paragraph_offset > 0
-	     && cr_or_whitespace(output_paragraph[output_paragraph_offset-1]))
+      while (cr_or_whitespace(output_paragraph[output_paragraph_offset-1]))
     output_paragraph_offset--;
 
   /* Indent elements that can contain <para>.  */

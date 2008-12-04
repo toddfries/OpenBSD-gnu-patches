@@ -1,18 +1,20 @@
+print "1..71\n";
+
 BEGIN {
     chdir 't' if -d 't';
     @INC = '../lib';
-    require './test.pl';
 }
-plan tests=>69;
 
 sub a : lvalue { my $a = 34; ${\(bless \$a)} }  # Return a temporary
 sub b : lvalue { ${\shift} }
 
 my $out = a(b());		# Check that temporaries are allowed.
-is(ref $out, 'main'); # Not reached if error.
+print "# `$out'\nnot " unless ref $out eq 'main'; # Not reached if error.
+print "ok 1\n";
 
 my @out = grep /main/, a(b()); # Check that temporaries are allowed.
-cmp_ok(scalar @out, '==', 1); # Not reached if error.
+print "# `@out'\nnot " unless @out==1; # Not reached if error.
+print "ok 2\n";
 
 my $in;
 
@@ -27,7 +29,8 @@ sub neg : lvalue {  #(num_str) return num_str
 in(neg("+2"));
 
 
-is($in, '-2');
+print "# `$in'\nnot " unless $in eq '-2';
+print "ok 3\n";
 
 sub get_lex : lvalue { $in }
 sub get_st : lvalue { $blah }
@@ -40,75 +43,93 @@ $blah = 3;
 
 get_st = 7;
 
-cmp_ok($blah, '==', 7);
+print "# `$blah' ne 7\nnot " unless $blah == 7;
+print "ok 4\n";
 
 get_lex = 7;
 
-cmp_ok($in, '==', 7);
+print "# `$in' ne 7\nnot " unless $in == 7;
+print "ok 5\n";
 
 ++get_st;
 
-cmp_ok($blah, '==', 8);
+print "# `$blah' ne 8\nnot " unless $blah == 8;
+print "ok 6\n";
 
 ++get_lex;
 
-cmp_ok($in, '==', 8);
+print "# `$in' ne 8\nnot " unless $in == 8;
+print "ok 7\n";
 
 id(get_st) = 10;
 
-cmp_ok($blah, '==', 10);
+print "# `$blah' ne 10\nnot " unless $blah == 10;
+print "ok 8\n";
 
 id(get_lex) = 10;
 
-cmp_ok($in, '==', 10);
+print "# `$in' ne 10\nnot " unless $in == 10;
+print "ok 9\n";
 
 ++id(get_st);
 
-cmp_ok($blah, '==', 11);
+print "# `$blah' ne 11\nnot " unless $blah == 11;
+print "ok 10\n";
 
 ++id(get_lex);
 
-cmp_ok($in, '==', 11);
+print "# `$in' ne 11\nnot " unless $in == 11;
+print "ok 11\n";
 
 id1(get_st) = 20;
 
-cmp_ok($blah, '==', 20);
+print "# `$blah' ne 20\nnot " unless $blah == 20;
+print "ok 12\n";
 
 id1(get_lex) = 20;
 
-cmp_ok($in, '==', 20);
+print "# `$in' ne 20\nnot " unless $in == 20;
+print "ok 13\n";
 
 ++id1(get_st);
 
-cmp_ok($blah, '==', 21);
+print "# `$blah' ne 21\nnot " unless $blah == 21;
+print "ok 14\n";
 
 ++id1(get_lex);
 
-cmp_ok($in, '==', 21);
+print "# `$in' ne 21\nnot " unless $in == 21;
+print "ok 15\n";
 
 inc(get_st);
 
-cmp_ok($blah, '==', 22);
+print "# `$blah' ne 22\nnot " unless $blah == 22;
+print "ok 16\n";
 
 inc(get_lex);
 
-cmp_ok($in, '==', 22);
+print "# `$in' ne 22\nnot " unless $in == 22;
+print "ok 17\n";
 
 inc(id(get_st));
 
-cmp_ok($blah, '==', 23);
+print "# `$blah' ne 23\nnot " unless $blah == 23;
+print "ok 18\n";
 
 inc(id(get_lex));
 
-cmp_ok($in, '==', 23);
+print "# `$in' ne 23\nnot " unless $in == 23;
+print "ok 19\n";
 
 ++inc(id1(id(get_st)));
 
-cmp_ok($blah, '==', 25);
+print "# `$blah' ne 25\nnot " unless $blah == 25;
+print "ok 20\n";
 
 ++inc(id1(id(get_lex)));
 
-cmp_ok($in, '==', 25);
+print "# `$in' ne 25\nnot " unless $in == 25;
+print "ok 21\n";
 
 @a = (1) x 3;
 @b = (undef) x 2;
@@ -133,11 +154,11 @@ EOE
 #@in = (34 .. 41, (undef) x 4, 46);
 #print "# `@out' ne `@in'\nnot " unless "@out" eq "@in";
 
-like($_, qr/Can\'t return an uninitialized value from lvalue subroutine/);
-print "ok 22\n";
-
+print "# '$_'.\nnot "
+  unless /Can\'t return an uninitialized value from lvalue subroutine/;
 =cut
 
+print "ok 22\n";
 
 my $var;
 
@@ -145,20 +166,23 @@ sub a::var : lvalue { $var }
 
 "a"->var = 45;
 
-cmp_ok($var, '==', 45);
+print "# `$var' ne 45\nnot " unless $var == 45;
+print "ok 23\n";
 
 my $oo;
 $o = bless \$oo, "a";
 
 $o->var = 47;
 
-cmp_ok($var, '==', 47);
+print "# `$var' ne 47\nnot " unless $var == 47;
+print "ok 24\n";
 
 sub o : lvalue { $o }
 
 o->var = 49;
 
-cmp_ok($var, '==', 49);
+print "# `$var' ne 49\nnot " unless $var == 49;
+print "ok 25\n";
 
 sub nolv () { $x0, $x1 } # Not lvalue
 
@@ -169,7 +193,9 @@ eval <<'EOE' or $_ = $@;
   1;
 EOE
 
-like($_, qr/Can\'t modify non-lvalue subroutine call in scalar assignment/);
+print "not "
+  unless /Can\'t modify non-lvalue subroutine call in scalar assignment/;
+print "ok 26\n";
 
 $_ = '';
 
@@ -178,7 +204,9 @@ eval <<'EOE' or $_ = $@;
   1;
 EOE
 
-like($_, qr/Can\'t modify non-lvalue subroutine call in scalar assignment/);
+print "not "
+  unless /Can\'t modify non-lvalue subroutine call in scalar assignment/;
+print "ok 27\n";
 
 $_ = '';
 
@@ -187,7 +215,9 @@ eval <<'EOE' or $_ = $@;
   1;
 EOE
 
-like($_, qr/Can\'t modify non-lvalue subroutine call in scalar assignment/);
+print "not "
+  unless /Can\'t modify non-lvalue subroutine call in scalar assignment/;
+print "ok 28\n";
 
 $x0 = $x1 = $_ = undef;
 $nolv = \&nolv;
@@ -197,7 +227,8 @@ eval <<'EOE' or $_ = $@;
   1;
 EOE
 
-ok(!defined $_) or diag "'$_', '$x0', '$x1'";
+print "# '$_', '$x0', '$x1'.\nnot " if defined $_;
+print "ok 29\n";
 
 $x0 = $x1 = $_ = undef;
 $nolv = \&nolv;
@@ -207,8 +238,9 @@ eval <<'EOE' or $_ = $@;
   1;
 EOE
 
-like($_, qr/Can\'t modify non-lvalue subroutine call/)
-  or diag "'$_', '$x0', '$x1'";
+print "# '$_', '$x0', '$x1'.\nnot "
+  unless /Can\'t modify non-lvalue subroutine call/;
+print "ok 30\n";
 
 sub lv0 : lvalue { }		# Converted to lv10 in scalar context
 
@@ -218,7 +250,9 @@ eval <<'EOE' or $_ = $@;
   1;
 EOE
 
-like($_, qr/Can't return undef from lvalue subroutine/);
+print "# '$_'.\nnot "
+  unless /Can't return undef from lvalue subroutine/;
+print "ok 31\n";
 
 sub lv10 : lvalue {}
 
@@ -228,7 +262,8 @@ eval <<'EOE' or $_ = $@;
   1;
 EOE
 
-ok(!defined $_) or diag $_;
+print "# '$_'.\nnot " if defined $_;
+print "ok 32\n";
 
 sub lv1u :lvalue { undef }
 
@@ -238,7 +273,9 @@ eval <<'EOE' or $_ = $@;
   1;
 EOE
 
-like($_, qr/Can't return undef from lvalue subroutine/);
+print "# '$_'.\nnot "
+  unless /Can't return undef from lvalue subroutine/;
+print "ok 33\n";
 
 $_ = undef;
 eval <<'EOE' or $_ = $@;
@@ -249,7 +286,7 @@ EOE
 # Fixed by change @10777
 #print "# '$_'.\nnot "
 #  unless /Can\'t return an uninitialized value from lvalue subroutine/;
-# print "ok 34 # Skip: removed test\n";
+print "ok 34 # Skip: removed test\n";
 
 $x = '1234567';
 
@@ -260,7 +297,9 @@ eval <<'EOE' or $_ = $@;
   1;
 EOE
 
-like($_, qr/Can\'t modify index in lvalue subroutine return/);
+print "# '$_'.\nnot "
+  unless /Can\'t modify index in lvalue subroutine return/;
+print "ok 35\n";
 
 $_ = undef;
 eval <<'EOE' or $_ = $@;
@@ -269,7 +308,9 @@ eval <<'EOE' or $_ = $@;
   1;
 EOE
 
-like($_, qr/Can\'t modify shift in lvalue subroutine return/);
+print "# '$_'.\nnot "
+  unless /Can\'t modify shift in lvalue subroutine return/;
+print "ok 36\n";
 
 $xxx = 'xxx';
 sub xxx () { $xxx }  # Not lvalue
@@ -281,7 +322,9 @@ eval <<'EOE' or $_ = $@;
   1;
 EOE
 
-like($_, qr/Can\'t modify non-lvalue subroutine call in lvalue subroutine return/);
+print "# '$_'.\nnot "
+  unless /Can\'t modify non-lvalue subroutine call in lvalue subroutine return/;
+print "ok 37\n";
 
 $_ = undef;
 eval <<'EOE' or $_ = $@;
@@ -289,7 +332,9 @@ eval <<'EOE' or $_ = $@;
   1;
 EOE
 
-like($_, qr/Can\'t return a temporary from lvalue subroutine/);
+print "# '$_'.\nnot "
+  unless /Can\'t return a temporary from lvalue subroutine/;
+print "ok 38\n";
 
 sub yyy () { 'yyy' } # Const, not lvalue
 
@@ -300,7 +345,9 @@ eval <<'EOE' or $_ = $@;
   1;
 EOE
 
-like($_, qr/Can\'t modify constant item in lvalue subroutine return/);
+print "# '$_'.\nnot "
+  unless /Can\'t modify constant item in lvalue subroutine return/;
+print "ok 39\n";
 
 $_ = undef;
 eval <<'EOE' or $_ = $@;
@@ -308,7 +355,9 @@ eval <<'EOE' or $_ = $@;
   1;
 EOE
 
-like($_, qr/Can\'t return a readonly value from lvalue subroutine/);
+print "# '$_'.\nnot "
+  unless /Can\'t return a readonly value from lvalue subroutine/;
+print "ok 40\n";
 
 sub lva : lvalue {@a}
 
@@ -320,7 +369,8 @@ eval <<'EOE' or $_ = $@;
   1;
 EOE
 
-is("'@a' $_", "'2 3' ");
+print "# '$_'.\nnot " unless "'@a' $_" eq "'2 3' ";
+print "ok 41\n";
 
 $_ = undef;
 @a = ();
@@ -331,7 +381,8 @@ eval <<'EOE' or $_ = $@;
   1;
 EOE
 
-is("'@a' $_", "'2 3' ");
+print "# '$_'.\nnot " unless "'@a' $_" eq "'2 3' ";
+print "ok 42\n";
 
 $_ = undef;
 @a = ();
@@ -342,7 +393,8 @@ eval <<'EOE' or $_ = $@;
   1;
 EOE
 
-is("'@a' $_", "'2 3' ");
+print "# '$_'.\nnot " unless "'@a' $_" eq "'2 3' ";
+print "ok 43\n";
 
 sub lv1n : lvalue { $newvar }
 
@@ -352,7 +404,8 @@ eval <<'EOE' or $_ = $@;
   1;
 EOE
 
-is("'$newvar' $_", "'4' ");
+print "# '$_', '$newvar'.\nnot " unless "'$newvar' $_" eq "'4' ";
+print "ok 44\n";
 
 sub lv1nn : lvalue { $nnewvar }
 
@@ -362,15 +415,22 @@ eval <<'EOE' or $_ = $@;
   1;
 EOE
 
-is("'$nnewvar' $_", "'3' ");
+print "# '$_'.\nnot " unless "'$nnewvar' $_" eq "'3' ";
+print "ok 45\n";
 
 $a = \&lv1nn;
 $a->() = 8;
-is($nnewvar, '8');
+print "# '$nnewvar'.\nnot " unless $nnewvar eq '8';
+print "ok 46\n";
 
 eval 'sub AUTOLOAD : lvalue { $newvar }';
 foobar() = 12;
-is($newvar, "12");
+print "# '$newvar'.\nnot " unless $newvar eq "12";
+print "ok 47\n";
+
+print "ok 48 # Skip: removed test\n";
+
+print "ok 49 # Skip: removed test\n";
 
 {
 my %hash; my @array;
@@ -380,18 +440,18 @@ sub hlv : lvalue { $hash{"foo"} }
 sub hlv2 : lvalue { $hash{$_[0]} }
 $array[1] = "not ok 51\n";
 alv() = "ok 50\n";
-is(alv(), "ok 50\n");
+print alv();
 
 alv2(20) = "ok 51\n";
-is($array[20], "ok 51\n");
+print $array[20];
 
 $hash{"foo"} = "not ok 52\n";
 hlv() = "ok 52\n";
-is($hash{foo}, "ok 52\n");
+print $hash{foo};
 
 $hash{bar} = "not ok 53\n";
 hlv("bar") = "ok 53\n";
-is(hlv("bar"), "ok 53\n");
+print hlv("bar");
 
 sub array : lvalue  { @array  }
 sub array2 : lvalue { @array2 } # This is a global.
@@ -401,37 +461,45 @@ sub hash2 : lvalue  { %hash2  } # So's this.
 %hash2 = qw(foo bar);
 
 (array()) = qw(ok 54);
-is("@array", "ok 54");
+print "not " unless "@array" eq "ok 54";
+print "ok 54\n";
 
 (array2()) = qw(ok 55);
-is("@array2", "ok 55");
+print "not " unless "@array2" eq "ok 55";
+print "ok 55\n";
 
 (hash()) = qw(ok 56);
-cmp_ok($hash{ok}, '==', 56);
+print "not " unless $hash{ok} == 56;
+print "ok 56\n";
 
 (hash2()) = qw(ok 57);
-cmp_ok($hash2{ok}, '==', 57);
+print "not " unless $hash2{ok} == 57;
+print "ok 57\n";
 
 @array = qw(a b c d);
 sub aslice1 : lvalue { @array[0,2] };
 (aslice1()) = ("ok", "already");
-is("@array", "ok b already d");
+print "# @array\nnot " unless "@array" eq "ok b already d";
+print "ok 58\n";
 
 @array2 = qw(a B c d);
 sub aslice2 : lvalue { @array2[0,2] };
 (aslice2()) = ("ok", "already");
-is("@array2", "ok B already d");
+print "not " unless "@array2" eq "ok B already d";
+print "ok 59\n";
 
 %hash = qw(a Alpha b Beta c Gamma);
 sub hslice : lvalue { @hash{"c", "b"} }
 (hslice()) = ("CISC", "BogoMIPS");
-is(join("/",@hash{"c","a","b"}), "CISC/Alpha/BogoMIPS");
+print "not " unless join("/",@hash{"c","a","b"}) eq "CISC/Alpha/BogoMIPS";
+print "ok 60\n";
 }
 
 $str = "Hello, world!";
 sub sstr : lvalue { substr($str, 1, 4) }
 sstr() = "i";
-is($str, "Hi, world!");
+print "not " unless $str eq "Hi, world!";
+print "ok 61\n";
 
 $str = "Made w/ JavaScript";
 sub veclv : lvalue { vec($str, 2, 32) }
@@ -441,7 +509,8 @@ if (ord('A') != 193) {
 else { # EBCDIC?
     veclv() = 0xD7859993;
 }
-is($str, "Made w/ PerlScript");
+print "# $str\nnot " unless $str eq "Made w/ PerlScript";
+print "ok 62\n";
 
 sub position : lvalue { pos }
 @p = ();
@@ -450,15 +519,16 @@ while (/f/g) {
     push @p, position;
     position() += 6;
 }
-is("@p", "1 8");
+print "# @p\nnot " unless "@p" eq "1 8";
+print "ok 63\n";
 
 # Bug 20001223.002: split thought that the list had only one element
 @ary = qw(4 5 6);
 sub lval1 : lvalue { $ary[0]; }
 sub lval2 : lvalue { $ary[1]; }
 (lval1(), lval2()) = split ' ', "1 2 3 4";
-
-is(join(':', @ary), "1:2:6");
+print "not " unless join(':', @ary) eq "1:2:6";
+print "ok 64\n";
 
 # check that an element of a tied hash/array can be assigned to via lvalueness
 
@@ -476,9 +546,11 @@ sub lval_tie_hash : lvalue {
 
 eval { lval_tie_hash() = "value"; };
 
-is($@, "", "element of tied hash");
+print "# element of tied hash: $@\nnot " if $@;
+print "ok 65\n";
 
-is("$Tie_Hash::key-$Tie_Hash::val", "key-value");
+print "not " if "$Tie_Hash::key-$Tie_Hash::val" ne "key-value";
+print "ok 66\n";
 
 
 package Tie_Array;
@@ -495,10 +567,14 @@ sub lval_tie_array : lvalue {
 
 eval { lval_tie_array() = "value"; };
 
+print "# element of tied array: $@\nnot " if $@;
+print "ok 67\n";
 
-is($@, "", "element of tied array");
+print "not " if $Tie_Array::val[0] ne "value";
+print "ok 68\n";
 
-is ($Tie_Array::val[0], "value");
+require './test.pl';
+curr_test(69);
 
 TODO: {
     local $TODO = 'test explicit return of lval expr';
@@ -527,26 +603,3 @@ TODO: {
     is($blah, 8, "yada");
 }
 
-TODO: {
-    local $TODO = "bug #23790";
-    my @arr  = qw /one two three/;
-    my $line = "zero";
-    sub lval_array () : lvalue {@arr}
-
-    for (lval_array) {
-        $line .= $_;
-    }
-
-    is($line, "zeroonetwothree");
-}
-
-{
-    package Foo;
-    sub AUTOLOAD :lvalue { *{$AUTOLOAD} };
-    package main;
-    my $foo = bless {},"Foo";
-    my $result;
-    $foo->bar = sub { $result = "bar" };
-    $foo->bar;
-    is ($result, 'bar', "RT #41550");
-}

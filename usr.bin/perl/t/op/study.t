@@ -55,8 +55,9 @@ study($x);
 ok($x =~ /^abc/);
 ok($x !~ /^def/);
 
-# used to be a test for $*
-ok($x =~ /^def/m);
+$* = 1;
+ok($x =~ /^def/);
+$* = 0;
 
 $_ = '123';
 study;
@@ -101,8 +102,8 @@ ok(m|bc/*d|);
 
 ok(/^$_$/);
 
-# used to be a test for $*
-ok("ab\ncd\n" =~ /^cd/m);
+$* = 1;	    # test 3 only tested the optimized version--this one is for real
+ok("ab\ncd\n" =~ /^cd/);
 
 if ($^O eq 'os390' or $^O eq 'posix-bc' or $^O eq 'MacOS') {
     # Even with the alarm() OS/390 and BS2000 can't manage these tests

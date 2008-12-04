@@ -1,5 +1,5 @@
 #
-# $Id: tr_eucjp.t,v 1.4 2008/09/29 17:36:20 millert Exp $
+# $Id: tr_eucjp.t,v 1.3 2004/08/09 18:10:29 millert Exp $
 #
 # This script is written intentionally in EUC-JP
 # -- dankogai

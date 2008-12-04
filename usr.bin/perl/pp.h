@@ -1,12 +1,20 @@
 /*    pp.h
  *
- *    Copyright (C) 1991, 1992, 1993, 1994, 1995, 1996, 1998, 1999, 2000,
- *    2001, 2002, 2003, 2004, 2005, 2006, 2007, by Larry Wall and others
+ *    Copyright (C) 1991, 1992, 1993, 1994, 1995, 1996, 1998, 1999,
+ *    2000, 2001, 2002, 2003, 2004, 2005 by Larry Wall and others
  *
  *    You may distribute under the terms of either the GNU General Public
  *    License or the Artistic License, as specified in the README file.
  *
  */
+
+#ifdef USE_5005THREADS
+#define ARGS thr
+#define dARGS struct perl_thread *thr;
+#else
+#define ARGS
+#define dARGS
+#endif /* USE_5005THREADS */
 
 #define PP(s) OP * Perl_##s(pTHX)
 
@@ -59,16 +67,16 @@ Refetch the stack pointer.  Used after a callback.  See L<perlcall>.
 	STMT_START {					\
 	    if (++PL_markstack_ptr == PL_markstack_max)	\
 	    markstack_grow();				\
-	    *PL_markstack_ptr = (I32)((p) - PL_stack_base);\
+	    *PL_markstack_ptr = (p) - PL_stack_base;	\
 	} STMT_END
 
 #define TOPMARK		(*PL_markstack_ptr)
 #define POPMARK		(*PL_markstack_ptr--)
 
-#define dSP		SV **sp = PL_stack_sp
+#define dSP		register SV **sp = PL_stack_sp
 #define djSP		dSP
 #define dMARK		register SV **mark = PL_stack_base + POPMARK
-#define dORIGMARK	const I32 origmark = (I32)(mark - PL_stack_base)
+#define dORIGMARK	const I32 origmark = mark - PL_stack_base
 #define ORIGMARK	(PL_stack_base + origmark)
 
 #define SPAGAIN		sp = PL_stack_sp
@@ -87,6 +95,9 @@ Refetch the stack pointer.  Used after a callback.  See L<perlcall>.
 
 #define NORMAL PL_op->op_next
 #define DIE return Perl_die
+#ifndef PERL_CORE
+#  define DIE_NULL return DieNull
+#endif
 
 /*
 =for apidoc Ams||PUTBACK
@@ -118,9 +129,9 @@ Pops a long off the stack.
 */
 
 #define PUTBACK		PL_stack_sp = sp
-#define RETURN		return (PUTBACK, NORMAL)
-#define RETURNOP(o)	return (PUTBACK, o)
-#define RETURNX(x)	return (x, PUTBACK, NORMAL)
+#define RETURN		return PUTBACK, NORMAL
+#define RETURNOP(o)	return PUTBACK, o
+#define RETURNX(x)	return x, PUTBACK, NORMAL
 
 #define POPs		(*sp--)
 #define POPp		(SvPVx(POPs, PL_na))		/* deprecated */
@@ -397,57 +408,44 @@ and C<PUSHu>.
 #define AMGf_assign	4
 #define AMGf_unary	8
 
-#define tryAMAGICbinW_var(meth_enum,assign,set) STMT_START { \
-	    SV* const left = *(sp-1); \
-	    SV* const right = *(sp); \
-	    if ((SvAMAGIC(left)||SvAMAGIC(right))) {\
-		SV * const tmpsv = amagic_call(left, \
+#define tryAMAGICbinW(meth,assign,set) STMT_START { \
+          if (PL_amagic_generation) { \
+	    SV* tmpsv; \
+	    SV* const right= *(sp); SV* const left= *(sp-1);\
+	    if ((SvAMAGIC(left)||SvAMAGIC(right))&&\
+		(tmpsv=amagic_call(left, \
 				   right, \
-				   (meth_enum), \
-				   (assign)? AMGf_assign: 0); \
-		if (tmpsv) { \
-		    SPAGAIN; \
-		    (void)POPs; set(tmpsv); RETURN; } \
-		} \
+				   CAT2(meth,_amg), \
+				   (assign)? AMGf_assign: 0))) {\
+	       SPAGAIN;	\
+	       (void)POPs; set(tmpsv); RETURN; } \
+	  } \
 	} STMT_END
 
-#define tryAMAGICbinW(meth,assign,set) \
-    tryAMAGICbinW_var(CAT2(meth,_amg),assign,set)
-
-#define tryAMAGICbin_var(meth_enum,assign) \
-		tryAMAGICbinW_var(meth_enum,assign,SETsv)
-#define tryAMAGICbin(meth,assign) \
-		tryAMAGICbin_var(CAT2(meth,_amg),assign)
-
+#define tryAMAGICbin(meth,assign) tryAMAGICbinW(meth,assign,SETsv)
 #define tryAMAGICbinSET(meth,assign) tryAMAGICbinW(meth,assign,SETs)
 
-#define tryAMAGICbinSET_var(meth_enum,assign) \
-    tryAMAGICbinW_var(meth_enum,assign,SETs)
-
-#define AMG_CALLun_var(sv,meth_enum) amagic_call(sv,&PL_sv_undef,  \
-					meth_enum,AMGf_noright | AMGf_unary)
-#define AMG_CALLun(sv,meth) AMG_CALLun_var(sv,CAT2(meth,_amg))
-
+#define AMG_CALLun(sv,meth) amagic_call(sv,&PL_sv_undef,  \
+					CAT2(meth,_amg),AMGf_noright | AMGf_unary)
 #define AMG_CALLbinL(left,right,meth) \
             amagic_call(left,right,CAT2(meth,_amg),AMGf_noright)
 
-#define tryAMAGICunW_var(meth_enum,set,shift,ret) STMT_START { \
+#define tryAMAGICunW(meth,set,shift,ret) STMT_START { \
+          if (PL_amagic_generation) { \
 	    SV* tmpsv; \
 	    SV* arg= sp[shift]; \
           if(0) goto am_again;  /* shut up unused warning */ \
 	  am_again: \
 	    if ((SvAMAGIC(arg))&&\
-		(tmpsv=AMG_CALLun_var(arg,(meth_enum)))) {\
+		(tmpsv=AMG_CALLun(arg,meth))) {\
 	       SPAGAIN; if (shift) sp += shift; \
 	       set(tmpsv); ret; } \
+	  } \
 	} STMT_END
-#define tryAMAGICunW(meth,set,shift,ret) \
-	tryAMAGICunW_var(CAT2(meth,_amg),set,shift,ret)
 
 #define FORCE_SETs(sv) STMT_START { sv_setsv(TARG, (sv)); SETTARG; } STMT_END
 
-#define tryAMAGICun_var(meth_enum) tryAMAGICunW_var(meth_enum,SETsvUN,0,RETURN)
-#define tryAMAGICun(meth)	tryAMAGICun_var(CAT2(meth,_amg))
+#define tryAMAGICun(meth)	tryAMAGICunW(meth,SETsvUN,0,RETURN)
 #define tryAMAGICunSET(meth)	tryAMAGICunW(meth,SETs,0,RETURN)
 #define tryAMAGICunTARGET(meth, shift)					\
 	STMT_START { dSP; sp--; 	/* get TARGET from below PL_stack_sp */		\
@@ -466,8 +464,6 @@ and C<PUSHu>.
     } STMT_END
 
 #define tryAMAGICunDEREF(meth) tryAMAGICunW(meth,setAGAIN,0,(void)0)
-#define tryAMAGICunDEREF_var(meth_enum) \
-	tryAMAGICunW_var(meth_enum,setAGAIN,0,(void)0)
 
 #define opASSIGN (PL_op->op_flags & OPf_STACKED)
 #define SETsv(sv)	STMT_START {					\

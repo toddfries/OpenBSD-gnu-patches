@@ -1,10 +1,8 @@
 #include "EXTERN.h"
 #include "perl.h"
 #include "XSUB.h"
-#ifndef NO_PPPORT_H
-#   define NEED_sv_2pv_nolen
-#   include "ppport.h"
-#endif
+#define NEED_sv_2pv_nolen
+#include "ppport.h"
 
 #ifdef I_UNISTD
 #   include <unistd.h>
@@ -411,19 +409,6 @@ PPCODE:
 }
 
 void
-getcwd(...)
-PROTOTYPE: DISABLE
-PPCODE:
-{
-    dXSTARG;
-    getcwd_sv(TARG);
-    XSprePUSH; PUSHTARG;
-#ifndef INCOMPLETE_TAINTS
-    SvTAINTED_on(TARG);
-#endif
-}
-
-void
 abs_path(pathsv=Nullsv)
     SV *pathsv
 PROTOTYPE: DISABLE
@@ -449,7 +434,7 @@ PPCODE:
 #endif
 }
 
-#if defined(WIN32) && !defined(UNDER_CE)
+#ifdef WIN32
 
 void
 getdcwd(...)

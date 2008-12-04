@@ -340,7 +340,7 @@ PerlIOWin32_dup(pTHX_ PerlIO *f, PerlIO *o, CLONE_PARAMS *params, int flags)
  return f;
 }
 
-PERLIO_FUNCS_DECL(PerlIO_win32) = {
+PerlIO_funcs PerlIO_win32 = {
  sizeof(PerlIO_funcs),
  "win32",
  sizeof(PerlIOWin32),

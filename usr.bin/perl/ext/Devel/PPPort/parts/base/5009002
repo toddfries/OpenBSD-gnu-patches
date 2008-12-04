@@ -2,7 +2,7 @@
 CopyD                          # E
 MoveD                          # E
 PUSHmortal                     # E
-SvPVbyte_force                 # U
+SvPVbyte_force                 # E
 UNDERBAR                       # E
 XCPT_CATCH                     # E
 XCPT_RETHROW                   # E
@@ -13,8 +13,8 @@ ZeroD                          # E
 dUNDERBAR                      # E
 dXCPT                          # E
 find_rundefsvoffset            # U
-gv_fetchpvn_flags              # U
-gv_fetchsv                     # U
+gv_fetchpvn_flags              # E
+gv_fetchsv                     # E
 mPUSHi                         # U
 mPUSHn                         # U
 mPUSHp                         # U
@@ -25,8 +25,6 @@ mXPUSHp                        # U
 mXPUSHu                        # U
 op_refcnt_lock                 # U
 op_refcnt_unlock               # U
-savesvpv                       # U
-vnormal                        # U
+savesvpv                       # E
+vnormal                        # E
 MY_CXT_CLONE                   # added by devel/scanprov
-UTF8_MAXBYTES                  # added by devel/scanprov
-SV_NOSTEAL                     # added by devel/scanprov

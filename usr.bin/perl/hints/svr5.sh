@@ -12,7 +12,7 @@ case "$cc" in
     #  "$gccversion" not set yet
     if [ "X$gccversion" = "X" ]; then
 	# Done too late in Configure if hinted
-	gccversion=`$cc -dumpversion`
+	gccversion=`$cc --version | sed 's/.*(GCC) *//'`
     fi
     case $gccversion in
     *2.95*)

@@ -3,13 +3,12 @@ package Test::Harness::Straps;
 
 use strict;
 use vars qw($VERSION);
-$VERSION = '0.26_01';
+$VERSION = '0.26';
 
 use Config;
 use Test::Harness::Assert;
 use Test::Harness::Iterator;
 use Test::Harness::Point;
-use Test::Harness::Results;
 
 # Flags used as return values from our methods.  Just for internal 
 # clarification.
@@ -27,9 +26,9 @@ Test::Harness::Straps - detailed analysis of test results
   my $strap = Test::Harness::Straps->new;
 
   # Various ways to interpret a test
-  my $results = $strap->analyze($name, \@test_output);
-  my $results = $strap->analyze_fh($name, $test_filehandle);
-  my $results = $strap->analyze_file($test_file);
+  my %results = $strap->analyze($name, \@test_output);
+  my %results = $strap->analyze_fh($name, $test_filehandle);
+  my %results = $strap->analyze_file($test_file);
 
   # UNIMPLEMENTED
   my %total = $strap->total_results;
@@ -74,7 +73,7 @@ sub new {
     return $self;
 }
 
-=for private $strap->_init
+=head2 $strap->_init
 
   $strap->_init;
 
@@ -94,10 +93,10 @@ sub _init {
 
 =head2 $strap->analyze( $name, \@output_lines )
 
-    my $results = $strap->analyze($name, \@test_output);
+    my %results = $strap->analyze($name, \@test_output);
 
 Analyzes the output of a single test, assigning it the given C<$name>
-for use in the total report.  Returns the C<$results> of the test.
+for use in the total report.  Returns the C<%results> of the test.
 See L<Results>.
 
 C<@test_output> should be the raw output from the test, including
@@ -118,35 +117,41 @@ sub _analyze_iterator {
 
     $self->_reset_file_state;
     $self->{file} = $name;
+    my %totals  = (
+                   max      => 0,
+                   seen     => 0,
 
-    my $results = Test::Harness::Results->new;
+                   ok       => 0,
+                   todo     => 0,
+                   skip     => 0,
+                   bonus    => 0,
+
+                   details  => []
+                  );
 
     # Set them up here so callbacks can have them.
-    $self->{totals}{$name} = $results;
+    $self->{totals}{$name}         = \%totals;
     while( defined(my $line = $it->next) ) {
-        $self->_analyze_line($line, $results);
+        $self->_analyze_line($line, \%totals);
         last if $self->{saw_bailout};
     }
 
-    $results->set_skip_all( $self->{skip_all} ) if defined $self->{skip_all};
+    $totals{skip_all} = $self->{skip_all} if defined $self->{skip_all};
 
-    my $passed =
-        (($results->max == 0) && defined $results->skip_all) ||
-        ($results->max &&
-         $results->seen &&
-         $results->max == $results->seen &&
-         $results->max == $results->ok);
+    my $passed = ($totals{max} == 0 && defined $totals{skip_all}) ||
+                 ($totals{max} && $totals{seen} &&
+                  $totals{max} == $totals{seen} && 
+                  $totals{max} == $totals{ok});
+    $totals{passing} = $passed ? 1 : 0;
 
-    $results->set_passing( $passed ? 1 : 0 );
-
-    return $results;
+    return %totals;
 }
 
 
 sub _analyze_line {
     my $self = shift;
     my $line = shift;
-    my $results = shift;
+    my $totals = shift;
 
     $self->{line}++;
 
@@ -155,7 +160,7 @@ sub _analyze_line {
     if ( $point ) {
         $linetype = 'test';
 
-        $results->inc_seen;
+        $totals->{seen}++;
         $point->set_number( $self->{'next'} ) unless $point->number;
 
         # sometimes the 'not ' and the 'ok' are on different lines,
@@ -171,14 +176,14 @@ sub _analyze_line {
         }
 
         if ( $point->is_todo ) {
-            $results->inc_todo;
-            $results->inc_bonus if $point->ok;
+            $totals->{todo}++;
+            $totals->{bonus}++ if $point->ok;
         }
         elsif ( $point->is_skip ) {
-            $results->inc_skip;
+            $totals->{skip}++;
         }
 
-        $results->inc_ok if $point->pass;
+        $totals->{ok}++ if $point->pass;
 
         if ( ($point->number > 100_000) && ($point->number > ($self->{max}||100_000)) ) {
             if ( !$self->{too_many_tests}++ ) {
@@ -196,7 +201,7 @@ sub _analyze_line {
             };
 
             assert( defined( $details->{ok} ) && defined( $details->{actual_ok} ) );
-            $results->set_details( $point->number, $details );
+            $totals->{details}[$point->number - 1] = $details;
         }
     } # test point
     elsif ( $line =~ /^not\s+$/ ) {
@@ -210,7 +215,7 @@ sub _analyze_line {
 
         $self->{saw_header}++;
 
-        $results->inc_max( $self->{max} );
+        $totals->{max} += $self->{max};
     }
     elsif ( $self->_is_bail_out($line, \$self->{bailout_reason}) ) {
         $linetype = 'bailout';
@@ -218,8 +223,7 @@ sub _analyze_line {
     }
     elsif (my $diagnostics = $self->_is_diagnostic_line( $line )) {
         $linetype = 'other';
-        # XXX We can throw this away, really.
-        my $test = $results->details->[-1];
+        my $test = $totals->{details}[-1];
         $test->{diagnostics} ||=  '';
         $test->{diagnostics}  .= $diagnostics;
     }
@@ -227,7 +231,7 @@ sub _analyze_line {
         $linetype = 'other';
     }
 
-    $self->callback->($self, $line, $linetype, $results) if $self->callback;
+    $self->{callback}->($self, $line, $linetype, $totals) if $self->{callback};
 
     $self->{'next'} = $point->number + 1 if $point;
 } # _analyze_line
@@ -240,9 +244,9 @@ sub _is_diagnostic_line {
     return $line;
 }
 
-=for private $strap->analyze_fh( $name, $test_filehandle )
+=head2 $strap->analyze_fh( $name, $test_filehandle )
 
-    my $results = $strap->analyze_fh($name, $test_filehandle);
+    my %results = $strap->analyze_fh($name, $test_filehandle);
 
 Like C<analyze>, but it reads from the given filehandle.
 
@@ -257,7 +261,7 @@ sub analyze_fh {
 
 =head2 $strap->analyze_file( $test_file )
 
-    my $results = $strap->analyze_file($test_file);
+    my %results = $strap->analyze_file($test_file);
 
 Like C<analyze>, but it runs the given C<$test_file> and parses its
 results.  It will also use that name for the total report.
@@ -291,21 +295,20 @@ sub analyze_file {
         return;
     }
 
-    my $results = $self->analyze_fh($file, \*FILE);
+    my %results = $self->analyze_fh($file, \*FILE);
     my $exit    = close FILE;
-
-    $results->set_wait($?);
-    if ( $? && $self->{_is_vms} ) {
-        $results->set_exit($?);
+    $results{'wait'} = $?;
+    if( $? && $self->{_is_vms} ) {
+        eval q{use vmsish "status"; $results{'exit'} = $?};
     }
     else {
-        $results->set_exit( _wait2exit($?) );
+        $results{'exit'} = _wait2exit($?);
     }
-    $results->set_passing(0) unless $? == 0;
+    $results{passing} = 0 unless $? == 0;
 
     $self->_restore_PERL5LIB();
 
-    return $results;
+    return %results;
 }
 
 
@@ -317,7 +320,7 @@ else {
     *_wait2exit = sub { POSIX::WEXITSTATUS($_[0]) }
 }
 
-=for private $strap->_command_line( $file )
+=head2 $strap->_command_line( $file )
 
 Returns the full command line that will be run to test I<$file>.
 
@@ -337,7 +340,7 @@ sub _command_line {
 }
 
 
-=for private $strap->_command()
+=head2 $strap->_command()
 
 Returns the command that runs the test.  Combine this with C<_switches()>
 to build a command line.
@@ -354,14 +357,13 @@ such as a PHP interpreter for a PHP-based strap.
 sub _command {
     my $self = shift;
 
-    return $ENV{HARNESS_PERL}   if defined $ENV{HARNESS_PERL};
-    #return qq["$^X"]            if $self->{_is_win32} && ($^X =~ /[^\w\.\/\\]/);
-    return qq["$^X"]            if $^X =~ /\s/ and $^X !~ /^["']/;
+    return $ENV{HARNESS_PERL}           if defined $ENV{HARNESS_PERL};
+    return qq("$^X")    if $self->{_is_win32} && $^X =~ /[^\w\.\/\\]/;
     return $^X;
 }
 
 
-=for private $strap->_switches( $file )
+=head2 $strap->_switches( $file )
 
 Formats and returns the switches necessary to run the test.
 
@@ -398,7 +400,7 @@ sub _switches {
     return join( " ", @existing_switches, @derived_switches );
 }
 
-=for private $strap->_cleaned_switches( @switches_from_user )
+=head2 $strap->_cleaned_switches( @switches_from_user )
 
 Returns only defined, non-blank, trimmed switches from the parms passed.
 
@@ -421,7 +423,7 @@ sub _cleaned_switches {
     return @switches;
 }
 
-=for private $strap->_INC2PERL5LIB
+=head2 $strap->_INC2PERL5LIB
 
   local $ENV{PERL5LIB} = $self->_INC2PERL5LIB;
 
@@ -438,7 +440,7 @@ sub _INC2PERL5LIB {
     return join $Config{path_sep}, $self->_filtered_INC;
 }
 
-=for private $strap->_filtered_INC()
+=head2 $strap->_filtered_INC()
 
   my @filtered_inc = $self->_filtered_INC;
 
@@ -470,22 +472,18 @@ sub _filtered_INC {
 }
 
 
-{ # Without caching, _default_inc() takes a huge amount of time
-    my %cache;
-    sub _default_inc {
-        my $self = shift;
-        my $perl = $self->_command;
-        $cache{$perl} ||= [do {
-            local $ENV{PERL5LIB};
-            my @inc =`$perl -le "print join qq[\\n], \@INC"`;
-            chomp @inc;
-        }];
-        return @{$cache{$perl}};
-    }
+sub _default_inc {
+    my $self = shift;
+
+    local $ENV{PERL5LIB};
+    my $perl = $self->_command;
+    my @inc =`$perl -le "print join qq[\\n], \@INC"`;
+    chomp @inc;
+    return @inc;
 }
 
 
-=for private $strap->_restore_PERL5LIB()
+=head2 $strap->_restore_PERL5LIB()
 
   $self->_restore_PERL5LIB;
 
@@ -508,7 +506,7 @@ sub _restore_PERL5LIB {
 
 Methods for identifying what sort of line you're looking at.
 
-=for private _is_diagnostic
+=head2 C<_is_diagnostic>
 
     my $is_diagnostic = $strap->_is_diagnostic($line, \$comment);
 
@@ -529,7 +527,7 @@ sub _is_diagnostic {
     }
 }
 
-=for private _is_header
+=head2 C<_is_header>
 
   my $is_header = $strap->_is_header($line);
 
@@ -573,7 +571,7 @@ sub _is_header {
     }
 }
 
-=for private _is_bail_out
+=head2 C<_is_bail_out>
 
   my $is_bail_out = $strap->_is_bail_out($line, \$reason);
 
@@ -594,7 +592,7 @@ sub _is_bail_out {
     }
 }
 
-=for private _reset_file_state
+=head2 C<_reset_file_state>
 
   $strap->_reset_file_state;
 
@@ -615,14 +613,59 @@ sub _reset_file_state {
     $self->{'next'}       = 1;
 }
 
+=head1 Results
+
+The C<%results> returned from C<analyze()> contain the following
+information:
+
+  passing           true if the whole test is considered a pass 
+                    (or skipped), false if its a failure
+
+  exit              the exit code of the test run, if from a file
+  wait              the wait code of the test run, if from a file
+
+  max               total tests which should have been run
+  seen              total tests actually seen
+  skip_all          if the whole test was skipped, this will 
+                      contain the reason.
+
+  ok                number of tests which passed 
+                      (including todo and skips)
+
+  todo              number of todo tests seen
+  bonus             number of todo tests which 
+                      unexpectedly passed
+
+  skip              number of tests skipped
+
+So a successful test should have max == seen == ok.
+
+
+There is one final item, the details.
+
+  details           an array ref reporting the result of 
+                    each test looks like this:
+
+    $results{details}[$test_num - 1] = 
+            { ok          => is the test considered ok?
+              actual_ok   => did it literally say 'ok'?
+              name        => name of the test (if any)
+              diagnostics => test diagnostics (if any)
+              type        => 'skip' or 'todo' (if any)
+              reason      => reason for the above (if any)
+            };
+
+Element 0 of the details is test #1.  I tried it with element 1 being
+#1 and 0 being empty, this is less awkward.
+
 =head1 EXAMPLES
 
 See F<examples/mini_harness.plx> for an example of use.
 
 =head1 AUTHOR
 
-Michael G Schwern C<< <schwern at pobox.com> >>, currently maintained by
-Andy Lester C<< <andy at petdance.com> >>.
+Michael G Schwern C<< <schwern@pobox.com> >>, currently maintained by
+Andy Lester C<< <andy@petdance.com> >>.
 
 =head1 SEE ALSO
 
@@ -633,16 +676,6 @@ L<Test::Harness>
 sub _def_or_blank {
     return $_[0] if defined $_[0];
     return "";
-}
-
-sub set_callback {
-    my $self = shift;
-    $self->{callback} = shift;
-}
-
-sub callback {
-    my $self = shift;
-    return $self->{callback};
 }
 
 1;

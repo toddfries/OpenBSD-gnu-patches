@@ -7,11 +7,11 @@ BEGIN {
 }
 
 BEGIN { require './test.pl'; }
-plan tests => 237;
+plan tests => 234;
 
 while (<DATA>) {
     chomp;
-    (my $keyword, my $proto, local $TODO) = split " ", $_, 3;
+    my ($keyword, $proto) = split;
     if ($proto eq 'undef') {
 	ok( !defined prototype "CORE::".$keyword, $keyword );
     }
@@ -27,9 +27,9 @@ while (<DATA>) {
 # the keyword list :
 
 __DATA__
-abs (_)
+abs (;$)
 accept (**)
-alarm (_)
+alarm (;$)
 and ()
 atan2 ($$)
 bind (*$)
@@ -41,14 +41,14 @@ chmod (@)
 chomp undef
 chop undef
 chown (@)
-chr (_)
-chroot (_)
+chr (;$)
+chroot (;$)
 close (;*)
 closedir (*)
 cmp unknown
 connect (*$)
-continue ()
-cos (_)
+continue unknown
+cos (;$)
 crypt ($$)
 dbmclose (\%)
 dbmopen (\%$$)
@@ -68,11 +68,12 @@ endpwent ()
 endservent ()
 eof (;*)
 eq ($$)
+err unknown
 eval undef
 exec undef
 exists undef
 exit (;$)
-exp (_)
+exp (;$)
 fcntl (*$$)
 fileno (*)
 flock (*$)
@@ -108,36 +109,35 @@ getservbyport ($$)
 getservent ()
 getsockname (*)
 getsockopt (*$$)
-given undef
 glob undef
 gmtime (;$)
 goto undef
 grep undef
 gt ($$)
-hex (_)
+hex (;$)
 if undef
 index ($$;$)
-int (_)
+int (;$)
 ioctl (*$$)
 join ($@)
 keys (\%)
 kill (@)
 last undef
-lc (_)
-lcfirst (_)
+lc (;$)
+lcfirst (;$)
 le ($$)
-length (_)
+length (;$)
 link ($$)
 listen (*$)
 local undef
 localtime (;$)
 lock (\$)
-log (_)
+log (;$)
 lstat (*)
 lt ($$)
 m undef
 map undef
-mkdir (_;$)
+mkdir ($;$)
 msgctl ($$$)
 msgget ($$)
 msgrcv ($$$$$)
@@ -147,11 +147,11 @@ ne ($$)
 next undef
 no undef
 not ($)
-oct (_)
+oct (;$)
 open (*;$@)
 opendir (*$)
 or ()
-ord (_)
+ord (;$)
 our undef
 pack ($@)
 package undef
@@ -165,18 +165,18 @@ push (\@@)
 q undef
 qq undef
 qr undef
-quotemeta (_)
+quotemeta (;$)
 qw undef
 qx undef
 rand (;$)
 read (*\$$;$)
 readdir (*)
 readline (;*)
-readlink (_)
-readpipe (_)
+readlink (;$)
+readpipe unknown
 recv (*\$$$)
 redo undef
-ref (_)
+ref (;$)
 rename ($$)
 require undef
 reset (;$)
@@ -184,9 +184,8 @@ return undef
 reverse (@)
 rewinddir (*)
 rindex ($$;$)
-rmdir (_)
+rmdir (;$)
 s undef
-say undef
 scalar undef
 seek (*$$)
 seekdir (*$)
@@ -210,7 +209,7 @@ shmget ($$$)
 shmread ($$$$)
 shmwrite ($$$$)
 shutdown (*$)
-sin (_)
+sin (;$)
 sleep (;$)
 socket (*$$$)
 socketpair (**$$$)
@@ -218,10 +217,9 @@ sort undef
 splice (\@;$$@)
 split undef
 sprintf ($@)
-sqrt (_)
+sqrt (;$)
 srand (;$)
 stat (*)
-state undef
 study undef
 sub undef
 substr ($$;$$)
@@ -240,13 +238,13 @@ time ()
 times ()
 tr undef
 truncate ($$)
-uc (_)
-ucfirst (_)
+uc (;$)
+ucfirst (;$)
 umask (;$)
 undef undef
 unless undef
 unlink (@)
-unpack ($;$)
+unpack ($$)
 unshift (\@@)
 untie undef
 until undef
@@ -258,7 +256,6 @@ wait ()
 waitpid ($$)
 wantarray ()
 warn (@)
-when undef
 while undef
 write (;*)
 x unknown

@@ -33,11 +33,12 @@ $Config{'startperl'}
         if \$running_under_some_shell;
 !GROK!THIS!
 
-print OUT "\n# perlivp $^V\n";
-
 # In the following, perl variables are not expanded during extraction.
 
 print OUT <<'!NO!SUBS!';
+
+# perlivp V 0.02
+
 
 sub usage {
     warn "@_\n" if @_;
@@ -119,7 +120,7 @@ print "## Checking Perl version via variable `\$]'.\n" if $opt{'p'};
 !NO!SUBS!
 
 print OUT <<"!GROK!THIS!";
-my \$ivp_VERSION = "$]";
+my \$ivp_VERSION = $];
 
 !GROK!THIS!
 print OUT <<'!NO!SUBS!';
@@ -208,12 +209,7 @@ if (defined($Config{'extensions'})) {
             next if ($_ eq 'threads');
             next if ($_ eq 'threads/shared');
         }
-	# that's a distribution name, not a module name
-	next if /^IO_Compress_(?:Zlib|Base)$/;
-        next if $_ eq 'Devel/DProf'; 
-	# test modules
-	next if $_ eq 'XS/APItest';
-	next if $_ eq 'XS/Typemap';
+        next if ($_ eq 'Devel/DProf'); 
            # VMS$ perl  -e "eval ""require \""Devel/DProf.pm\"";"" print $@"
            # \NT> perl  -e "eval \"require 'Devel/DProf.pm'\"; print $@"
            # DProf: run perl with -d to use DProf.
@@ -287,12 +283,6 @@ for (@modules) {
     $version = undef;
     @missing = ();
     @missing = $installed -> validate($_);
-
-    # .bs files are optional
-    @missing = grep { ! /\.bs$/ } @missing;
-    # man files are often compressed
-    @missing = grep { ! ( -s "$_.gz" || -s "$_.bz2" ) } @missing;
-
     if ($#missing >= 0) {
         print "# file",+($#missing == 0) ? '' : 's'," missing from installation:\n";
         print '# ',join(' ',@missing),"\n";

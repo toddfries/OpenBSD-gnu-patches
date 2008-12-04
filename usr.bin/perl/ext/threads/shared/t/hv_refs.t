@@ -1,45 +1,39 @@
-use strict;
 use warnings;
 
 BEGIN {
-    if ($ENV{'PERL_CORE'}){
-        chdir 't';
-        unshift @INC, '../lib';
-    }
-    use Config;
-    if (! $Config{'useithreads'}) {
-        print("1..0 # Skip: Perl not compiled with 'useithreads'\n");
-        exit(0);
+#    chdir 't' if -d 't';
+#    push @INC ,'../lib';
+    require Config; import Config;
+    unless ($Config{'useithreads'}) {
+        print "1..0 # Skip: no useithreads\n";
+        exit 0;
     }
 }
 
-use ExtUtils::testlib;
 
 sub ok {
     my ($id, $ok, $name) = @_;
 
+    $name = '' unless defined $name;
     # You have to do it this way or VMS will get confused.
-    if ($ok) {
-        print("ok $id - $name\n");
-    } else {
-        print("not ok $id - $name\n");
-        printf("# Failed test at line %d\n", (caller)[2]);
-    }
+    print $ok ? "ok $id - $name\n" : "not ok $id - $name\n";
 
-    return ($ok);
+    printf "# Failed test at line %d\n", (caller)[2] unless $ok;
+
+    return $ok;
 }
 
-BEGIN {
-    $| = 1;
-    print("1..20\n");   ### Number of tests that will be run ###
-};
+sub skip {
+    my ($id, $ok, $name) = @_;
+    print "ok $id # skip _thrcnt - $name \n";
+}
 
+use ExtUtils::testlib;
+use strict;
+BEGIN { print "1..17\n" };
 use threads;
 use threads::shared;
-ok(1, 1, 'Loaded');
-
-### Start of Testing ###
-
+ok(1,1,"loaded");
 my $foo;
 share($foo);
 my %foo;
@@ -82,32 +76,23 @@ ok(10, keys %foo == 0, "And make sure we realy have deleted the values");
 }
 
 {
-    my $h = {a=>14};
-    my $r = \$h->{a};
-    share($r);
-    if ($] > 5.008) {
-        eval { lock($r); };
-        ok(14, !$@, "lock on helems ref: $@");
-        eval { lock($h->{a}); };
-        ok(15, !$@, "lock on helems: $@");
-    } else {
-        ok(14, 1, "skipped.  < 5.8");
-        ok(15, 1, "skipped.  < 5.8");
-    }
+  my $h = {a=>14};
+  my $r = \$h->{a};
+  share($r);
+  lock($r);
+  lock($h->{a});
+  ok(14, 1, "lock on helems now work, this was bug 10045");
+
 }
 {
     my $object : shared = &share({});
-    threads->create(sub {
-                     bless $object, 'test1';
-                 })->join;
-    ok(16, ref($object) eq 'test1', "blessing does work");
+    threads->new(sub {
+		     bless $object, 'test1';
+		 })->join;
+    ok(15, ref($object) eq 'test1', "blessing does work");
     my %test = (object => $object);
-    ok(17, ref($test{object}) eq 'test1', "and some more work");
+    ok(16, ref($test{object}) eq 'test1', "and some more work");
     bless $object, 'test2';
-    ok(18, ref($test{object}) eq 'test2', "reblessing works!");
+    ok(17, ref($test{object}) eq 'test2', "reblessing works!");
 }
 
-ok(19, is_shared($foo), "Check for sharing");
-ok(20, is_shared(%foo), "Check for sharing");
-
-# EOF

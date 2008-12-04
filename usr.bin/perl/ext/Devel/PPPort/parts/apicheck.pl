@@ -5,13 +5,13 @@
 #
 ################################################################################
 #
-#  $Revision: 1.3 $
+#  $Revision: 1.2 $
 #  $Author: millert $
-#  $Date: 2008/09/29 17:36:03 $
+#  $Date: 2006/03/28 19:23:02 $
 #
 ################################################################################
 #
-#  Version 3.x, Copyright (C) 2004-2007, Marcus Holland-Moritz.
+#  Version 3.x, Copyright (C) 2004-2005, Marcus Holland-Moritz.
 #  Version 2.x, Copyright (C) 2001, Paul Marquess.
 #  Version 1.x, Copyright (C) 1999, Kenneth Albanowski.
 #
@@ -24,14 +24,13 @@ use strict;
 require 'parts/ppptools.pl';
 
 if (@ARGV) {
-  my $file = pop @ARGV;
-  open OUT, ">$file" or die "$file: $!\n";
+  open OUT, ">$ARGV[0]" or die "$ARGV[0]: $!\n";
 }
 else {
   *OUT = \*STDOUT;
 }
 
-my @f = parse_embed(qw( parts/embed.fnc parts/apidoc.fnc parts/ppport.fnc ));
+my @f = parse_embed(qw( parts/embed.fnc parts/apidoc.fnc ));
 
 my %todo = %{&parse_todo};
 
@@ -104,6 +103,20 @@ my %stack = (
   XCPT_RETHROW   => ['dXCPT;'],
 );
 
+my %postcode = (
+  dSP        => "some_global_var = !sp;",
+  dMARK      => "some_global_var = !mark;",
+  dORIGMARK  => "some_global_var = !origmark;",
+  dAX        => "some_global_var = !ax;",
+  dITEMS     => "some_global_var = !items;",
+  dXSARGS    => "some_global_var = ax && items;",
+  NEWSV      => "some_global_var = !arg1;",
+  New        => "some_global_var = !arg1;",
+  Newc       => "some_global_var = !arg1;",
+  Newz       => "some_global_var = !arg1;",
+  dUNDERBAR  => "(void) UNDERBAR;",
+);
+
 my %ignore = (
   map { ($_ => 1) } qw(
     svtype
@@ -131,59 +144,36 @@ print OUT <<HEAD;
 #define NO_XSLOCKS
 #include "XSUB.h"
 
-#ifdef DPPP_APICHECK_NO_PPPORT_H
+#ifndef DPPP_APICHECK_NO_PPPORT_H
 
-/* This is just to avoid too many baseline failures with perls < 5.6.0 */
-
-#ifndef dTHX
-#  define dTHX extern int Perl___notused
-#endif
-
-#else
-
-#define NEED_PL_signals
 #define NEED_eval_pv
 #define NEED_grok_bin
 #define NEED_grok_hex
 #define NEED_grok_number
 #define NEED_grok_numeric_radix
 #define NEED_grok_oct
-#define NEED_load_module
-#define NEED_my_snprintf
-#define NEED_my_strlcat
-#define NEED_my_strlcpy
 #define NEED_newCONSTSUB
 #define NEED_newRV_noinc
-#define NEED_newSVpvn_share
-#define NEED_sv_2pv_flags
+#define NEED_sv_2pv_nolen
 #define NEED_sv_2pvbyte
 #define NEED_sv_catpvf_mg
 #define NEED_sv_catpvf_mg_nocontext
-#define NEED_sv_pvn_force_flags
 #define NEED_sv_setpvf_mg
 #define NEED_sv_setpvf_mg_nocontext
-#define NEED_vload_module
 #define NEED_vnewSVpvf
-#define NEED_warner
+
 
 #include "ppport.h"
 
 #endif
+
+static int some_global_var;
 
 static int    VARarg1;
 static char  *VARarg2;
 static double VARarg3;
 
 HEAD
-
-if (@ARGV) {
-  my %want = map { ($_ => 0) } @ARGV;
-  @f = grep { exists $want{$_->{name}} } @f;
-  for (@f) { $want{$_->{name}}++ }
-  for (keys %want) {
-    die "nothing found for '$_'\n" unless $want{$_};
-  }
-}
 
 my $f;
 for $f (@f) {
@@ -210,7 +200,6 @@ for $f (@f) {
     }
     my($n, $p, $d) = $a =~ /^ (\w+(?:\s+\w+)*)\s*  # type name  => $n
                               (\**)                # pointer    => $p
-                              (?:\s*const\s*)?     # const
                               ((?:\[[^\]]*\])*)    # dimension  => $d
                             $/x
                      or die "$0 - cannot parse argument: [$a]\n";
@@ -219,14 +208,9 @@ for $f (@f) {
       next;
     }
     $n = $tmap{$n} || $n;
-    if ($n eq 'const char' and $p eq '*' and !$f->{flags}{f}) {
-      push @arg, '"foo"';
-    }
-    else {
-      my $v = 'arg' . $i++;
-      push @arg, $v;
-      $stack .= "  static $n $p$v$d;\n";
-    }
+    my $v = 'arg' . $i++;
+    push @arg, $v;
+    $stack .= "  static $n $p$v$d;\n";
   }
 
   unless ($f->{flags}{n} || $f->{flags}{'m'}) {
@@ -249,10 +233,16 @@ for $f (@f) {
     $ret = $castvoid{$f->{name}} ? '(void) ' : '';
   }
   else {
-    $stack .= "  $rvt rval;\n";
-    $ret = $ignorerv{$f->{name}} ? '(void) ' : "rval = ";
+    $ret = $ignorerv{$f->{name}} ? '(void) ' : "return ";
   }
   my $aTHX_args = "$aTHX$args";
+
+  my $post = '';
+  if ($postcode{$f->{name}}) {
+    $post = $postcode{$f->{name}};
+    $post =~ s/^/    /g;
+    $post = "\n$post";
+  }
 
   unless ($f->{flags}{'m'} and @arg == 0) {
     $args = "($args)";
@@ -286,21 +276,24 @@ HEAD
   $f->{cond} and print OUT "#if $f->{cond}\n";
 
   print OUT <<END;
-void _DPPP_test_$f->{name} (void)
+$rvt _DPPP_test_$f->{name} (void)
 {
   dXSARGS;
 $stack
-  {
 #ifdef $f->{name}
-    $ret$f->{name}$args;
-#endif
+  if (some_global_var)
+  {
+    $ret$f->{name}$args;$post
   }
+#endif
+
+  some_global_var = items && ax;
 
   {
 #ifdef $f->{name}
-    $ret$final;
+    $ret$final;$post
 #else
-    $ret$Perl_$f->{name}$aTHX_args;
+    $ret$Perl_$f->{name}$aTHX_args;$post
 #endif
   }
 }

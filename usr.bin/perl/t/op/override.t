@@ -6,7 +6,7 @@ BEGIN {
     require './test.pl';
 }
 
-plan tests => 26;
+plan tests => 21;
 
 #
 # This file tries to test builtin override using CORE::GLOBAL
@@ -73,25 +73,10 @@ is( <$pad_fh>	, 14 );
 
 # Non-global readline() override
 BEGIN { *Rgs::readline = sub (;*) { --$r }; }
-{
-    package Rgs;
-    ::is( <FH>	, 13 );
-    ::is( <$fh>	, 12 );
-    ::is( <$pad_fh>	, 11 );
-}
-
-# Global readpipe() override
-BEGIN { *CORE::GLOBAL::readpipe = sub ($) { "$_[0] " . --$r }; }
-is( `rm`,	    "rm 10", '``' );
-is( qx/cp/,	    "cp 9", 'qx' );
-
-# Non-global readpipe() override
-BEGIN { *Rgs::readpipe = sub ($) { ++$r . " $_[0]" }; }
-{
-    package Rgs;
-    ::is( `rm`,		  "10 rm", '``' );
-    ::is( qx/cp/,	  "11 cp", 'qx' );
-}
+package Rgs;
+::is( <FH>	, 13 );
+::is( <$fh>	, 12 );
+::is( <$pad_fh>	, 11 );
 
 # Verify that the parsing of overriden keywords isn't messed up
 # by the indirect object notation
@@ -106,20 +91,7 @@ BEGIN { *Rgs::readpipe = sub ($) { ++$r . " $_[0]" }; }
     warn OverridenWarn->foo();
 }
 BEGIN { *OverridenPop::pop = sub { ::is( $_[0][0], "ok" ) }; }
-{
-    package OverridenPop;
-    sub foo { [ "ok" ] }
-    pop( OverridenPop->foo() );
-    pop OverridenPop->foo();
-}
-
-{
-    eval {
-        local *CORE::GLOBAL::require = sub {
-            CORE::require($_[0]);
-        };
-        require 5;
-        require Text::ParseWords;
-    };
-    is $@, '';
-}
+package OverridenPop;
+sub foo { [ "ok" ] }
+pop( OverridenPop->foo() );
+pop OverridenPop->foo();

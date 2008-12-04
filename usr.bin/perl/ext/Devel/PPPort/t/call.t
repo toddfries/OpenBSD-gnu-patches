@@ -4,10 +4,6 @@
 #
 #            Edit mktests.PL and/or parts/inc/call instead.
 #
-#  This file was automatically generated from the definition files in the
-#  parts/inc/ subdirectory by mktests.PL. To learn more about how all this
-#  works, please read the F<HACKERS> file that came with this distribution.
-#
 ################################################################################
 
 BEGIN {
@@ -25,28 +21,19 @@ BEGIN {
     unshift @INC, 't';
   }
 
-  sub load {
-    eval "use Test";
-    require 'testutil.pl' if $@;
+  eval "use Test";
+  if ($@) {
+    require 'testutil.pl';
+    print "1..44\n";
   }
-
-  if (46) {
-    load();
-    plan(tests => 46);
+  else {
+    plan(tests => 44);
   }
 }
 
 use Devel::PPPort;
 use strict;
 $^W = 1;
-
-package Devel::PPPort;
-use vars '@ISA';
-require DynaLoader;
-@ISA = qw(DynaLoader);
-bootstrap Devel::PPPort;
-
-package main;
 
 sub eq_array
 {
@@ -99,8 +86,4 @@ for $test (
 
 ok(&Devel::PPPort::eval_pv('f()', 0), 'y');
 ok(&Devel::PPPort::eval_pv('f(qw(a b c))', 0), 'y');
-
-ok(!defined $::{'less::'}, 1, "Hadn't loaded less yet");
-Devel::PPPort::load_module(0, "less", undef);
-ok(defined $::{'less::'}, 1, "Have now loaded less");
 

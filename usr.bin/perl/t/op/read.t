@@ -1,5 +1,7 @@
 #!./perl
 
+# $RCSfile: read.t,v $$Revision: 1.8 $$Date: 2006/03/28 19:23:13 $
+
 BEGIN {
     chdir 't';
     @INC = '../lib';

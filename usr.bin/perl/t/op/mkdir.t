@@ -1,4 +1,4 @@
-#!./perl -w
+#!./perl
 
 BEGIN {
     chdir 't' if -d 't';
@@ -6,7 +6,7 @@ BEGIN {
     require './test.pl';
 }
 
-plan tests => 22;
+plan tests => 13;
 
 use File::Path;
 rmtree('blurfl');
@@ -33,22 +33,4 @@ SKIP: {
     ok(-d 'blurfl');
     ok(rmdir('blurfl///'));
     ok(!-d 'blurfl');
-}
-
-# test default argument
-
-$_ = 'blurfl';
-ok(mkdir);
-ok(-d);
-ok(rmdir);
-ok(!-d);
-$_ = 'lfrulb';
-
-{
-    my $_ = 'blurfl';
-    ok(mkdir);
-    ok(-d);
-    ok(-d 'blurfl');
-    ok(!-d 'lfrulb');
-    ok(rmdir);
 }

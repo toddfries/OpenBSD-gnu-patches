@@ -26,7 +26,7 @@ BEGIN
     }
   print "# INC = @INC\n";
 
-  plan tests => 4;
+  plan tests => 2;
   }
 
 # first load BigInt with Calc
@@ -42,12 +42,4 @@ Math::BigInt->import( lib => 'BareCalc' );
 # and finally test that BigFloat knows about BareCalc
 
 is (Math::BigFloat::config()->{lib}, 'Math::BigInt::BareCalc', 'BigFloat was notified');
-
-# See that Math::BigFloat supports "only"
-eval "Math::BigFloat->import('only' => 'Calc')";
-is (Math::BigFloat::config()->{lib}, 'Math::BigInt::Calc', '"only" worked');
-
-# See that Math::BigFloat supports "try"
-eval "Math::BigFloat->import('try' => 'BareCalc')";
-is (Math::BigFloat::config()->{lib}, 'Math::BigInt::BareCalc', '"try" worked');
 

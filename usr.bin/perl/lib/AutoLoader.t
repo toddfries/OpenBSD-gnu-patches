@@ -16,7 +16,7 @@ BEGIN
 	unshift @INC, $dir;
 }
 
-use Test::More tests => 22;
+use Test::More tests => 18;
 
 # First we must set up some autoloader files
 my $fulldir = File::Spec->catdir( $dir, 'auto', 'Foo' );
@@ -74,21 +74,18 @@ AutoLoader->import( 'AUTOLOAD' );
 
 sub new { bless {}, shift };
 sub foo;
+sub bar;
 sub bazmarkhianish; 
 
 package main;
 
-my $foo = Foo->new();
+my $foo = new Foo;
 
 my $result = $foo->can( 'foo' );
 ok( $result,               'can() first time' );
 is( $foo->foo, 'foo', 'autoloaded first time' );
 is( $foo->foo, 'foo', 'regular call' );
 is( $result,   \&Foo::foo, 'can() returns ref to regular installed sub' );
-$result    = $foo->can( 'bar' );
-ok( $result,               'can() should work when importing AUTOLOAD too' );
-is( $foo->bar, 'bar', 'regular call' );
-is( $result,   \&Foo::bar, '... returning ref to regular installed sub' );
 
 eval {
     $foo->will_fail;
@@ -100,7 +97,7 @@ ok( ! $result,               'can() should fail on undefined methods' );
 
 # Used to be trouble with this
 eval {
-    my $foo = Foo->new();
+    my $foo = new Foo;
     die "oops";
 };
 like( $@, qr/oops/, 'indirect method call' );
@@ -121,7 +118,7 @@ is( $foo->bazmarkhianish($1), 'foo', '(again)' );
 eval {
   $foo->blechanawilla;
 };
-like( $@, qr/syntax error/i, 'require error propagates' );
+like( $@, qr/syntax error/, 'require error propagates' );
 
 # test recursive autoloads
 open(F, '>', File::Spec->catfile( $fulldir, 'a.al'))
@@ -147,7 +144,6 @@ Foo::a();
 package Bar;
 AutoLoader->import();
 ::ok( ! defined &AUTOLOAD, 'AutoLoader should not export AUTOLOAD by default' );
-::ok( ! defined &can,      '... nor can()' );
 
 package Foo;
 AutoLoader->unimport();
@@ -163,7 +159,6 @@ AutoLoader->import();
 AutoLoader->unimport();
 
 ::is( Baz->AUTOLOAD(), 'i am here', '... but not non-imported AUTOLOAD()' );
-
 
 package SomeClass;
 use AutoLoader 'AUTOLOAD';

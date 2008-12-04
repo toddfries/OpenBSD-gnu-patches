@@ -69,7 +69,6 @@ corresponding built-in functions:
     $io->read ( BUF, LEN, [OFFSET] )
     $io->print ( ARGS )
     $io->printf ( FMT, [ARGS] )
-    $io->say ( ARGS )
     $io->stat
     $io->sysread ( BUF, LEN, [OFFSET] )
     $io->syswrite ( BUF, [LEN, [OFFSET]] )
@@ -265,7 +264,7 @@ use IO ();	# Load the XS module
 require Exporter;
 @ISA = qw(Exporter);
 
-$VERSION = "1.27";
+$VERSION = "1.25";
 $VERSION = eval $VERSION;
 
 @EXPORT_OK = qw(
@@ -285,7 +284,6 @@ $VERSION = eval $VERSION;
 
     print
     printf
-    say
     getline
     getlines
 
@@ -407,12 +405,6 @@ sub printf {
     @_ >= 2 or croak 'usage: $io->printf(FMT,[ARGS])';
     my $this = shift;
     printf $this @_;
-}
-
-sub say {
-    @_ or croak 'usage: $io->say(ARGS)';
-    my $this = shift;
-    print $this @_, "\n";
 }
 
 sub getline {
@@ -579,7 +571,7 @@ sub format_write {
     @_ < 3 || croak 'usage: $io->write( [FORMAT_NAME] )';
     if (@_ == 2) {
 	my ($io, $fmt) = @_;
-	my $oldfmt = $io->format_name(qualify($fmt,caller));
+	my $oldfmt = $io->format_name($fmt);
 	CORE::write($io);
 	$io->format_name($oldfmt);
     } else {

@@ -4,10 +4,6 @@
 #
 #            Edit mktests.PL and/or parts/inc/MY_CXT instead.
 #
-#  This file was automatically generated from the definition files in the
-#  parts/inc/ subdirectory by mktests.PL. To learn more about how all this
-#  works, please read the F<HACKERS> file that came with this distribution.
-#
 ################################################################################
 
 BEGIN {
@@ -25,13 +21,12 @@ BEGIN {
     unshift @INC, 't';
   }
 
-  sub load {
-    eval "use Test";
-    require 'testutil.pl' if $@;
+  eval "use Test";
+  if ($@) {
+    require 'testutil.pl';
+    print "1..3\n";
   }
-
-  if (3) {
-    load();
+  else {
     plan(tests => 3);
   }
 }
@@ -39,14 +34,6 @@ BEGIN {
 use Devel::PPPort;
 use strict;
 $^W = 1;
-
-package Devel::PPPort;
-use vars '@ISA';
-require DynaLoader;
-@ISA = qw(DynaLoader);
-bootstrap Devel::PPPort;
-
-package main;
 
 ok(&Devel::PPPort::MY_CXT_1());
 ok(&Devel::PPPort::MY_CXT_2());

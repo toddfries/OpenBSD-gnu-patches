@@ -27,11 +27,14 @@ esac
 echo "Extracting x2p/Makefile (with variable substitutions)"
 rm -f Makefile
 cat >Makefile <<!GROK!THIS!
-# $RCSfile: Makefile.SH,v $$Revision: 1.11 $$Date: 2008/09/29 17:36:23 $
+# $RCSfile: Makefile.SH,v $$Revision: 1.10 $$Date: 2006/03/28 19:23:15 $
 #
 # $Log: Makefile.SH,v $
-# Revision 1.11  2008/09/29 17:36:23  millert
-# fix conflicts and merge in local changes to perl 5.10.0
+# Revision 1.10  2006/03/28 19:23:15  millert
+# merge in perl 5.8.8
+#
+# Revision 1.9  2003/12/03 03:02:53  millert
+# Resolve conflicts for perl 5.8.2, remove old files, and add OpenBSD-specific scaffolding
 #
 
 CC = $cc
@@ -50,7 +53,7 @@ SHELL = $sh
 
 # These variables may need to be manually set for non-Unix systems.
 AR = $ar
-EXE_EXT = $_exe
+EXE_EXT = $_ext
 LIB_EXT = $_a
 OBJ_EXT = $_o
 PATH_SEP = $p_
@@ -64,8 +67,6 @@ TRNL = '$trnl'
 OPTIMIZE = $optimize
 
 .SUFFIXES: .c \$(OBJ_EXT)
-
-RUN = $run
 
 !GROK!THIS!
 
@@ -107,6 +108,9 @@ lintflags = -phbvxac
 
 all: $(public) $(private) $(util)
 	@echo " "
+
+compile: all
+	$(REALPERL) -I../lib ../utils/perlcc -I .. -L .. $(plextract) -v -log ../compilelog;  
 
 a2p$(EXE_EXT): $(obj) a2p$(OBJ_EXT)
 	$(CC) -o a2p $(LDFLAGS) $(obj) a2p$(OBJ_EXT) $(libs)
@@ -174,7 +178,7 @@ shlist:
 # These should be automatically generated
 
 $(plextract):
-	$(RUN) ../miniperl -I../lib $@.PL
+	../miniperl -I../lib $@.PL
 
 find2perl: find2perl.PL
 

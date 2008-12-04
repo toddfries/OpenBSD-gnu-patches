@@ -1,5 +1,12 @@
 #!/usr/bin/perl
 
+BEGIN {
+    if( $ENV{PERL_CORE} ) {
+        chdir 't';
+        @INC = '../lib';
+    }
+}
+
 use Test::Builder::Tester tests => 9;
 use Test::More;
 
@@ -22,7 +29,7 @@ ok(2,"two");
 test_test("multiple tests");
 
 test_out("not ok 1 - should fail");
-test_err("#     Failed test ($0 at line 28)");
+test_err("#     Failed test ($0 at line 35)");
 test_err("#          got: 'foo'");
 test_err("#     expected: 'bar'");
 is("foo","bar","should fail");
@@ -46,7 +53,7 @@ test_test("testing failing on the same line with the same name");
 
 
 test_out("not ok 1 - name # TODO Something");
-test_err("#     Failed (TODO) test ($0 at line 52)");
+test_err("#     Failed (TODO) test ($0 at line 59)");
 TODO: { 
     local $TODO = "Something";
     fail("name");

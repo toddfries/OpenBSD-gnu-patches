@@ -104,14 +104,7 @@ use File::Spec;
 %EXPORT_TAGS = (ALL => [qw($Bin $Script $RealBin $RealScript $Dir $RealDir)]);
 @ISA = qw(Exporter);
 
-$VERSION = "1.49";
-
-
-# needed for VMS-specific filename translation
-if( $^O eq 'VMS' ) {
-    require VMS::Filespec;
-    VMS::Filespec->import;
-}
+$VERSION = "1.47";
 
 sub cwd2 {
    my $cwd = getcwd();
@@ -131,7 +124,6 @@ sub init
    # perl invoked with -e or script is on C<STDIN>
    $Script = $RealScript = $0;
    $Bin    = $RealBin    = cwd2();
-   $Bin = VMS::Filespec::unixify($Bin) if $^O eq 'VMS';
   }
  else
   {
@@ -139,9 +131,7 @@ sub init
 
    if ($^O eq 'VMS')
     {
-     ($Bin,$Script) = VMS::Filespec::rmsexpand($0) =~ /(.*[\]>\/]+)(.*)/s;
-     # C<use disk:[dev]/lib> isn't going to work, so unixify first
-     ($Bin = VMS::Filespec::unixify($Bin)) =~ s/\/\z//;
+     ($Bin,$Script) = VMS::Filespec::rmsexpand($0) =~ /(.*\])(.*)/s;
      ($RealBin,$RealScript) = ($Bin,$Script);
     }
    else
@@ -152,19 +142,24 @@ sub init
       {
        my $dir;
        foreach $dir (File::Spec->path)
-        {
+	{
         my $scr = File::Spec->catfile($dir, $script);
-
-        # $script can been found via PATH but perl could have
-        # been invoked as 'perl file'. Do a dumb check to see
-        # if $script is a perl program, if not then keep $script = $0
-        #
-        # well we actually only check that it is an ASCII file
-        # we know its executable so it is probably a script
-        # of some sort.
-        if(-f $scr && -r _ && ($dosish || -x _) && -s _ && -T _)
+	if(-r $scr && (!$dosish || -x _))
          {
           $script = $scr;
+
+	  if (-f $0)
+           {
+	    # $script has been found via PATH but perl could have
+	    # been invoked as 'perl file'. Do a dumb check to see
+	    # if $script is a perl program, if not then $script = $0
+            #
+            # well we actually only check that it is an ASCII file
+            # we know its executable so it is probably a script
+            # of some sort.
+
+            $script = $0 unless(-T $script);
+           }
           last;
          }
        }

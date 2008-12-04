@@ -4,7 +4,7 @@ use strict;
 use vars qw(@ISA $VERSION);
 require File::Spec::Unix;
 
-$VERSION = '3.2501';
+$VERSION = '1.2';
 
 @ISA = qw(File::Spec::Unix);
 
@@ -37,8 +37,9 @@ sub _cwd {
 my $tmpdir;
 sub tmpdir {
     return $tmpdir if defined $tmpdir;
-    my @d = @ENV{qw(TMPDIR TEMP TMP)};	# function call could autovivivy
-    $tmpdir = $_[0]->_tmpdir( @d, '/tmp', '/'  );
+    $tmpdir = $_[0]->_tmpdir( @ENV{qw(TMPDIR TEMP TMP)},
+			      '/tmp',
+			      '/'  );
 }
 
 sub catdir {

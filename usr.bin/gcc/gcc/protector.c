@@ -426,29 +426,16 @@ search_string_def (type)
     case UNION_TYPE:
     case QUAL_UNION_TYPE:
     case RECORD_TYPE:
-      if (! TREE_VISITED (type))
+      /* Output the name, type, position (in bits), size (in bits) of each
+	 field.  */
+      for (tem = TYPE_FIELDS (type); tem; tem = TREE_CHAIN (tem))
 	{
-	  /* mark the type as having been visited already */
-	  TREE_VISITED (type) = 1;
+	  /* Omit here local type decls until we know how to support them. */
+	  if ((TREE_CODE (tem) == TYPE_DECL)
+	      || (TREE_CODE (tem) == VAR_DECL && TREE_STATIC (tem)))
+	    continue;
 
-	  /* Output the name, type, position (in bits), size (in bits) of each
-	     field.  */
-	  for (tem = TYPE_FIELDS (type); tem; tem = TREE_CHAIN (tem))
-	    {
-	      /* Omit here local type decls until we know how to support
-		 them. */
-	      if ((TREE_CODE (tem) == TYPE_DECL)
-		  || (TREE_CODE (tem) == VAR_DECL && TREE_STATIC (tem)))
-	        continue;
-
-	      if (search_string_def(TREE_TYPE(tem)))
-		{
-		  TREE_VISITED (type) = 0;
-		  return TRUE;
-		}
-	    }
-
-	  TREE_VISITED (type) = 0;
+	  if (search_string_def(TREE_TYPE(tem))) return TRUE;
 	}
       break;
 	
@@ -531,29 +518,16 @@ search_pointer_def (type)
     case UNION_TYPE:
     case QUAL_UNION_TYPE:
     case RECORD_TYPE:
-      if (! TREE_VISITED (type))
+      /* Output the name, type, position (in bits), size (in bits) of each
+	 field.  */
+      for (tem = TYPE_FIELDS (type); tem; tem = TREE_CHAIN (tem))
 	{
-	  /* mark the type as having been visited already */
-	  TREE_VISITED (type) = 1;
+	  /* Omit here local type decls until we know how to support them. */
+	  if ((TREE_CODE (tem) == TYPE_DECL)
+	      || (TREE_CODE (tem) == VAR_DECL && TREE_STATIC (tem)))
+	    continue;
 
-	  /* Output the name, type, position (in bits), size (in bits) of each
-	     field.  */
-	  for (tem = TYPE_FIELDS (type); tem; tem = TREE_CHAIN (tem))
-	    {
-	      /* Omit here local type decls until we know how to support
-		 them. */
-	      if ((TREE_CODE (tem) == TYPE_DECL)
-		  || (TREE_CODE (tem) == VAR_DECL && TREE_STATIC (tem)))
-	        continue;
-
-	      if (search_pointer_def(TREE_TYPE(tem)))
-		{
-		  TREE_VISITED (type) = 0;
-		  return TRUE;
-		}
-	    }
-
-	  TREE_VISITED (type) = 0;
+	  if (search_pointer_def (TREE_TYPE(tem))) return TRUE;
 	}
       break;
 

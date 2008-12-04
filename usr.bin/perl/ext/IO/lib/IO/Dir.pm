@@ -19,7 +19,7 @@ use File::stat;
 use File::Spec;
 
 @ISA = qw(Tie::Hash Exporter);
-$VERSION = "1.06";
+$VERSION = "1.05";
 $VERSION = eval $VERSION;
 @EXPORT_OK = qw(DIR_UNLINK);
 
@@ -38,7 +38,6 @@ sub new {
 
 sub DESTROY {
     my ($dh) = @_;
-    no warnings 'io';
     closedir($dh);
 }
 

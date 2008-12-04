@@ -33,17 +33,7 @@ END { unlink keys %files if keys %files }
 use Test::More tests => 189;
 
 BEGIN { use_ok('DBM_Filter') };
-my $db_file;
-BEGIN {
-    use Config;
-    foreach (qw/SDBM_File ODBM_File NDBM_File GDBM_File DB_File/) {
-        if ($Config{extensions} =~ /\b$_\b/) {
-            $db_file = $_;
-            last;
-        }
-    }
-    use_ok($db_file);
-};
+BEGIN { use_ok('SDBM_File') };
 BEGIN { use_ok('Fcntl') };
 
 unlink <Op_dbmx*>;
@@ -161,7 +151,7 @@ sub checkRaw
     my %h;
 
     # read the dbm file without the filter
-    ok tie(%h, $db_file,'Op_dbmx', O_RDWR|O_CREAT, 0640), "tied to $db_file";
+    ok tie(%h, 'SDBM_File','Op_dbmx', O_RDWR|O_CREAT, 0640), "tied to SDBM_File";
 
     my %bad = ();
     while (my ($k, $v) = each %h) {
@@ -198,8 +188,8 @@ sub checkRaw
     #diag "Test Set: Key and Value Filter, no stacking, no closure";
 
     my %h = () ;
-    my $db = tie(%h, $db_file,'Op_dbmx', O_RDWR|O_CREAT, 0640) ;
-    ok $db, "tied to $db_file";
+    my $db = tie(%h, 'SDBM_File','Op_dbmx', O_RDWR|O_CREAT, 0640) ;
+    ok $db, "tied to SDBM_File";
     
     doPreData(\%h);
 
@@ -228,8 +218,8 @@ sub checkRaw
     #diag "Test Set: Key Only Filter, no stacking, no closure";
 
     my %h = () ;
-    my $db = tie(%h, $db_file,'Op_dbmx', O_RDWR|O_CREAT, 0640) ;
-    ok $db, "tied to $db_file";
+    my $db = tie(%h, 'SDBM_File','Op_dbmx', O_RDWR|O_CREAT, 0640) ;
+    ok $db, "tied to SDBM_File";
     
     doPreData(\%h);
 
@@ -258,8 +248,8 @@ sub checkRaw
     #diag "Test Set: Value Only Filter, no stacking, no closure";
 
     my %h = () ;
-    my $db = tie(%h, $db_file,'Op_dbmx', O_RDWR|O_CREAT, 0640) ;
-    ok $db, "tied to $db_file";
+    my $db = tie(%h, 'SDBM_File','Op_dbmx', O_RDWR|O_CREAT, 0640) ;
+    ok $db, "tied to SDBM_File";
     
     doPreData(\%h);
 
@@ -288,8 +278,8 @@ sub checkRaw
     #diag "Test Set: Key and Value Filter, with stacking, no closure";
 
     my %h = () ;
-    my $db = tie(%h, $db_file,'Op_dbmx', O_RDWR|O_CREAT, 0640) ;
-    ok $db, "tied to $db_file";
+    my $db = tie(%h, 'SDBM_File','Op_dbmx', O_RDWR|O_CREAT, 0640) ;
+    ok $db, "tied to SDBM_File";
     
     doPreData(\%h);
 
@@ -321,8 +311,8 @@ sub checkRaw
     #diag "Test Set: Key Filter != Value Filter, with stacking, no closure";
 
     my %h = () ;
-    my $db = tie(%h, $db_file,'Op_dbmx', O_RDWR|O_CREAT, 0640) ;
-    ok $db, "tied to $db_file";
+    my $db = tie(%h, 'SDBM_File','Op_dbmx', O_RDWR|O_CREAT, 0640) ;
+    ok $db, "tied to SDBM_File";
     
     doPreData(\%h);
 
@@ -360,8 +350,8 @@ sub checkRaw
     #diag "Test Set: Key only Filter, with stacking, no closure";
 
     my %h = () ;
-    my $db = tie(%h, $db_file,'Op_dbmx', O_RDWR|O_CREAT, 0640) ;
-    ok $db, "tied to $db_file";
+    my $db = tie(%h, 'SDBM_File','Op_dbmx', O_RDWR|O_CREAT, 0640) ;
+    ok $db, "tied to SDBM_File";
     
     doPreData(\%h);
 
@@ -393,8 +383,8 @@ sub checkRaw
     #diag "Test Set: Value only Filter, with stacking, no closure";
 
     my %h = () ;
-    my $db = tie(%h, $db_file,'Op_dbmx', O_RDWR|O_CREAT, 0640) ;
-    ok $db, "tied to $db_file";
+    my $db = tie(%h, 'SDBM_File','Op_dbmx', O_RDWR|O_CREAT, 0640) ;
+    ok $db, "tied to SDBM_File";
     
     doPreData(\%h);
 
@@ -426,8 +416,8 @@ sub checkRaw
     #diag "Test Set: Combination Key/Value + Key Filter != Value Filter, with stacking, no closure";
 
     my %h = () ;
-    my $db = tie(%h, $db_file,'Op_dbmx', O_RDWR|O_CREAT, 0640) ;
-    ok $db, "tied to $db_file";
+    my $db = tie(%h, 'SDBM_File','Op_dbmx', O_RDWR|O_CREAT, 0640) ;
+    ok $db, "tied to SDBM_File";
     
     doPreData(\%h);
 
@@ -462,8 +452,8 @@ sub checkRaw
     #diag "Test Set: Combination Key/Value + Key + Key/Value, no closure";
 
     my %h = () ;
-    my $db = tie(%h, $db_file,'Op_dbmx', O_RDWR|O_CREAT, 0640) ;
-    ok $db, "tied to $db_file";
+    my $db = tie(%h, 'SDBM_File','Op_dbmx', O_RDWR|O_CREAT, 0640) ;
+    ok $db, "tied to SDBM_File";
     
     doPreData(\%h);
 
@@ -498,8 +488,8 @@ sub checkRaw
     #diag "Test Set: Combination Key/Value + Key + Key/Value, with closure";
 
     my %h = () ;
-    my $db = tie(%h, $db_file,'Op_dbmx', O_RDWR|O_CREAT, 0640) ;
-    ok $db, "tied to $db_file";
+    my $db = tie(%h, 'SDBM_File','Op_dbmx', O_RDWR|O_CREAT, 0640) ;
+    ok $db, "tied to SDBM_File";
     
     doPreData(\%h);
 
@@ -534,8 +524,8 @@ sub checkRaw
     #diag "Test Set: Combination Key/Value + Key + Key/Value, immediate";
 
     my %h = () ;
-    my $db = tie(%h, $db_file,'Op_dbmx', O_RDWR|O_CREAT, 0640) ;
-    ok $db, "tied to $db_file";
+    my $db = tie(%h, 'SDBM_File','Op_dbmx', O_RDWR|O_CREAT, 0640) ;
+    ok $db, "tied to SDBM_File";
     
     doPreData(\%h);
 
@@ -579,8 +569,8 @@ sub checkRaw
     #diag "Test Set: Combination Key/Value + Key + Key/Value, immediate, closure";
 
     my %h = () ;
-    my $db = tie(%h, $db_file,'Op_dbmx', O_RDWR|O_CREAT, 0640) ;
-    ok $db, "tied to $db_file";
+    my $db = tie(%h, 'SDBM_File','Op_dbmx', O_RDWR|O_CREAT, 0640) ;
+    ok $db, "tied to SDBM_File";
     
     doPreData(\%h);
 
@@ -618,8 +608,8 @@ sub checkRaw
     #diag "Test Set: Filtered & Filter_Pop";
 
     my %h = () ;
-    my $db = tie(%h, $db_file,'Op_dbmx', O_RDWR|O_CREAT, 0640) ;
-    ok $db, "tied to $db_file";
+    my $db = tie(%h, 'SDBM_File','Op_dbmx', O_RDWR|O_CREAT, 0640) ;
+    ok $db, "tied to SDBM_File";
     
     doPreData(\%h);
 
@@ -702,8 +692,8 @@ sub checkRaw
     }
     
     my %h = () ;
-    my $db = tie(%h, $db_file,'Op_dbmx', O_RDWR|O_CREAT, 0640) ;
-    ok $db, "tied to $db_file";
+    my $db = tie(%h, 'SDBM_File','Op_dbmx', O_RDWR|O_CREAT, 0640) ;
+    ok $db, "tied to SDBM_File";
     
     doPreData(\%h);
 

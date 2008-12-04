@@ -19,56 +19,33 @@ BEGIN {
     }
 }
 
+$|  = 1;
 use warnings;
 use strict;
-BEGIN {
-    # BEGIN block is acutally a subroutine :-)
-    return unless $] > 5.009;
-    require feature;
-    feature->import(':5.10');
-}
-use Test::More tests => 54;
+use Config;
+
+print "1..39\n";
 
 use B::Deparse;
-my $deparse = B::Deparse->new();
-ok($deparse);
+my $deparse = B::Deparse->new() or print "not ";
+my $i=1;
+print "ok " . $i++ . "\n";
+
 
 # Tell B::Deparse about our ambient pragmas
-{ my ($hint_bits, $warning_bits, $hinthash);
- BEGIN { ($hint_bits, $warning_bits, $hinthash) = ($^H, ${^WARNING_BITS}, \%^H); }
+{ my ($hint_bits, $warning_bits);
+ BEGIN { ($hint_bits, $warning_bits) = ($^H, ${^WARNING_BITS}); }
  $deparse->ambient_pragmas (
      hint_bits    => $hint_bits,
      warning_bits => $warning_bits,
-     '$['         => 0 + $[,
-     '%^H'	  => $hinthash,
+     '$['         => 0 + $[
  );
 }
 
 $/ = "\n####\n";
 while (<DATA>) {
     chomp;
-    # This code is pinched from the t/lib/common.pl for TODO.
-    # It's not clear how to avoid duplication
-    my ($skip, $skip_reason);
-    s/^#\s*SKIP\s*(.*)\n//m and $skip_reason = $1;
-    # If the SKIP reason starts ? then it's taken as a code snippet to evaluate
-    # This provides the flexibility to have conditional SKIPs
-    if ($skip_reason && $skip_reason =~ s/^\?//) {
-	my $temp = eval $skip_reason;
-	if ($@) {
-	    die "# In SKIP code reason:\n# $skip_reason\n$@";
-	}
-	$skip_reason = $temp;
-    }
-
-    s/#\s*(.*)$//mg;
-    my ($num, $testname) = $1 =~ m/(\d+)\s*(.*)/;
-
-    if ($skip_reason) {
-	# Like this to avoid needing a label SKIP:
-	Test::More->builder->skip($skip_reason);
-	next;
-    }
+    s/#.*$//mg;
 
     my ($input, $expected);
     if (/(.*)\n>>>>\n(.*)/s) {
@@ -81,30 +58,47 @@ while (<DATA>) {
     my $coderef = eval "sub {$input}";
 
     if ($@) {
-	diag("$num deparsed: $@");
-	ok(0, $testname);
+	print "not ok " . $i++ . "\n";
+	print "# $@";
     }
     else {
 	my $deparsed = $deparse->coderef2text( $coderef );
-	my $regex = $expected;
-	$regex =~ s/(\S+)/\Q$1/g;
-	$regex =~ s/\s+/\\s+/g;
-	$regex = '^\{\s*' . $regex . '\s*\}$';
-        like($deparsed, qr/$regex/, $testname);
+	my $regex = quotemeta($expected);
+	do {
+	    no warnings 'misc';
+	    $regex =~ s/\s+/\s+/g;
+	};
+
+	my $ok = ($deparsed =~ /^\{\s*$regex\s*\}$/);
+	print (($ok ? "ok " : "not ok ") . $i++ . "\n");
+	if (!$ok) {
+	    print "# EXPECTED:\n";
+	    $regex =~ s/^/# /mg;
+	    print "$regex\n";
+
+	    print "\n# GOT: \n";
+	    $deparsed =~ s/^/# /mg;
+	    print "$deparsed\n";
+	}
     }
 }
 
 use constant 'c', 'stuff';
-is((eval "sub ".$deparse->coderef2text(\&c))->(), 'stuff');
+print "not " if (eval "sub ".$deparse->coderef2text(\&c))->() ne 'stuff';
+print "ok " . $i++ . "\n";
 
-my $a = 0;
-is("{\n    (-1) ** \$a;\n}", $deparse->coderef2text(sub{(-1) ** $a }));
+$a = 0;
+print "not " if "{\n    (-1) ** \$a;\n}"
+		ne $deparse->coderef2text(sub{(-1) ** $a });
+print "ok " . $i++ . "\n";
 
 use constant cr => ['hello'];
 my $string = "sub " . $deparse->coderef2text(\&cr);
 my $val = (eval $string)->();
-ok( ref($val) eq 'ARRAY' && $val->[0] eq 'hello');
+print "not " if ref($val) ne 'ARRAY' || $val->[0] ne 'hello';
+print "ok " . $i++ . "\n";
 
+my $a;
 my $Is_VMS = $^O eq 'VMS';
 my $Is_MacOS = $^O eq 'MacOS';
 
@@ -123,7 +117,7 @@ BEGIN { $^W = 1; }
 BEGIN { $/ = "\n"; $\ = "\n"; }
 LINE: while (defined($_ = <ARGV>)) {
     chomp $_;
-    our(@F) = split(' ', $_, 0);
+    our(@F) = split(" ", $_, 0);
     '???';
 }
 EOF
@@ -133,7 +127,8 @@ $b =~ s/(LINE:)/sub BEGIN {
     'XL'->bootstrap;
 }
 $1/ if $Is_MacOS;
-is($a, $b);
+print "# [$a]\n\# vs expected\n# [$b]\nnot " if $a ne $b;
+print "ok " . $i++ . "\n";
 
 #Re: perlbug #35857, patch #24505
 #handle warnings::register-ed packages properly.
@@ -152,7 +147,7 @@ use warnings;
 sub test {
    my $val = shift;
    my $res = B::Deparse::Wrapper::getcode($val);
-   like( $res, qr/use warnings/);
+   print $res =~ /use warnings/ ? '' : 'not ', 'ok ', $i++, "\n";
 }
 my ($q,$p);
 my $x=sub { ++$q,++$p };
@@ -274,7 +269,7 @@ my $i;
 while ($i) { my $z = 1; } continue { $i = 99; }
 ####
 # 23
-foreach my $i (1, 2) {
+foreach $i (1, 2) {
     my $z = 1;
 }
 ####
@@ -325,62 +320,3 @@ print $_ foreach (reverse @a);
 # 33
 our @a;
 print $_ foreach (reverse 1, 2..5);
-####
-# 34  (bug #38684)
-our @ary;
-@ary = split(' ', 'foo', 0);
-####
-# 35 (bug #40055)
-do { () }; 
-####
-# 36 (ibid.)
-do { my $x = 1; $x }; 
-####
-# 37 <20061012113037.GJ25805@c4.convolution.nl>
-my $f = sub {
-    +{[]};
-} ;
-####
-# 38 (bug #43010)
-'!@$%'->();
-####
-# 39 (ibid.)
-::();
-####
-# 40 (ibid.)
-'::::'->();
-####
-# 41 (ibid.)
-&::::;
-####
-# 42
-my $bar;
-'Foo'->$bar('orz');
-####
-# 43
-'Foo'->bar('orz');
-####
-# 44
-'Foo'->bar;
-####
-# SKIP ?$] < 5.010 && "say not implemented on this Perl version"
-# 45 say
-say 'foo';
-####
-# SKIP ?$] < 5.010 && "state vars not implemented on this Perl version"
-# 46 state vars
-state $x = 42;
-####
-# SKIP ?$] < 5.010 && "state vars not implemented on this Perl version"
-# 47 state var assignment
-{
-    my $y = (state $x = 42);
-}
-####
-# SKIP ?$] < 5.010 && "state vars not implemented on this Perl version"
-# 48 state vars in anoymous subroutines
-$a = sub {
-    state $x;
-    return $x++;
-}
-;

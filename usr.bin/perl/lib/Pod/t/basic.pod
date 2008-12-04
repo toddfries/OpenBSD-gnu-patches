@@ -41,9 +41,23 @@ Try out I<LOTS> of different ways of specifying references:
 
 Reference the L<manpage/section>
 
+Reference the L<manpage / section>
+
+Reference the L<manpage/ section>
+
+Reference the L<manpage /section>
+
+Reference the L<"manpage/section">
+
 Reference the L<"manpage"/section>
 
 Reference the L<manpage/"section">
+
+Reference the L<manpage/
+section>
+
+Reference the L<manpage
+/section>
 
 Now try it using the new "|" stuff ...
 
@@ -55,11 +69,21 @@ Reference the L<thistext| manpage/ section>|
 
 Reference the L<thistext |manpage /section>|
 
+Reference the L<thistext|
+"manpage/section">|
+
+Reference the L<thistext
+|"manpage"/section>|
+
 Reference the L<thistext|manpage/"section">|
 
 Reference the L<thistext|
 manpage/
 section>|
+
+Reference the L<thistext
+|manpage
+/section>|
 
 And then throw in a few new ones of my own.
 
@@ -79,9 +103,19 @@ L</baz boo>
 
 L<foo bar/baz boo>
 
+L<foo bar  /  baz boo>
+
+L<foo
+bar
+baz
+/
+boo>
+
 L<"boo var baz">
 
 L<bar baz>
+
+L<"boo bar baz / baz boo">
 
 L</boo>, L</bar>, and L</baz>
 

@@ -278,7 +278,7 @@ Anyway, here it is.  Should run on perl v4 or greater.  Maybe less.
 
 =cut
 
-$RCSID = '$Id: c2ph.PL,v 1.10 2008/09/29 17:36:20 millert Exp $';
+$RCSID = '$Id: c2ph.PL,v 1.9 2005/01/15 21:30:41 millert Exp $';
 
 use File::Temp;
 
@@ -1320,7 +1320,7 @@ EOF
 	$intrinsics{$_[1]} = $template{$_[0]};
     }
     close(PIPE) || die "couldn't read intrinsics!";
-    unlink($TMP, "$SAFEDIR/a.out");
+    unlink($TMP, '$SAFEDIR/a.out');
     print STDERR "done\n" if $trace;
 }
 
@@ -1435,9 +1435,9 @@ sub repeat_template {
 close OUT or die "Can't close $file: $!";
 chmod 0755, $file or die "Can't reset permissions for $file: $!\n";
 unlink 'pstruct';
-print "Linking $file to pstruct.\n";
+print "Linking c2ph to pstruct.\n";
 if (defined $Config{d_link}) {
-    link $file, 'pstruct';
+  link 'c2ph', 'pstruct';
 } else {
   unshift @INC, '../lib';
   require File::Copy;

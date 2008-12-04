@@ -250,10 +250,9 @@ dl_install_xsub(perl_name, symref, filename="$Package")
     CODE:
     DLDEBUG(2,PerlIO_printf(Perl_debug_log, "dl_install_xsub(name=%s, symref=%"UVxf")\n",
 		perl_name, PTR2UV(symref)));
-    ST(0) = sv_2mortal(newRV((SV*)newXS_flags(perl_name,
-					      DPTR2FPTR(XSUBADDR_t, symref),
-					      filename, NULL,
-					      XS_DYNAMIC_FILENAME)));
+    ST(0) = sv_2mortal(newRV((SV*)newXS(perl_name,
+					DPTR2FPTR(XSUBADDR_t, symref),
+					filename)));
 
 
 char *

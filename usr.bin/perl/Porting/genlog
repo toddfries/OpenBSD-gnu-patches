@@ -16,7 +16,6 @@
 #
 
 use Text::Wrap;
-use Text::Tabs;
 
 $0 =~ s|^.*/||;
 unless (@ARGV) {
@@ -108,11 +107,11 @@ else {
 	    }
 	}
 	next if ((not $change) or $skip);
-	my $output = ("_" x 76) . "\n";
-	$output .= sprintf <<EOT, $change, $who, $date, $time;
+	print "_" x 76, "\n";
+	printf <<EOT, $change, $who, $date, $time;
 [%6s] By: %-25s             on %9s %9s
 EOT
-	$output .= "        Log: ";
+	print "        Log: ";
 	my $i = 0;
 	while (@log) {
 	    $_ = shift @log;
@@ -120,12 +119,12 @@ EOT
 	    s/^\[.*\]\s*// unless $i ;
             # don't print last empty line
 	    if ($_ or @log) {
-	        $output .= "             " if $i++;
-	        $output .= "$_\n";
+	        print "             " if $i++;
+	        print "$_\n";
 	    }
 	}
 	for my $branch (sort keys %files) {
-	    $output .= sprintf "%11s: $branch\n", 'Branch';
+	    printf "%11s: $branch\n", 'Branch';
 	    for my $kind (sort keys %{$files{$branch}}) {
 	        warn("### $kind ###\n"), next unless exists $editkind{$kind};
 		my $files = $files{$branch}{$kind};
@@ -134,11 +133,10 @@ EOT
 		    if (@$files > 25 && ($kind eq 'integrate'
 		    			 || $kind eq 'branch'))
 		       || @$files > 100;
-	        $output .= wrap(sprintf("%12s ", $editkind{$kind}),
-				sprintf("%12s ", $editkind{$kind}),
-				"@$files\n");
+	        print wrap(sprintf("%12s ", $editkind{$kind}),
+			   sprintf("%12s ", $editkind{$kind}),
+			   "@$files\n");
             }
 	}
-	print unexpand($output);
     }
 }

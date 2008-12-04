@@ -9,11 +9,11 @@ package Math::Complex;
 
 use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS $Inf);
 
-$VERSION = 1.37;
+$VERSION = 1.35;
 
 BEGIN {
     unless ($^O eq 'unicosmk') {
-        local $!;
+        my $e = $!;
 	# We do want an arithmetic overflow, Inf INF inf Infinity:.
         undef $Inf unless eval <<'EOE' and $Inf =~ /^inf(?:inity)?$/i;
 	  local $SIG{FPE} = sub {die};
@@ -27,6 +27,7 @@ EOE
 	    $Inf = $t + "1e99999999999999999999999999999999";
 EOE
 	}
+        $! = $e; # Clear ERANGE.
     }
     $Inf = "Inf" if !defined $Inf || !($Inf > 0); # Desperation.
 }
@@ -65,25 +66,22 @@ my @trig = qw(
 	     ),
 	   @trig);
 
-my @pi = qw(pi pi2 pi4 pip2 pip4);
-
-@EXPORT_OK = @pi;
+@EXPORT_OK = qw(decplx);
 
 %EXPORT_TAGS = (
     'trig' => [@trig],
-    'pi' => [@pi],
 );
 
 use overload
-	'+'	=> \&_plus,
-	'-'	=> \&_minus,
-	'*'	=> \&_multiply,
-	'/'	=> \&_divide,
-	'**'	=> \&_power,
-	'=='	=> \&_numeq,
-	'<=>'	=> \&_spaceship,
-	'neg'	=> \&_negate,
-	'~'	=> \&_conjugate,
+	'+'	=> \&plus,
+	'-'	=> \&minus,
+	'*'	=> \&multiply,
+	'/'	=> \&divide,
+	'**'	=> \&power,
+	'=='	=> \&numeq,
+	'<=>'	=> \&spaceship,
+	'neg'	=> \&negate,
+	'~'	=> \&conjugate,
 	'abs'	=> \&abs,
 	'sqrt'	=> \&sqrt,
 	'exp'	=> \&exp,
@@ -92,7 +90,7 @@ use overload
 	'cos'	=> \&cos,
 	'tan'	=> \&tan,
 	'atan2'	=> \&atan2,
-        '""'    => \&_stringify;
+	qw("" stringify);
 
 #
 # Package "privates"
@@ -109,8 +107,6 @@ my $eps            = 1e-14;		# Epsilon
 #	c_dirty		cartesian form not up-to-date
 #	p_dirty		polar form not up-to-date
 #	display		display format (package's global when not set)
-#	bn_cartesian
-#       bnc_dirty
 #
 
 # Die on bad *make() arguments.
@@ -187,7 +183,7 @@ sub make {
     }
     $im ||= 0;
     _cannot_make("imaginary part", $im) unless $im =~ /^$gre$/;
-    $self->_set_cartesian([$re, $im ]);
+    $self->set_cartesian([$re, $im ]);
     $self->display_format('cartesian');
 
     return $self;
@@ -221,7 +217,7 @@ sub emake {
     }
     $theta ||= 0;
     _cannot_make("theta", $theta) unless $theta =~ /^$gre$/;
-    $self->_set_polar([$rho, $theta]);
+    $self->set_polar([$rho, $theta]);
     $self->display_format('polar');
 
     return $self;
@@ -257,18 +253,11 @@ sub cplxe {
 sub pi () { 4 * CORE::atan2(1, 1) }
 
 #
-# pi2
+# pit2
 #
 # The full circle
 #
-sub pi2 () { 2 * pi }
-
-#
-# pi4
-#
-# The full circle twice.
-#
-sub pi4 () { 4 * pi }
+sub pit2 () { 2 * pi }
 
 #
 # pip2
@@ -278,18 +267,19 @@ sub pi4 () { 4 * pi }
 sub pip2 () { pi / 2 }
 
 #
-# pip4
+# deg1
 #
-# The eighth circle.
+# One degree in radians, used in stringify_polar.
 #
-sub pip4 () { pi / 4 }
+
+sub deg1 () { pi / 180 }
 
 #
-# _uplog10
+# uplog10
 #
 # Used in log10().
 #
-sub _uplog10 () { 1 / CORE::log(10) }
+sub uplog10 () { 1 / CORE::log(10) }
 
 #
 # i
@@ -307,32 +297,32 @@ sub i () {
 }
 
 #
-# _ip2
+# ip2
 #
 # Half of i.
 #
-sub _ip2 () { i / 2 }
+sub ip2 () { i / 2 }
 
 #
 # Attribute access/set routines
 #
 
-sub _cartesian {$_[0]->{c_dirty} ?
-		   $_[0]->_update_cartesian : $_[0]->{'cartesian'}}
-sub _polar     {$_[0]->{p_dirty} ?
-		   $_[0]->_update_polar : $_[0]->{'polar'}}
+sub cartesian {$_[0]->{c_dirty} ?
+		   $_[0]->update_cartesian : $_[0]->{'cartesian'}}
+sub polar     {$_[0]->{p_dirty} ?
+		   $_[0]->update_polar : $_[0]->{'polar'}}
 
-sub _set_cartesian { $_[0]->{p_dirty}++; $_[0]->{c_dirty} = 0;
-		     $_[0]->{'cartesian'} = $_[1] }
-sub _set_polar     { $_[0]->{c_dirty}++; $_[0]->{p_dirty} = 0;
-		     $_[0]->{'polar'} = $_[1] }
+sub set_cartesian { $_[0]->{p_dirty}++; $_[0]->{c_dirty} = 0;
+		    $_[0]->{'cartesian'} = $_[1] }
+sub set_polar     { $_[0]->{c_dirty}++; $_[0]->{p_dirty} = 0;
+		    $_[0]->{'polar'} = $_[1] }
 
 #
-# ->_update_cartesian
+# ->update_cartesian
 #
 # Recompute and return the cartesian form, given accurate polar form.
 #
-sub _update_cartesian {
+sub update_cartesian {
 	my $self = shift;
 	my ($r, $t) = @{$self->{'polar'}};
 	$self->{c_dirty} = 0;
@@ -341,11 +331,11 @@ sub _update_cartesian {
 
 #
 #
-# ->_update_polar
+# ->update_polar
 #
 # Recompute and return the polar form, given accurate cartesian form.
 #
-sub _update_polar {
+sub update_polar {
 	my $self = shift;
 	my ($x, $y) = @{$self->{'cartesian'}};
 	$self->{p_dirty} = 0;
@@ -355,34 +345,34 @@ sub _update_polar {
 }
 
 #
-# (_plus)
+# (plus)
 #
 # Computes z1+z2.
 #
-sub _plus {
+sub plus {
 	my ($z1, $z2, $regular) = @_;
-	my ($re1, $im1) = @{$z1->_cartesian};
+	my ($re1, $im1) = @{$z1->cartesian};
 	$z2 = cplx($z2) unless ref $z2;
-	my ($re2, $im2) = ref $z2 ? @{$z2->_cartesian} : ($z2, 0);
+	my ($re2, $im2) = ref $z2 ? @{$z2->cartesian} : ($z2, 0);
 	unless (defined $regular) {
-		$z1->_set_cartesian([$re1 + $re2, $im1 + $im2]);
+		$z1->set_cartesian([$re1 + $re2, $im1 + $im2]);
 		return $z1;
 	}
 	return (ref $z1)->make($re1 + $re2, $im1 + $im2);
 }
 
 #
-# (_minus)
+# (minus)
 #
 # Computes z1-z2.
 #
-sub _minus {
+sub minus {
 	my ($z1, $z2, $inverted) = @_;
-	my ($re1, $im1) = @{$z1->_cartesian};
+	my ($re1, $im1) = @{$z1->cartesian};
 	$z2 = cplx($z2) unless ref $z2;
-	my ($re2, $im2) = @{$z2->_cartesian};
+	my ($re2, $im2) = @{$z2->cartesian};
 	unless (defined $inverted) {
-		$z1->_set_cartesian([$re1 - $re2, $im1 - $im2]);
+		$z1->set_cartesian([$re1 - $re2, $im1 - $im2]);
 		return $z1;
 	}
 	return $inverted ?
@@ -392,28 +382,28 @@ sub _minus {
 }
 
 #
-# (_multiply)
+# (multiply)
 #
 # Computes z1*z2.
 #
-sub _multiply {
+sub multiply {
         my ($z1, $z2, $regular) = @_;
 	if ($z1->{p_dirty} == 0 and ref $z2 and $z2->{p_dirty} == 0) {
 	    # if both polar better use polar to avoid rounding errors
-	    my ($r1, $t1) = @{$z1->_polar};
-	    my ($r2, $t2) = @{$z2->_polar};
+	    my ($r1, $t1) = @{$z1->polar};
+	    my ($r2, $t2) = @{$z2->polar};
 	    my $t = $t1 + $t2;
-	    if    ($t >   pi()) { $t -= pi2 }
-	    elsif ($t <= -pi()) { $t += pi2 }
+	    if    ($t >   pi()) { $t -= pit2 }
+	    elsif ($t <= -pi()) { $t += pit2 }
 	    unless (defined $regular) {
-		$z1->_set_polar([$r1 * $r2, $t]);
+		$z1->set_polar([$r1 * $r2, $t]);
 		return $z1;
 	    }
 	    return (ref $z1)->emake($r1 * $r2, $t);
 	} else {
-	    my ($x1, $y1) = @{$z1->_cartesian};
+	    my ($x1, $y1) = @{$z1->cartesian};
 	    if (ref $z2) {
-		my ($x2, $y2) = @{$z2->_cartesian};
+		my ($x2, $y2) = @{$z2->cartesian};
 		return (ref $z1)->make($x1*$x2-$y1*$y2, $x1*$y2+$y1*$x2);
 	    } else {
 		return (ref $z1)->make($x1*$z2, $y1*$z2);
@@ -443,41 +433,41 @@ sub _divbyzero {
 }
 
 #
-# (_divide)
+# (divide)
 #
 # Computes z1/z2.
 #
-sub _divide {
+sub divide {
 	my ($z1, $z2, $inverted) = @_;
 	if ($z1->{p_dirty} == 0 and ref $z2 and $z2->{p_dirty} == 0) {
 	    # if both polar better use polar to avoid rounding errors
-	    my ($r1, $t1) = @{$z1->_polar};
-	    my ($r2, $t2) = @{$z2->_polar};
+	    my ($r1, $t1) = @{$z1->polar};
+	    my ($r2, $t2) = @{$z2->polar};
 	    my $t;
 	    if ($inverted) {
 		_divbyzero "$z2/0" if ($r1 == 0);
 		$t = $t2 - $t1;
-		if    ($t >   pi()) { $t -= pi2 }
-		elsif ($t <= -pi()) { $t += pi2 }
+		if    ($t >   pi()) { $t -= pit2 }
+		elsif ($t <= -pi()) { $t += pit2 }
 		return (ref $z1)->emake($r2 / $r1, $t);
 	    } else {
 		_divbyzero "$z1/0" if ($r2 == 0);
 		$t = $t1 - $t2;
-		if    ($t >   pi()) { $t -= pi2 }
-		elsif ($t <= -pi()) { $t += pi2 }
+		if    ($t >   pi()) { $t -= pit2 }
+		elsif ($t <= -pi()) { $t += pit2 }
 		return (ref $z1)->emake($r1 / $r2, $t);
 	    }
 	} else {
 	    my ($d, $x2, $y2);
 	    if ($inverted) {
-		($x2, $y2) = @{$z1->_cartesian};
+		($x2, $y2) = @{$z1->cartesian};
 		$d = $x2*$x2 + $y2*$y2;
 		_divbyzero "$z2/0" if $d == 0;
 		return (ref $z1)->make(($x2*$z2)/$d, -($y2*$z2)/$d);
 	    } else {
-		my ($x1, $y1) = @{$z1->_cartesian};
+		my ($x1, $y1) = @{$z1->cartesian};
 		if (ref $z2) {
-		    ($x2, $y2) = @{$z2->_cartesian};
+		    ($x2, $y2) = @{$z2->cartesian};
 		    $d = $x2*$x2 + $y2*$y2;
 		    _divbyzero "$z1/0" if $d == 0;
 		    my $u = ($x1*$x2 + $y1*$y2)/$d;
@@ -492,11 +482,11 @@ sub _divide {
 }
 
 #
-# (_power)
+# (power)
 #
 # Computes z1**z2 = exp(z2 * log z1)).
 #
-sub _power {
+sub power {
 	my ($z1, $z2, $inverted) = @_;
 	if ($inverted) {
 	    return 1 if $z1 == 0 || $z2 == 1;
@@ -510,65 +500,65 @@ sub _power {
 	# If both arguments cartesian, return cartesian, else polar.
 	return $z1->{c_dirty} == 0 &&
 	       (not ref $z2 or $z2->{c_dirty} == 0) ?
-	       cplx(@{$w->_cartesian}) : $w;
+	       cplx(@{$w->cartesian}) : $w;
 }
 
 #
-# (_spaceship)
+# (spaceship)
 #
 # Computes z1 <=> z2.
 # Sorts on the real part first, then on the imaginary part. Thus 2-4i < 3+8i.
 #
-sub _spaceship {
+sub spaceship {
 	my ($z1, $z2, $inverted) = @_;
-	my ($re1, $im1) = ref $z1 ? @{$z1->_cartesian} : ($z1, 0);
-	my ($re2, $im2) = ref $z2 ? @{$z2->_cartesian} : ($z2, 0);
+	my ($re1, $im1) = ref $z1 ? @{$z1->cartesian} : ($z1, 0);
+	my ($re2, $im2) = ref $z2 ? @{$z2->cartesian} : ($z2, 0);
 	my $sgn = $inverted ? -1 : 1;
 	return $sgn * ($re1 <=> $re2) if $re1 != $re2;
 	return $sgn * ($im1 <=> $im2);
 }
 
 #
-# (_numeq)
+# (numeq)
 #
 # Computes z1 == z2.
 #
-# (Required in addition to _spaceship() because of NaNs.)
-sub _numeq {
+# (Required in addition to spaceship() because of NaNs.)
+sub numeq {
 	my ($z1, $z2, $inverted) = @_;
-	my ($re1, $im1) = ref $z1 ? @{$z1->_cartesian} : ($z1, 0);
-	my ($re2, $im2) = ref $z2 ? @{$z2->_cartesian} : ($z2, 0);
+	my ($re1, $im1) = ref $z1 ? @{$z1->cartesian} : ($z1, 0);
+	my ($re2, $im2) = ref $z2 ? @{$z2->cartesian} : ($z2, 0);
 	return $re1 == $re2 && $im1 == $im2 ? 1 : 0;
 }
 
 #
-# (_negate)
+# (negate)
 #
 # Computes -z.
 #
-sub _negate {
+sub negate {
 	my ($z) = @_;
 	if ($z->{c_dirty}) {
-		my ($r, $t) = @{$z->_polar};
+		my ($r, $t) = @{$z->polar};
 		$t = ($t <= 0) ? $t + pi : $t - pi;
 		return (ref $z)->emake($r, $t);
 	}
-	my ($re, $im) = @{$z->_cartesian};
+	my ($re, $im) = @{$z->cartesian};
 	return (ref $z)->make(-$re, -$im);
 }
 
 #
-# (_conjugate)
+# (conjugate)
 #
-# Compute complex's _conjugate.
+# Compute complex's conjugate.
 #
-sub _conjugate {
+sub conjugate {
 	my ($z) = @_;
 	if ($z->{c_dirty}) {
-		my ($r, $t) = @{$z->_polar};
+		my ($r, $t) = @{$z->polar};
 		return (ref $z)->emake($r, -$t);
 	}
-	my ($re, $im) = @{$z->_cartesian};
+	my ($re, $im) = @{$z->cartesian};
 	return (ref $z)->make($re, -$im);
 }
 
@@ -587,20 +577,20 @@ sub abs {
 	    }
 	}
 	if (defined $rho) {
-	    $z->{'polar'} = [ $rho, ${$z->_polar}[1] ];
+	    $z->{'polar'} = [ $rho, ${$z->polar}[1] ];
 	    $z->{p_dirty} = 0;
 	    $z->{c_dirty} = 1;
 	    return $rho;
 	} else {
-	    return ${$z->_polar}[0];
+	    return ${$z->polar}[0];
 	}
 }
 
 sub _theta {
     my $theta = $_[0];
 
-    if    ($$theta >   pi()) { $$theta -= pi2 }
-    elsif ($$theta <= -pi()) { $$theta += pi2 }
+    if    ($$theta >   pi()) { $$theta -= pit2 }
+    elsif ($$theta <= -pi()) { $$theta += pit2 }
 }
 
 #
@@ -613,11 +603,11 @@ sub arg {
 	return $z unless ref $z;
 	if (defined $theta) {
 	    _theta(\$theta);
-	    $z->{'polar'} = [ ${$z->_polar}[0], $theta ];
+	    $z->{'polar'} = [ ${$z->polar}[0], $theta ];
 	    $z->{p_dirty} = 0;
 	    $z->{c_dirty} = 1;
 	} else {
-	    $theta = ${$z->_polar}[1];
+	    $theta = ${$z->polar}[1];
 	    _theta(\$theta);
 	}
 	return $theta;
@@ -640,10 +630,10 @@ sub arg {
 #
 sub sqrt {
 	my ($z) = @_;
-	my ($re, $im) = ref $z ? @{$z->_cartesian} : ($z, 0);
+	my ($re, $im) = ref $z ? @{$z->cartesian} : ($z, 0);
 	return $re < 0 ? cplx(0, CORE::sqrt(-$re)) : CORE::sqrt($re)
 	    if $im == 0;
-	my ($r, $t) = @{$z->_polar};
+	my ($r, $t) = @{$z->polar};
 	return (ref $z)->emake(CORE::sqrt($r), $t/2);
 }
 
@@ -660,7 +650,7 @@ sub cbrt {
 	    -CORE::exp(CORE::log(-$z)/3) :
 		($z > 0 ? CORE::exp(CORE::log($z)/3): 0)
 	    unless ref $z;
-	my ($r, $t) = @{$z->_polar};
+	my ($r, $t) = @{$z->polar};
 	return 0 if $r == 0;
 	return (ref $z)->emake(CORE::exp(CORE::log($r)/3), $t/3);
 }
@@ -694,8 +684,8 @@ sub root {
 	my ($z, $n, $k) = @_;
 	_rootbad($n) if ($n < 1 or int($n) != $n);
 	my ($r, $t) = ref $z ?
-	    @{$z->_polar} : (CORE::abs($z), $z >= 0 ? 0 : pi);
-	my $theta_inc = pi2 / $n;
+	    @{$z->polar} : (CORE::abs($z), $z >= 0 ? 0 : pi);
+	my $theta_inc = pit2 / $n;
 	my $rho = $r ** (1/$n);
 	my $cartesian = ref $z && $z->{c_dirty} == 0;
 	if (@_ == 2) {
@@ -705,12 +695,12 @@ sub root {
 		 $i++, $theta += $theta_inc) {
 		my $w = cplxe($rho, $theta);
 		# Yes, $cartesian is loop invariant.
-		push @root, $cartesian ? cplx(@{$w->_cartesian}) : $w;
+		push @root, $cartesian ? cplx(@{$w->cartesian}) : $w;
 	    }
 	    return @root;
 	} elsif (@_ == 3) {
 	    my $w = cplxe($rho, $t / $n + $k * $theta_inc);
-	    return $cartesian ? cplx(@{$w->_cartesian}) : $w;
+	    return $cartesian ? cplx(@{$w->cartesian}) : $w;
 	}
 }
 
@@ -723,11 +713,11 @@ sub Re {
 	my ($z, $Re) = @_;
 	return $z unless ref $z;
 	if (defined $Re) {
-	    $z->{'cartesian'} = [ $Re, ${$z->_cartesian}[1] ];
+	    $z->{'cartesian'} = [ $Re, ${$z->cartesian}[1] ];
 	    $z->{c_dirty} = 0;
 	    $z->{p_dirty} = 1;
 	} else {
-	    return ${$z->_cartesian}[0];
+	    return ${$z->cartesian}[0];
 	}
 }
 
@@ -740,11 +730,11 @@ sub Im {
 	my ($z, $Im) = @_;
 	return 0 unless ref $z;
 	if (defined $Im) {
-	    $z->{'cartesian'} = [ ${$z->_cartesian}[0], $Im ];
+	    $z->{'cartesian'} = [ ${$z->cartesian}[0], $Im ];
 	    $z->{c_dirty} = 0;
 	    $z->{p_dirty} = 1;
 	} else {
-	    return ${$z->_cartesian}[1];
+	    return ${$z->cartesian}[1];
 	}
 }
 
@@ -773,7 +763,7 @@ sub theta {
 #
 sub exp {
 	my ($z) = @_;
-	my ($x, $y) = @{$z->_cartesian};
+	my ($x, $y) = @{$z->cartesian};
 	return (ref $z)->emake(CORE::exp($x), $y);
 }
 
@@ -809,10 +799,10 @@ sub log {
 	    _logofzero("log") if $z == 0;
 	    return $z > 0 ? CORE::log($z) : cplx(CORE::log(-$z), pi);
 	}
-	my ($r, $t) = @{$z->_polar};
+	my ($r, $t) = @{$z->polar};
 	_logofzero("log") if $r == 0;
-	if    ($t >   pi()) { $t -= pi2 }
-	elsif ($t <= -pi()) { $t += pi2 }
+	if    ($t >   pi()) { $t -= pit2 }
+	elsif ($t <= -pi()) { $t += pit2 }
 	return (ref $z)->make(CORE::log($r), $t);
 }
 
@@ -830,7 +820,7 @@ sub ln { Math::Complex::log(@_) }
 #
 
 sub log10 {
-	return Math::Complex::log($_[0]) * _uplog10;
+	return Math::Complex::log($_[0]) * uplog10;
 }
 
 #
@@ -854,7 +844,7 @@ sub logn {
 sub cos {
 	my ($z) = @_;
 	return CORE::cos($z) unless ref $z;
-	my ($x, $y) = @{$z->_cartesian};
+	my ($x, $y) = @{$z->cartesian};
 	my $ey = CORE::exp($y);
 	my $sx = CORE::sin($x);
 	my $cx = CORE::cos($x);
@@ -871,7 +861,7 @@ sub cos {
 sub sin {
 	my ($z) = @_;
 	return CORE::sin($z) unless ref $z;
-	my ($x, $y) = @{$z->_cartesian};
+	my ($x, $y) = @{$z->cartesian};
 	my $ey = CORE::exp($y);
 	my $sx = CORE::sin($x);
 	my $cx = CORE::cos($x);
@@ -952,7 +942,7 @@ sub acos {
 	return CORE::atan2(CORE::sqrt(1-$z*$z), $z)
 	    if (! ref $z) && CORE::abs($z) <= 1;
 	$z = cplx($z, 0) unless ref $z;
-	my ($x, $y) = @{$z->_cartesian};
+	my ($x, $y) = @{$z->cartesian};
 	return 0 if $x == 1 && $y == 0;
 	my $t1 = CORE::sqrt(($x+1)*($x+1) + $y*$y);
 	my $t2 = CORE::sqrt(($x-1)*($x-1) + $y*$y);
@@ -977,7 +967,7 @@ sub asin {
 	return CORE::atan2($z, CORE::sqrt(1-$z*$z))
 	    if (! ref $z) && CORE::abs($z) <= 1;
 	$z = cplx($z, 0) unless ref $z;
-	my ($x, $y) = @{$z->_cartesian};
+	my ($x, $y) = @{$z->cartesian};
 	return 0 if $x == 0 && $y == 0;
 	my $t1 = CORE::sqrt(($x+1)*($x+1) + $y*$y);
 	my $t2 = CORE::sqrt(($x-1)*($x-1) + $y*$y);
@@ -1000,12 +990,12 @@ sub asin {
 sub atan {
 	my ($z) = @_;
 	return CORE::atan2($z, 1) unless ref $z;
-	my ($x, $y) = ref $z ? @{$z->_cartesian} : ($z, 0);
+	my ($x, $y) = ref $z ? @{$z->cartesian} : ($z, 0);
 	return 0 if $x == 0 && $y == 0;
 	_divbyzero "atan(i)"  if ( $z == i);
 	_logofzero "atan(-i)" if (-$z == i); # -i is a bad file test...
 	my $log = &log((i + $z) / (i - $z));
-	return _ip2 * $log;
+	return ip2 * $log;
 }
 
 #
@@ -1071,7 +1061,7 @@ sub cosh {
 	    $ex = CORE::exp($z);
 	    return $ex ? ($ex + 1/$ex)/2 : $Inf;
 	}
-	my ($x, $y) = @{$z->_cartesian};
+	my ($x, $y) = @{$z->cartesian};
 	$ex = CORE::exp($x);
 	my $ex_1 = $ex ? 1 / $ex : $Inf;
 	return (ref $z)->make(CORE::cos($y) * ($ex + $ex_1)/2,
@@ -1091,7 +1081,7 @@ sub sinh {
 	    $ex = CORE::exp($z);
 	    return $ex ? ($ex - 1/$ex)/2 : "-$Inf";
 	}
-	my ($x, $y) = @{$z->_cartesian};
+	my ($x, $y) = @{$z->cartesian};
 	my $cy = CORE::cos($y);
 	my $sy = CORE::sin($y);
 	$ex = CORE::exp($x);
@@ -1172,7 +1162,7 @@ sub acosh {
 	unless (ref $z) {
 	    $z = cplx($z, 0);
 	}
-	my ($re, $im) = @{$z->_cartesian};
+	my ($re, $im) = @{$z->cartesian};
 	if ($im == 0) {
 	    return CORE::log($re + CORE::sqrt($re*$re - 1))
 		if $re >= 1;
@@ -1288,11 +1278,11 @@ sub atan2 {
 	my ($z1, $z2, $inverted) = @_;
 	my ($re1, $im1, $re2, $im2);
 	if ($inverted) {
-	    ($re1, $im1) = ref $z2 ? @{$z2->_cartesian} : ($z2, 0);
-	    ($re2, $im2) = ref $z1 ? @{$z1->_cartesian} : ($z1, 0);
+	    ($re1, $im1) = ref $z2 ? @{$z2->cartesian} : ($z2, 0);
+	    ($re2, $im2) = ref $z1 ? @{$z1->cartesian} : ($z1, 0);
 	} else {
-	    ($re1, $im1) = ref $z1 ? @{$z1->_cartesian} : ($z1, 0);
-	    ($re2, $im2) = ref $z2 ? @{$z2->_cartesian} : ($z2, 0);
+	    ($re1, $im1) = ref $z1 ? @{$z1->cartesian} : ($z1, 0);
+	    ($re2, $im2) = ref $z2 ? @{$z2->cartesian} : ($z2, 0);
 	}
 	if ($im1 || $im2) {
 	    # In MATLAB the imaginary parts are ignored.
@@ -1355,7 +1345,7 @@ sub display_format {
 }
 
 #
-# (_stringify)
+# (stringify)
 #
 # Show nicely formatted complex number under its cartesian or polar form,
 # depending on the current display format:
@@ -1364,25 +1354,25 @@ sub display_format {
 # . Otherwise, use the generic current default for all complex numbers,
 #   which is a package global variable.
 #
-sub _stringify {
+sub stringify {
 	my ($z) = shift;
 
 	my $style = $z->display_format;
 
 	$style = $DISPLAY_FORMAT{style} unless defined $style;
 
-	return $z->_stringify_polar if $style =~ /^p/i;
-	return $z->_stringify_cartesian;
+	return $z->stringify_polar if $style =~ /^p/i;
+	return $z->stringify_cartesian;
 }
 
 #
-# ->_stringify_cartesian
+# ->stringify_cartesian
 #
 # Stringify as a cartesian representation 'a+bi'.
 #
-sub _stringify_cartesian {
+sub stringify_cartesian {
 	my $z  = shift;
-	my ($x, $y) = @{$z->_cartesian};
+	my ($x, $y) = @{$z->cartesian};
 	my ($re, $im);
 
 	my %format = $z->display_format;
@@ -1438,13 +1428,13 @@ sub _stringify_cartesian {
 
 
 #
-# ->_stringify_polar
+# ->stringify_polar
 #
 # Stringify as a polar representation '[r,t]'.
 #
-sub _stringify_polar {
+sub stringify_polar {
 	my $z  = shift;
-	my ($r, $t) = @{$z->_polar};
+	my ($r, $t) = @{$z->polar};
 	my $theta;
 
 	my %format = $z->display_format;
@@ -1464,7 +1454,7 @@ sub _stringify_polar {
 	# Try to identify pi/n and friends.
 	#
 
-	$t -= int(CORE::abs($t) / pi2) * pi2;
+	$t -= int(CORE::abs($t) / pit2) * pit2;
 
 	if ($format{polar_pretty_print} && $t) {
 	    my ($a, $b);
@@ -1581,14 +1571,14 @@ which is also expressed by this formula:
 
 In other words, it's the projection of the vector onto the I<x> and I<y>
 axes. Mathematicians call I<rho> the I<norm> or I<modulus> and I<theta>
-the I<argument> of the complex number. The I<norm> of C<z> is
-marked here as C<abs(z)>.
+the I<argument> of the complex number. The I<norm> of C<z> will be
+noted C<abs(z)>.
 
-The polar notation (also known as the trigonometric representation) is
-much more handy for performing multiplications and divisions of
-complex numbers, whilst the cartesian notation is better suited for
-additions and subtractions. Real numbers are on the I<x> axis, and
-therefore I<y> or I<theta> is zero or I<pi>.
+The polar notation (also known as the trigonometric
+representation) is much more handy for performing multiplications and
+divisions of complex numbers, whilst the cartesian notation is better
+suited for additions and subtractions. Real numbers are on the I<x>
+axis, and therefore I<theta> is zero or I<pi>.
 
 All the common operations that can be performed on a real number have
 been defined to work on complex numbers as well, and are merely
@@ -1684,8 +1674,6 @@ the following (overloaded) operations are supported on complex numbers:
 The definition used for complex arguments of atan2() is
 
        -i log((x + iy)/sqrt(x*x+y*y))
-
-Note that atan2(0, 0) is not well-defined.
 
 The following extra operations are supported on both real and complex
 numbers:
@@ -1907,15 +1895,6 @@ Here are some examples:
 	$j->arg(2);			# (the last two aka rho, theta)
 					# can be used also as mutators.
 
-=head2 PI
-
-The constant C<pi> and some handy multiples of it (pi2, pi4,
-and pip2 (pi/2) and pip4 (pi/4)) are also available if separately
-exported:
-
-    use Math::Complex ':pi'; 
-    $third_of_circle = pi2 / 3;
-
 =head1 ERRORS DUE TO DIVISION BY ZERO OR LOGARITHM OF ZERO
 
 The division (/) and the following functions
@@ -1982,9 +1961,10 @@ Whatever it is, it does not manifest itself anywhere else where Perl runs.
 
 =head1 AUTHORS
 
-Daniel S. Lewart <F<lewart!at!uiuc.edu>>
-Jarkko Hietaniemi <F<jhi!at!iki.fi>>
-Raphael Manfredi <F<Raphael_Manfredi!at!pobox.com>>
+Daniel S. Lewart <F<d-lewart@uiuc.edu>>
+
+Original authors Raphael Manfredi <F<Raphael_Manfredi@pobox.com>> and
+Jarkko Hietaniemi <F<jhi@iki.fi>>
 
 =cut
 

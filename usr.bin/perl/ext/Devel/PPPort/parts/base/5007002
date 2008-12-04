@@ -1,26 +1,26 @@
 5.007002
-SvPV_force_nomg                # U
-SvPV_nomg                      # U
-calloc                         # U
+SvPV_force_nomg                # E
+SvPV_nomg                      # E
+calloc                         # E
 dAX                            # E
 dITEMS                         # E
 getcwd_sv                      # U
 grok_number                    # U
 grok_numeric_radix             # U
 init_tm                        # U
-malloc                         # U
+malloc                         # E
 mfree                          # U
 mini_mktime                    # U
-my_atof2                       # U
-my_strftime                    # U
+my_atof2                       # E
+my_strftime                    # E
 op_null                        # U
-realloc                        # U
-sv_2pv_flags                   # U
+realloc                        # E
+sv_2pv_flags                   # E
 sv_catpvn_flags                # U
 sv_catpvn_nomg                 # U
 sv_catsv_flags                 # U
 sv_catsv_nomg                  # U
-sv_pvn_force_flags             # U
+sv_pvn_force_flags             # E
 sv_setsv_flags                 # U
 sv_setsv_nomg                  # U
 sv_utf8_upgrade_flags          # U
@@ -45,8 +45,10 @@ PERL_MAGIC_env                 # added by devel/scanprov
 PERL_MAGIC_envelem             # added by devel/scanprov
 PERL_MAGIC_ext                 # added by devel/scanprov
 PERL_MAGIC_fm                  # added by devel/scanprov
+PERL_MAGIC_glob                # added by devel/scanprov
 PERL_MAGIC_isa                 # added by devel/scanprov
 PERL_MAGIC_isaelem             # added by devel/scanprov
+PERL_MAGIC_mutex               # added by devel/scanprov
 PERL_MAGIC_nkeys               # added by devel/scanprov
 PERL_MAGIC_overload            # added by devel/scanprov
 PERL_MAGIC_overload_elem       # added by devel/scanprov
@@ -67,7 +69,3 @@ PERL_MAGIC_tiedscalar          # added by devel/scanprov
 PERL_MAGIC_uvar                # added by devel/scanprov
 PERL_MAGIC_vec                 # added by devel/scanprov
 PERL_UNUSED_DECL               # added by devel/scanprov
-PERL_UNUSED_VAR                # added by devel/scanprov
-SV_GMAGIC                      # added by devel/scanprov
-SvPV_flags                     # added by devel/scanprov
-SvPV_force_flags               # added by devel/scanprov

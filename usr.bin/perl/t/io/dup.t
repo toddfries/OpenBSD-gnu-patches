@@ -10,8 +10,7 @@ use Config;
 no warnings 'once';
 
 my $test = 1;
-my $tests_needing_perlio = 17;
-plan(12 + $tests_needing_perlio);
+print "1..26\n";
 print "ok 1\n";
 
 open(DUPOUT,">&STDOUT");
@@ -92,7 +91,7 @@ open(F, ">&DUPOUT") or die "Cannot dup stdout back: $!";
 curr_test(13);
 
 SKIP: {
-    skip("need perlio", $tests_needing_perlio) unless $Config{useperlio};
+    skip("need perlio", 14) unless $Config{useperlio};
     
     ok(open(F, ">&", STDOUT));
     isnt(fileno(F), fileno(STDOUT));
@@ -133,25 +132,6 @@ SKIP: {
 	$line = <G>; chomp $line; is($line, "fff");
     }
     close G;
-
-    open UTFOUT, '>:utf8', "dup$$" or die $!;
-    open UTFDUP, '>&UTFOUT' or die $!;
-    # some old greek saying.
-    my $message = "\x{03A0}\x{0391}\x{039D}\x{03A4}\x{0391} \x{03A1}\x{0395}\x{0399}\n";
-    print UTFOUT $message;
-    print UTFDUP $message;
-    binmode UTFDUP, ':utf8';
-    print UTFDUP $message;
-    close UTFOUT;
-    close UTFDUP;
-    open(UTFIN, "<:utf8", "dup$$") or die $!;
-    {
-	my $line;
-	$line = <UTFIN>; is($line, $message);
-	$line = <UTFIN>; is($line, $message);
-	$line = <UTFIN>; is($line, $message);
-    }
-    close UTFIN;
 
     END { 1 while unlink "dup$$" }
 }

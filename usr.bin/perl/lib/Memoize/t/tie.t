@@ -29,7 +29,14 @@ sub n {
   $_[0]+1;
 }
 
-$file = "md$$";
+if (eval {require File::Spec::Functions}) {
+  File::Spec::Functions->import('tmpdir', 'catfile');
+  $tmpdir = tmpdir();
+} else {
+  *catfile = sub { join '/', @_ };
+  $tmpdir = $ENV{TMP} || $ENV{TMPDIR} || '/tmp';
+}
+$file = catfile($tmpdir, "md$$");
 @files = ($file, "$file.db", "$file.dir", "$file.pag");
 1 while unlink @files;
 

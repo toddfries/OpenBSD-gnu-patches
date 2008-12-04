@@ -6,8 +6,7 @@
 # needed symbols are not lagging after how Configure thinks the world
 # is laid out.
 #
-# VMS is probably not handled properly here, due to their own
-# rather elaborate DCL scripting.
+# VMS is not handled here, due to their own rather elaborate DCL scripting.
 #
 
 use strict;
@@ -18,8 +17,6 @@ my %MASTER_CFG;
 my @CFG = (
 	   # This list contains both 5.8.x and 5.9.x files,
 	   # we check from MANIFEST whether they are expected to be present.
-	   # We can't base our check on $], because that's the version of the
-	   # perl that we are running, not the version of the source tree.
 	   "Cross/config.sh-arm-linux",
 	   "epoc/config.sh",
 	   "NetWare/config.wc",
@@ -32,8 +29,7 @@ my @CFG = (
 	   "win32/config.gc",
 	   "win32/config.vc",
 	   "win32/config.vc64",
-	   "win32/config.ce",
-	   "configure.com",
+	   "wince/config.ce",
 	  );
 
 sub read_file {
@@ -51,7 +47,8 @@ sub read_file {
 sub config_h_SH_reader {
     my $cfg = shift;
     return sub {
-	while (/[^\\]\$([a-z]\w+)/g) {
+	return if 1../^echo \"Extracting \$CONFIG_H/;
+	while (/[^\\]\$(\w+)/g) {
 	    my $v = $1;
 	    next if $v =~ /^(CONFIG_H|CONFIG_SH)$/;
 	    $cfg->{$v}++;
@@ -87,10 +84,6 @@ for my $cfg (@CFG) {
     read_file($cfg,
 	      sub {
 		  return if /^\#/ || /^\s*$/;
-		  if ($cfg eq 'configure.com') {
-		      s/(\s*!.*|\s*)$//; # remove trailing comments or whitespace
-		      return if ! /^\$\s+WC "(\w+)='(.*)'"$/;
-		  }
 		  # foo='bar'
 		  # foo=bar
 		  # $foo='bar' # VOS 5.8.x specialty
@@ -100,15 +93,9 @@ for my $cfg (@CFG) {
 		  }
 		  elsif (/^\$?(\w+)=(.*)$/) {
 		      $cfg{$1}++;
-		  }
-		  elsif (/^\$\s+WC "(\w+)='(.*)'"$/) {
-		      $cfg{$1}++;
 		  } else {
 		      warn "$cfg:$.:$_";
 		  }
 	      });
-    if ($cfg eq 'configure.com') {
-	$cfg{startperl}++; # Cheat.
-    }
     check_cfg($cfg, \%cfg);
 }

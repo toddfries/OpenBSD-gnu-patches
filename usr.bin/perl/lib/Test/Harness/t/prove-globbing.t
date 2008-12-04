@@ -16,9 +16,8 @@ plan skip_all => "Not installing prove" if -e "t/SKIP-PROVE";
 
 plan tests => 1;
 
-my $tests = File::Spec->catfile( 't', 'prove*.t' );
 my $prove = File::Spec->catfile( File::Spec->curdir, "blib", "script", "prove" );
-$prove = "$^X $prove";
+my $tests = File::Spec->catfile( 't', 'prove*.t' );
 
 GLOBBAGE: {
     my @actual = sort qx/$prove --dry $tests/;

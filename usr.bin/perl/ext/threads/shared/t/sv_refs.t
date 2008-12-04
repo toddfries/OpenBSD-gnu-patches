@@ -1,51 +1,48 @@
-use strict;
 use warnings;
 
 BEGIN {
-    if ($ENV{'PERL_CORE'}){
-        chdir 't';
-        unshift @INC, '../lib';
+#    chdir 't' if -d 't';
+#    push @INC ,'../lib';
+    require Config; import Config;
+    unless ($Config{'useithreads'}) {
+        print "1..0 # Skip: no useithreads\n";
+        exit 0;
     }
-    use Config;
-    if (! $Config{'useithreads'}) {
-        print("1..0 # Skip: Perl not compiled with 'useithreads'\n");
-        exit(0);
+    if ($Config{'extensions'} !~ /\bDevel\/Peek\b/) {
+	print "1..0 # Skip: Devel::Peek was not built\n";
+	exit 0;
     }
 }
 
-use ExtUtils::testlib;
 
 sub ok {
     my ($id, $ok, $name) = @_;
 
+    $name = '' unless defined $name;
     # You have to do it this way or VMS will get confused.
-    if ($ok) {
-        print("ok $id - $name\n");
-    } else {
-        print("not ok $id - $name\n");
-        printf("# Failed test at line %d\n", (caller)[2]);
-    }
+    print $ok ? "ok $id - $name\n" : "not ok $id - $name\n";
 
-    return ($ok);
+    printf "# Failed test at line %d\n", (caller)[2] unless $ok;
+
+    return $ok;
 }
 
-BEGIN {
-    $| = 1;
-    print("1..11\n");   ### Number of tests that will be run ###
-};
-
+use Devel::Peek;
+use ExtUtils::testlib;
+use strict;
+BEGIN { print "1..10\n" };
 use threads;
 use threads::shared;
-ok(1, 1, 'Loaded');
-
-### Start of Testing ###
+ok(1,1,"loaded");
 
 my $foo;
 my $bar = "foo";
 share($foo);
-eval { $foo = \$bar; };
-ok(2,my $temp1 = $@ =~/^Invalid\b.*shared scalar/, "Wrong error message");
+eval {
+$foo = \$bar;
+};
 
+ok(2,my $temp1 = $@ =~/^Invalid\b.*shared scalar/, "Wrong error message");
 share($bar);
 $foo = \$bar;
 ok(3, $temp1 = $foo =~/SCALAR/, "Check that is a ref");
@@ -71,7 +68,3 @@ $t2 = "text";
 $t1 = \$t2;
 threads->create(sub { $t1 = "bar" })->join();
 ok(10,$t1 eq 'bar',"Check that assign to a ROK works");
-
-ok(11, is_shared($foo), "Check for sharing");
-
-# EOF

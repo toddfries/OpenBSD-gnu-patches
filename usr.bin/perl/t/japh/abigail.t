@@ -284,14 +284,14 @@ $_ = q *4a75737420616e6f74686572205065726c204861636b65720a*;
 for ($*=******;$**=******;$**=******) {$**=*******s*..*qq}
 print chr 0x$& and q
 qq}*excess********}
-SKIP: $* was removed.
+SKIP_OS: qnx
 
 #######  Funky loop 3.
 $_ = q *4a75737420616e6f74686572205065726c204861636b65720a*;
 for ($*=******;$**=******;$**=******) {$**=*******s*..*qq}
 print chr 0x$& and q
 qq}*excess********}
-SKIP: $* was removed.
+SKIP_OS: qnx
 
 #######  Funky loop 4.
 $_ = q ?4a75737420616e6f74686572205065726c204861636b65720as?;??;
@@ -419,8 +419,8 @@ SWITCHES
 -Mstrict='}); print "Just another Perl Hacker"; ({'
 -l
 SKIP: No longer works in 5.8.2 and beyond.
-SKIP_OS: MSWin32
-SKIP_OS: NetWare
+MSWin32
+NetWare
 
 #######  rand
 srand 123456;$-=rand$_--=>@[[$-,$_]=@[[$_,$-]for(reverse+1..(@[=split
@@ -656,7 +656,6 @@ eval {die ["Just another Perl Hacker\n"]}; print ${${@}}[$#{@{${@}}}]
 ####### die 5
 eval {die [[qq [Just another Perl Hacker]]]};; print
 ${${${@}}[$#{@{${@}}}]}[$#{${@{${@}}}[$#{@{${@}}}]}]
-SKIP: Abuses a fixed bug; what is in $#{...} must be an arrayref, not an array
 
 ####### Closure returning itself.
 $_ = "\nrekcaH lreP rehtona tsuJ"; my $chop; $chop = sub {print chop; $chop};

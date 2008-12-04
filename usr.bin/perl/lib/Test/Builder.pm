@@ -8,15 +8,14 @@ $^C ||= 0;
 
 use strict;
 use vars qw($VERSION);
-$VERSION = '0.72';
+$VERSION = '0.32';
 $VERSION = eval $VERSION;    # make the alpha version come out as a number
 
 # Make Test::Builder thread-safe for ithreads.
 BEGIN {
     use Config;
-    # Load threads::shared when threads are turned on.
-    # 5.8.0's threads are so busted we no longer support them.
-    if( $] >= 5.008001 && $Config{useithreads} && $INC{'threads.pm'}) {
+    # Load threads::shared when threads are turned on
+    if( $] >= 5.008 && $Config{useithreads} && $INC{'threads.pm'}) {
         require threads::shared;
 
         # Hack around YET ANOTHER threads::shared bug.  It would 
@@ -36,7 +35,7 @@ BEGIN {
                 $$data = ${$_[0]};
             }
             else {
-                die("Unknown type: ".$type);
+                die "Unknown type: ".$type;
             }
 
             $_[0] = &threads::shared::share($_[0]);
@@ -51,14 +50,14 @@ BEGIN {
                 ${$_[0]} = $$data;
             }
             else {
-                die("Unknown type: ".$type);
+                die "Unknown type: ".$type;
             }
 
             return $_[0];
         };
     }
-    # 5.8.0's threads::shared is busted when threads are off
-    # and earlier Perls just don't have that module at all.
+    # 5.8.0's threads::shared is busted when threads are off.
+    # We emulate it here.
     else {
         *share = sub { return $_[0] };
         *lock  = sub { 0 };
@@ -247,10 +246,9 @@ sub plan {
 
     return unless $cmd;
 
-    local $Level = $Level + 1;
-
     if( $self->{Have_Plan} ) {
-        $self->croak("You tried to plan twice");
+        die sprintf "You tried to plan twice!  Second plan at %s line %d\n",
+          ($self->caller)[1,2];
     }
 
     if( $cmd eq 'no_plan' ) {
@@ -261,19 +259,20 @@ sub plan {
     }
     elsif( $cmd eq 'tests' ) {
         if( $arg ) {
-            local $Level = $Level + 1;
             return $self->expected_tests($arg);
         }
         elsif( !defined $arg ) {
-            $self->croak("Got an undefined number of tests");
+            die "Got an undefined number of tests.  Looks like you tried to ".
+                "say how many tests you plan to run but made a mistake.\n";
         }
         elsif( !$arg ) {
-            $self->croak("You said to run 0 tests");
+            die "You said to run 0 tests!  You've got to run something.\n";
         }
     }
     else {
+        require Carp;
         my @args = grep { defined } ($cmd, $arg);
-        $self->croak("plan() doesn't understand @args");
+        Carp::croak("plan() doesn't understand @args");
     }
 
     return 1;
@@ -294,7 +293,7 @@ sub expected_tests {
     my($max) = @_;
 
     if( @_ ) {
-        $self->croak("Number of tests must be a positive integer.  You gave it '$max'")
+        die "Number of tests must be a postive integer.  You gave it '$max'.\n"
           unless $max =~ /^\+?\d+$/ and $max > 0;
 
         $self->{Expected_Tests} = $max;
@@ -364,9 +363,8 @@ sub skip_all {
 
 =head2 Running tests
 
-These actually run the tests, analogous to the functions in Test::More.
-
-They all return true if the test passed, false if the test failed.
+These actually run the tests, analogous to the functions in
+Test::More.
 
 $name is always optional.
 
@@ -388,7 +386,10 @@ sub ok {
     # store, so we turn it into a boolean.
     $test = $test ? 1 : 0;
 
-    $self->_plan_check;
+    unless( $self->{Have_Plan} ) {
+        require Carp;
+        Carp::croak("You tried to run a test without a plan!  Gotta have a plan.");
+    }
 
     lock $self->{Curr_Test};
     $self->{Curr_Test}++;
@@ -450,10 +451,10 @@ ERR
 
 	if( defined $name ) {
 	    $self->diag(qq[  $msg test '$name'\n]);
-	    $self->diag(qq[  at $file line $line.\n]);
+	    $self->diag(qq[  in $file at line $line.\n]);
 	}
 	else {
-	    $self->diag(qq[  $msg test at $file line $line.\n]);
+	    $self->diag(qq[  $msg test in $file at line $line.\n]);
 	}
     } 
 
@@ -465,22 +466,26 @@ sub _unoverload {
     my $self  = shift;
     my $type  = shift;
 
-    $self->_try(sub { require overload } ) || return;
+    local($@,$!);
+
+    eval { require overload } || return;
 
     foreach my $thing (@_) {
-        if( $self->_is_object($$thing) ) {
-            if( my $string_meth = overload::Method($$thing, $type) ) {
-                $$thing = $$thing->$string_meth();
+        eval { 
+            if( _is_object($$thing) ) {
+                if( my $string_meth = overload::Method($$thing, $type) ) {
+                    $$thing = $$thing->$string_meth();
+                }
             }
-        }
+        };
     }
 }
 
 
 sub _is_object {
-    my($self, $thing) = @_;
+    my $thing = shift;
 
-    return $self->_try(sub { ref $thing && $thing->isa('UNIVERSAL') }) ? 1 : 0;
+    return eval { ref $thing && $thing->isa('UNIVERSAL') } ? 1 : 0;
 }
 
 
@@ -600,7 +605,7 @@ the string version.
 
 =item B<isnt_num>
 
-  $Test->isnt_num($got, $dont_expect, $name);
+  $Test->is_num($got, $dont_expect, $name);
 
 Like Test::More's isnt().  Checks if $got ne $dont_expect.  This is
 the numeric version.
@@ -673,221 +678,6 @@ sub unlike {
     $self->_regex_ok($this, $regex, '!~', $name);
 }
 
-
-=item B<cmp_ok>
-
-  $Test->cmp_ok($this, $type, $that, $name);
-
-Works just like Test::More's cmp_ok().
-
-    $Test->cmp_ok($big_num, '!=', $other_big_num);
-
-=cut
-
-
-my %numeric_cmps = map { ($_, 1) } 
-                       ("<",  "<=", ">",  ">=", "==", "!=", "<=>");
-
-sub cmp_ok {
-    my($self, $got, $type, $expect, $name) = @_;
-
-    # Treat overloaded objects as numbers if we're asked to do a
-    # numeric comparison.
-    my $unoverload = $numeric_cmps{$type} ? '_unoverload_num'
-                                          : '_unoverload_str';
-
-    $self->$unoverload(\$got, \$expect);
-
-
-    my $test;
-    {
-        local($@,$!,$SIG{__DIE__});  # isolate eval
-
-        my $code = $self->_caller_context;
-
-        # Yes, it has to look like this or 5.4.5 won't see the #line directive.
-        # Don't ask me, man, I just work here.
-        $test = eval "
-$code" . "\$got $type \$expect;";
-
-    }
-    local $Level = $Level + 1;
-    my $ok = $self->ok($test, $name);
-
-    unless( $ok ) {
-        if( $type =~ /^(eq|==)$/ ) {
-            $self->_is_diag($got, $type, $expect);
-        }
-        else {
-            $self->_cmp_diag($got, $type, $expect);
-        }
-    }
-    return $ok;
-}
-
-sub _cmp_diag {
-    my($self, $got, $type, $expect) = @_;
-    
-    $got    = defined $got    ? "'$got'"    : 'undef';
-    $expect = defined $expect ? "'$expect'" : 'undef';
-    return $self->diag(sprintf <<DIAGNOSTIC, $got, $type, $expect);
-    %s
-        %s
-    %s
-DIAGNOSTIC
-}
-
-
-sub _caller_context {
-    my $self = shift;
-
-    my($pack, $file, $line) = $self->caller(1);
-
-    my $code = '';
-    $code .= "#line $line $file\n" if defined $file and defined $line;
-
-    return $code;
-}
-
-=back
-
-
-=head2 Other Testing Methods
-
-These are methods which are used in the course of writing a test but are not themselves tests.
-
-=over 4
-
-=item B<BAIL_OUT>
-
-    $Test->BAIL_OUT($reason);
-
-Indicates to the Test::Harness that things are going so badly all
-testing should terminate.  This includes running any additional test
-scripts.
-
-It will exit with 255.
-
-=cut
-
-sub BAIL_OUT {
-    my($self, $reason) = @_;
-
-    $self->{Bailed_Out} = 1;
-    $self->_print("Bail out!  $reason");
-    exit 255;
-}
-
-=for deprecated
-BAIL_OUT() used to be BAILOUT()
-
-=cut
-
-*BAILOUT = \&BAIL_OUT;
-
-
-=item B<skip>
-
-    $Test->skip;
-    $Test->skip($why);
-
-Skips the current test, reporting $why.
-
-=cut
-
-sub skip {
-    my($self, $why) = @_;
-    $why ||= '';
-    $self->_unoverload_str(\$why);
-
-    $self->_plan_check;
-
-    lock($self->{Curr_Test});
-    $self->{Curr_Test}++;
-
-    $self->{Test_Results}[$self->{Curr_Test}-1] = &share({
-        'ok'      => 1,
-        actual_ok => 1,
-        name      => '',
-        type      => 'skip',
-        reason    => $why,
-    });
-
-    my $out = "ok";
-    $out   .= " $self->{Curr_Test}" if $self->use_numbers;
-    $out   .= " # skip";
-    $out   .= " $why"       if length $why;
-    $out   .= "\n";
-
-    $self->_print($out);
-
-    return 1;
-}
-
-
-=item B<todo_skip>
-
-  $Test->todo_skip;
-  $Test->todo_skip($why);
-
-Like skip(), only it will declare the test as failing and TODO.  Similar
-to
-
-    print "not ok $tnum # TODO $why\n";
-
-=cut
-
-sub todo_skip {
-    my($self, $why) = @_;
-    $why ||= '';
-
-    $self->_plan_check;
-
-    lock($self->{Curr_Test});
-    $self->{Curr_Test}++;
-
-    $self->{Test_Results}[$self->{Curr_Test}-1] = &share({
-        'ok'      => 1,
-        actual_ok => 0,
-        name      => '',
-        type      => 'todo_skip',
-        reason    => $why,
-    });
-
-    my $out = "not ok";
-    $out   .= " $self->{Curr_Test}" if $self->use_numbers;
-    $out   .= " # TODO & SKIP $why\n";
-
-    $self->_print($out);
-
-    return 1;
-}
-
-
-=begin _unimplemented
-
-=item B<skip_rest>
-
-  $Test->skip_rest;
-  $Test->skip_rest($reason);
-
-Like skip(), only it skips all the rest of the tests you plan to run
-and terminates the test.
-
-If you're running under no_plan, it skips once and terminates the
-test.
-
-=end _unimplemented
-
-=back
-
-
-=head2 Test building utility methods
-
-These methods are useful when writing your own test methods.
-
-=over 4
-
 =item B<maybe_regex>
 
   $Test->maybe_regex(qr/$regex/);
@@ -954,7 +744,7 @@ sub _regex_ok {
         my $test;
         my $code = $self->_caller_context;
 
-        local($@, $!, $SIG{__DIE__}); # isolate eval
+        local($@, $!);
 
         # Yes, it has to look like this or 5.4.5 won't see the #line directive.
         # Don't ask me, man, I just work here.
@@ -980,66 +770,214 @@ DIAGNOSTIC
     return $ok;
 }
 
+=item B<cmp_ok>
 
-# I'm not ready to publish this.  It doesn't deal with array return
-# values from the code or context.
+  $Test->cmp_ok($this, $type, $that, $name);
 
-=begin private
+Works just like Test::More's cmp_ok().
 
-=item B<_try>
-
-    my $return_from_code          = $Test->try(sub { code });
-    my($return_from_code, $error) = $Test->try(sub { code });
-
-Works like eval BLOCK except it ensures it has no effect on the rest of the test (ie. $@ is not set) nor is effected by outside interference (ie. $SIG{__DIE__}) and works around some quirks in older Perls.
-
-$error is what would normally be in $@.
-
-It is suggested you use this in place of eval BLOCK.
+    $Test->cmp_ok($big_num, '!=', $other_big_num);
 
 =cut
 
-sub _try {
-    my($self, $code) = @_;
-    
-    local $!;               # eval can mess up $!
-    local $@;               # don't set $@ in the test
-    local $SIG{__DIE__};    # don't trip an outside DIE handler.
-    my $return = eval { $code->() };
-    
-    return wantarray ? ($return, $@) : $return;
+
+my %numeric_cmps = map { ($_, 1) } 
+                       ("<",  "<=", ">",  ">=", "==", "!=", "<=>");
+
+sub cmp_ok {
+    my($self, $got, $type, $expect, $name) = @_;
+
+    # Treat overloaded objects as numbers if we're asked to do a
+    # numeric comparison.
+    my $unoverload = $numeric_cmps{$type} ? '_unoverload_num'
+                                          : '_unoverload_str';
+
+    $self->$unoverload(\$got, \$expect);
+
+
+    my $test;
+    {
+        local($@,$!);   # don't interfere with $@
+                        # eval() sometimes resets $!
+
+        my $code = $self->_caller_context;
+
+        # Yes, it has to look like this or 5.4.5 won't see the #line directive.
+        # Don't ask me, man, I just work here.
+        $test = eval "
+$code" . "\$got $type \$expect;";
+
+    }
+    local $Level = $Level + 1;
+    my $ok = $self->ok($test, $name);
+
+    unless( $ok ) {
+        if( $type =~ /^(eq|==)$/ ) {
+            $self->_is_diag($got, $type, $expect);
+        }
+        else {
+            $self->_cmp_diag($got, $type, $expect);
+        }
+    }
+    return $ok;
 }
 
-=end private
+sub _cmp_diag {
+    my($self, $got, $type, $expect) = @_;
+    
+    $got    = defined $got    ? "'$got'"    : 'undef';
+    $expect = defined $expect ? "'$expect'" : 'undef';
+    return $self->diag(sprintf <<DIAGNOSTIC, $got, $type, $expect);
+    %s
+        %s
+    %s
+DIAGNOSTIC
+}
 
 
-=item B<is_fh>
-
-    my $is_fh = $Test->is_fh($thing);
-
-Determines if the given $thing can be used as a filehandle.
-
-=cut
-
-sub is_fh {
+sub _caller_context {
     my $self = shift;
-    my $maybe_fh = shift;
-    return 0 unless defined $maybe_fh;
 
-    return 1 if ref $maybe_fh  eq 'GLOB'; # its a glob ref
-    return 1 if ref \$maybe_fh eq 'GLOB'; # its a glob
+    my($pack, $file, $line) = $self->caller(1);
 
-    return eval { $maybe_fh->isa("IO::Handle") } ||
-           # 5.5.4's tied() and can() doesn't like getting undef
-           eval { (tied($maybe_fh) || '')->can('TIEHANDLE') };
+    my $code = '';
+    $code .= "#line $line $file\n" if defined $file and defined $line;
+
+    return $code;
 }
 
+
+=item B<BAIL_OUT>
+
+    $Test->BAIL_OUT($reason);
+
+Indicates to the Test::Harness that things are going so badly all
+testing should terminate.  This includes running any additional test
+scripts.
+
+It will exit with 255.
+
+=cut
+
+sub BAIL_OUT {
+    my($self, $reason) = @_;
+
+    $self->{Bailed_Out} = 1;
+    $self->_print("Bail out!  $reason");
+    exit 255;
+}
+
+=for deprecated
+BAIL_OUT() used to be BAILOUT()
+
+=cut
+
+*BAILOUT = \&BAIL_OUT;
+
+
+=item B<skip>
+
+    $Test->skip;
+    $Test->skip($why);
+
+Skips the current test, reporting $why.
+
+=cut
+
+sub skip {
+    my($self, $why) = @_;
+    $why ||= '';
+    $self->_unoverload_str(\$why);
+
+    unless( $self->{Have_Plan} ) {
+        require Carp;
+        Carp::croak("You tried to run tests without a plan!  Gotta have a plan.");
+    }
+
+    lock($self->{Curr_Test});
+    $self->{Curr_Test}++;
+
+    $self->{Test_Results}[$self->{Curr_Test}-1] = &share({
+        'ok'      => 1,
+        actual_ok => 1,
+        name      => '',
+        type      => 'skip',
+        reason    => $why,
+    });
+
+    my $out = "ok";
+    $out   .= " $self->{Curr_Test}" if $self->use_numbers;
+    $out   .= " # skip";
+    $out   .= " $why"       if length $why;
+    $out   .= "\n";
+
+    $self->_print($out);
+
+    return 1;
+}
+
+
+=item B<todo_skip>
+
+  $Test->todo_skip;
+  $Test->todo_skip($why);
+
+Like skip(), only it will declare the test as failing and TODO.  Similar
+to
+
+    print "not ok $tnum # TODO $why\n";
+
+=cut
+
+sub todo_skip {
+    my($self, $why) = @_;
+    $why ||= '';
+
+    unless( $self->{Have_Plan} ) {
+        require Carp;
+        Carp::croak("You tried to run tests without a plan!  Gotta have a plan.");
+    }
+
+    lock($self->{Curr_Test});
+    $self->{Curr_Test}++;
+
+    $self->{Test_Results}[$self->{Curr_Test}-1] = &share({
+        'ok'      => 1,
+        actual_ok => 0,
+        name      => '',
+        type      => 'todo_skip',
+        reason    => $why,
+    });
+
+    my $out = "not ok";
+    $out   .= " $self->{Curr_Test}" if $self->use_numbers;
+    $out   .= " # TODO & SKIP $why\n";
+
+    $self->_print($out);
+
+    return 1;
+}
+
+
+=begin _unimplemented
+
+=item B<skip_rest>
+
+  $Test->skip_rest;
+  $Test->skip_rest($reason);
+
+Like skip(), only it skips all the rest of the tests you plan to run
+and terminates the test.
+
+If you're running under no_plan, it skips once and terminates the
+test.
+
+=end _unimplemented
 
 =back
 
 
 =head2 Test style
-
 
 =over 4
 
@@ -1052,17 +990,13 @@ test failed.
 
 Defaults to 1.
 
-Setting L<$Test::Builder::Level> overrides.  This is typically useful
+Setting $Test::Builder::Level overrides.  This is typically useful
 localized:
 
-    sub my_ok {
-        my $test = shift;
-
-        local $Test::Builder::Level = $Test::Builder::Level + 1;
-        $TB->ok($test);
+    {
+        local $Test::Builder::Level = 2;
+        $Test->ok($test);
     }
-
-To be polite to other functions wrapping your own you usually want to increment C<$Level> rather than set it to a constant.
 
 =cut
 
@@ -1094,6 +1028,8 @@ or this if false
 
 Most useful when you can't depend on the test output order, such as
 when threads or forking is involved.
+
+Test::Harness will accept either, but avoid mixing the two styles.
 
 Defaults to on.
 
@@ -1246,15 +1182,12 @@ sub _print {
     print $fh $msg;
 }
 
-=begin private
 
 =item B<_print_diag>
 
     $Test->_print_diag(@msg);
 
 Like _print, but prints to the current diagnostic filehandle.
-
-=end private
 
 =cut
 
@@ -1299,7 +1232,7 @@ sub output {
     my($self, $fh) = @_;
 
     if( defined $fh ) {
-        $self->{Out_FH} = $self->_new_fh($fh);
+        $self->{Out_FH} = _new_fh($fh);
     }
     return $self->{Out_FH};
 }
@@ -1308,7 +1241,7 @@ sub failure_output {
     my($self, $fh) = @_;
 
     if( defined $fh ) {
-        $self->{Fail_FH} = $self->_new_fh($fh);
+        $self->{Fail_FH} = _new_fh($fh);
     }
     return $self->{Fail_FH};
 }
@@ -1317,28 +1250,41 @@ sub todo_output {
     my($self, $fh) = @_;
 
     if( defined $fh ) {
-        $self->{Todo_FH} = $self->_new_fh($fh);
+        $self->{Todo_FH} = _new_fh($fh);
     }
     return $self->{Todo_FH};
 }
 
 
 sub _new_fh {
-    my $self = shift;
     my($file_or_fh) = shift;
 
     my $fh;
-    if( $self->is_fh($file_or_fh) ) {
+    if( _is_fh($file_or_fh) ) {
         $fh = $file_or_fh;
     }
     else {
         $fh = do { local *FH };
-        open $fh, ">$file_or_fh" or
-            $self->croak("Can't open test output log $file_or_fh: $!");
+        open $fh, ">$file_or_fh" or 
+            die "Can't open test output log $file_or_fh: $!";
 	_autoflush($fh);
     }
 
     return $fh;
+}
+
+
+sub _is_fh {
+    my $maybe_fh = shift;
+    return 0 unless defined $maybe_fh;
+
+    return 1 if ref \$maybe_fh eq 'GLOB'; # its a glob
+
+    return UNIVERSAL::isa($maybe_fh,               'GLOB')       ||
+           UNIVERSAL::isa($maybe_fh,               'IO::Handle') ||
+
+           # 5.5.4's tied() and can() doesn't like getting undef
+           UNIVERSAL::can((tied($maybe_fh) || ''), 'TIEHANDLE');
 }
 
 
@@ -1379,49 +1325,6 @@ sub _open_testhandles {
 }
 
 
-=item carp
-
-  $tb->carp(@message);
-
-Warns with C<@message> but the message will appear to come from the
-point where the original test function was called (C<$tb->caller>).
-
-=item croak
-
-  $tb->croak(@message);
-
-Dies with C<@message> but the message will appear to come from the
-point where the original test function was called (C<$tb->caller>).
-
-=cut
-
-sub _message_at_caller {
-    my $self = shift;
-
-    local $Level = $Level + 1;
-    my($pack, $file, $line) = $self->caller;
-    return join("", @_) . " at $file line $line.\n";
-}
-
-sub carp {
-    my $self = shift;
-    warn $self->_message_at_caller(@_);
-}
-
-sub croak {
-    my $self = shift;
-    die $self->_message_at_caller(@_);
-}
-
-sub _plan_check {
-    my $self = shift;
-
-    unless( $self->{Have_Plan} ) {
-        local $Level = $Level + 2;
-        $self->croak("You tried to run a test without a plan");
-    }
-}
-
 =back
 
 
@@ -1449,7 +1352,8 @@ sub current_test {
     lock($self->{Curr_Test});
     if( defined $num ) {
         unless( $self->{Have_Plan} ) {
-            $self->croak("Can't change the current test number without a plan!");
+            require Carp;
+            Carp::croak("Can't change the current test number without a plan!");
         }
 
         $self->{Curr_Test} = $num;
@@ -1619,16 +1523,16 @@ error message.
 sub _sanity_check {
     my $self = shift;
 
-    $self->_whoa($self->{Curr_Test} < 0,  'Says here you ran a negative number of tests!');
-    $self->_whoa(!$self->{Have_Plan} and $self->{Curr_Test}, 
+    _whoa($self->{Curr_Test} < 0,  'Says here you ran a negative number of tests!');
+    _whoa(!$self->{Have_Plan} and $self->{Curr_Test}, 
           'Somehow your tests ran without a plan!');
-    $self->_whoa($self->{Curr_Test} != @{ $self->{Test_Results} },
+    _whoa($self->{Curr_Test} != @{ $self->{Test_Results} },
           'Somehow you got a different number of results than tests ran!');
 }
 
 =item B<_whoa>
 
-  $self->_whoa($check, $description);
+  _whoa($check, $description);
 
 A sanity check, similar to assert().  If the $check is true, something
 has gone horribly wrong.  It will die with the given $description and
@@ -1637,10 +1541,9 @@ a note to contact the author.
 =cut
 
 sub _whoa {
-    my($self, $check, $desc) = @_;
+    my($check, $desc) = @_;
     if( $check ) {
-        local $Level = $Level + 1;
-        $self->croak(<<"WHOA");
+        die <<WHOA;
 WHOA!  $desc
 This should never happen!  Please contact the author immediately!
 WHOA
@@ -1810,12 +1713,9 @@ If you fail more than 254 tests, it will be reported as 254.
 
 =head1 THREADS
 
-In perl 5.8.1 and later, Test::Builder is thread-safe.  The test
+In perl 5.8.0 and later, Test::Builder is thread-safe.  The test
 number is shared amongst all threads.  This means if one thread sets
 the test number using current_test() they will all be effected.
-
-While versions earlier than 5.8.1 had threads they contain too many
-bugs to support.
 
 Test::Builder is only thread-aware if threads.pm is loaded I<before>
 Test::Builder.

@@ -1,8 +1,9 @@
 package ExtUtils::XSSymSet;
 
+use Carp qw( &carp );
 use strict;
 use vars qw( $VERSION );
-$VERSION = '1.1';
+$VERSION = '1.0';
 
 
 sub new { 
@@ -36,10 +37,9 @@ sub trimsym {
     if (length $trimmed > $maxlen) {
       my $squeezed = $trimmed;
       my($xs,$prefix,$func) = $trimmed =~ /^(XS_)?(.*)_([^_]*)$/;
-      $xs ||= '';
-      my $frac = 3; # replaces broken length-based calculations but w/same result
-      my $pat = '([^_])';
       if (length $func <= 12) {  # Try to preserve short function names
+        my $frac = int(length $prefix / (length $trimmed - $maxlen) + 0.5);
+        my $pat = '([^_])';
         if ($frac > 1) { $pat .= '[^A-Z_]{' . ($frac - 1) . '}'; }
         $prefix =~ s/$pat/$1/g;
         $squeezed = "$xs$prefix" . "_$func";
@@ -50,6 +50,8 @@ sub trimsym {
         }
       }
       else { 
+        my $frac = int(length $trimmed / (length $trimmed - $maxlen) + 0.5);
+        my $pat = '([^_])';
         if ($frac > 1) { $pat .= '[^A-Z_]{' . ($frac - 1) . '}'; }
         $squeezed = "$prefix$func";
         $squeezed =~ s/$pat/$1/g;
@@ -67,7 +69,7 @@ sub trimsym {
       }
     }
   }
-  warn "Warning: long symbol $name\n\ttrimmed to $trimmed\n\t" unless $silent;
+  carp "Warning: long symbol $name\n\ttrimmed to $trimmed\n\t" unless $silent;
   return $trimmed;
 }
 
@@ -85,12 +87,12 @@ sub addsym {
     my($i) = "00";
     $trimmed = $self->trimsym($sym,$maxlen-3,$silent);
     while (exists $self->{"${trimmed}_$i"}) { $i++; }
-    warn "Warning: duplicate symbol $trimmed\n\tchanged to ${trimmed}_$i\n\t(original was $sym)\n\t"
+    carp "Warning: duplicate symbol $trimmed\n\tchanged to ${trimmed}_$i\n\t(original was $sym)\n\t"
       unless $silent;
     $trimmed .= "_$i";
   }
   elsif (not $silent and $trimmed ne $sym) {
-    warn "Warning: long symbol $sym\n\ttrimmed to $trimmed\n\t";
+    carp "Warning: long symbol $sym\n\ttrimmed to $trimmed\n\t";
   }
   $self->{$trimmed} = $sym;
   $self->{'__N+Map'}->{$sym} = $trimmed;

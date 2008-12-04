@@ -395,14 +395,13 @@ $z = $u->copy()->bmul($y,undef,3,'odd'); ok ($z,30900);
 $z = $u->copy()->bmul($y,undef,-1,'odd'); ok ($z,30862.5);
 
 my $warn = ''; $SIG{__WARN__} = sub { $warn = shift; };
-# these should no longer warn, even tho '3.17' is a NaN in BigInt (>= returns
-# now false, bug until v1.80)
-$warn = ''; eval "\$z = 3.17 <= \$y"; ok ($z, '');
+# these should warn, since '3.17' is a NaN in BigInt and thus >= returns undef
+$warn = ''; eval "\$z = 3.17 <= \$y"; ok ($z, 1);
 print "# Got: '$warn'\n" unless
-ok ($warn !~ /^Use of uninitialized value (\$y )?(in numeric le \(<=\) |)at/);	
-$warn = ''; eval "\$z = \$y >= 3.17"; ok ($z, '');
+ok ($warn =~ /^Use of uninitialized value (\$y )?(in numeric le \(<=\) |)at/);	
+$warn = ''; eval "\$z = \$y >= 3.17"; ok ($z, 1);
 print "# Got: '$warn'\n" unless
-ok ($warn !~ /^Use of uninitialized value (\$y )?(in numeric ge \(>=\) |)at/);	
+ok ($warn =~ /^Use of uninitialized value (\$y )?(in numeric ge \(>=\) |)at/);	
 
 # XXX TODO breakage:
 # $z = $y->copy()->bmul($u,2,0,'odd'); ok ($z,31000);
@@ -782,7 +781,7 @@ my ($ans1,$f,$a,$p,$xp,$yp,$xa,$ya,$try,$ans,@args);
 my $CALC = Math::BigInt->config()->{lib};
 while (<DATA>)
   {
-  $_ =~ s/[\n\r]//g;	# remove newlines
+  chomp;
   next if /^\s*(#|$)/;	# skip comments and empty lines
   if (s/^&//)
     {

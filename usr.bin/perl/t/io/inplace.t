@@ -1,23 +1,40 @@
 #!./perl
-use strict;
-require './test.pl';
 
 $^I = $^O eq 'VMS' ? '_bak' : '.bak';
 
-plan( tests => 2 );
+# $RCSfile: inplace.t,v $$Revision: 1.7 $$Date: 2003/12/03 03:02:48 $
 
-my @tfiles     = ('.a','.b','.c');
-my @tfiles_bak = (".a$^I", ".b$^I", ".c$^I");
+print "1..2\n";
 
-END { unlink_all('.a','.b','.c',".a$^I", ".b$^I", ".c$^I"); }
-
-for my $file (@tfiles) {
-    runperl( prog => 'print qq(foo\n);', 
-             args => ['>', $file] );
+@ARGV = ('.a','.b','.c');
+if ($^O eq 'MSWin32') {
+  $CAT = '.\perl -e "print<>"';
+  `.\\perl -le "print 'foo'" > .a`;
+  `.\\perl -le "print 'foo'" > .b`;
+  `.\\perl -le "print 'foo'" > .c`;
 }
-
-@ARGV = @tfiles;
-
+elsif ($^O eq 'NetWare') {
+  $CAT = 'perl -e "print<>"';
+  `perl -le "print 'foo'" > .a`;
+  `perl -le "print 'foo'" > .b`;
+  `perl -le "print 'foo'" > .c`;
+}
+elsif ($^O eq 'MacOS') {
+  $CAT = "$^X -e \"print<>\"";
+  `$^X -le "print 'foo'" > .a`;
+  `$^X -le "print 'foo'" > .b`;
+  `$^X -le "print 'foo'" > .c`;
+}
+elsif ($^O eq 'VMS') {
+  $CAT = 'MCR []perl. -e "print<>"';
+  `MCR []perl. -le "print 'foo'" > ./.a`;
+  `MCR []perl. -le "print 'foo'" > ./.b`;
+  `MCR []perl. -le "print 'foo'" > ./.c`;
+}
+else {
+  $CAT = 'cat';
+  `echo foo | tee .a .b .c`;
+}
 while (<>) {
     s/foo/bar/;
 }
@@ -25,11 +42,7 @@ continue {
     print;
 }
 
-is ( runperl( prog => 'print<>;', args => \@tfiles ), 
-     "bar\nbar\nbar\n", 
-     "file contents properly replaced" );
+if (`$CAT .a .b .c` eq "bar\nbar\nbar\n") {print "ok 1\n";} else {print "not ok 1\n";}
+if (`$CAT .a$^I .b$^I .c$^I` eq "foo\nfoo\nfoo\n") {print "ok 2\n";} else {print "not ok 2\n";}
 
-is ( runperl( prog => 'print<>;', args => \@tfiles_bak ), 
-     "foo\nfoo\nfoo\n", 
-     "backup file contents stay the same" );
-
+unlink '.a', '.b', '.c', ".a$^I", ".b$^I", ".c$^I";

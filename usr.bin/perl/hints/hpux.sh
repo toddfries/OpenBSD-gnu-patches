@@ -78,7 +78,7 @@ case `$cc -v 2>&1`"" in
 	    ccflags="$cc_cppflags"
 	    if [ "X$gccversion" = "X" ]; then
 		# Done too late in Configure if hinted
-		gccversion=`$cc -dumpversion`
+		gccversion=`$cc --version | sed 's/.*(GCC) *//'`
 		fi
 	    case "$gccversion" in
 		[012]*) # HP-UX and gcc-2.* break UINT32_MAX :-(
@@ -157,7 +157,7 @@ case `$cc -v 2>&1`"" in
 		done
 	    [ -z "$cc_found" ] && cc_found=`which cc`
 	    what $cc_found >&4
-	    ccversion=`what $cc_found | awk '/Compiler/{print $2}/Itanium/{print $6,$7}/for Integrity/{print $6}'`
+	    ccversion=`what $cc_found | awk '/Compiler/{print $2}/Itanium/{print $6,$7}'`
 	    case "$ccflags" in
                "-Ae "*) ;;
 		*)  ccflags="-Ae $cc_cppflags"
@@ -188,17 +188,14 @@ toke_cflags='ccflags="$ccflags -DARG_ZERO_IS_SCRIPT"'
     gcc_64native=no
 case "$ccisgcc" in
     $define|true|[Yy])
-	echo '#include <stdio.h>\nint main(){long l;printf("%d\\n",sizeof(l));}'>try.c
+	echo 'int main(){long l;printf("%d\\n",sizeof(l));}'>try.c
 	$cc -o try $ccflags $ldflags try.c
 	if [ "`try`" = "8" ]; then
-	    case "$use64bitall" in
-		$define|true|[Yy]) ;;
-		*)  cat <<EOM >&4
+	    cat <<EOM >&4
 
 *** This version of gcc uses 64 bit longs. -Duse64bitall is
 *** implicitly set to enable continuation
 EOM
-		esac
 	    use64bitall=$define
 	    gcc_64native=yes
 	    fi
@@ -250,7 +247,7 @@ EOM
 	    PA-RISC*)
 		loclibpth="$loclibpth /lib/pa20_64"
 		libc='/lib/pa20_64/libc.sl' ;;
-	    IA64*)
+	    IA64*) 
 		loclibpth="$loclibpth /usr/lib/hpux64"
 		libc='/usr/lib/hpux64/libc.so' ;;
 	    esac
@@ -308,7 +305,7 @@ EOM
 	case "$archname" in
 	    PA-RISC*)
 		libc='/lib/libc.sl' ;;
-	    IA64*)
+	    IA64*) 
 		loclibpth="$loclibpth /usr/lib/hpux32"
 		libc='/usr/lib/hpux32/libc.so' ;;
 	    esac
@@ -339,7 +336,6 @@ else
 
 ## Optimization limits
 cat >try.c <<EOF
-#include <stdio.h>
 #include <sys/resource.h>
 
 int main ()
@@ -365,12 +361,11 @@ to at least 0x08000000 (128 Mb) and rebuild your kernel.
 EOM
 regexec_cflags=''
 doop_cflags=''
-op_cflags=''
     fi
 
 case "$ccisgcc" in
     $define|true|[Yy])
-
+	
 	case "$optimize" in
 	    "")           optimize="-g -O" ;;
 	    *O[3456789]*) optimize=`echo "$optimize" | sed -e 's/O[3-9]/O2/'` ;;
@@ -425,8 +420,7 @@ case "$ccisgcc" in
 			# maint (5.8.8+) and blead (5.9.3+)
 			# -O1/+O1 passed all tests (m)'05 [ 10 Jan 2005 ]
 			optimize="$opt"			;;
-		    *)  doop_cflags="optimize=\"$opt\""
-			op_cflags="optimize=\"$opt\""	;;
+		    *)  doop_cflags="optimize=\"$opt\""	;;
 		    esac
 		;;
 	    esac
@@ -446,7 +440,7 @@ if [ $xxOsRev -lt 1020 ]; then
     fi
 
 #case "$uselargefiles-$ccisgcc" in
-#    "$define-$define"|'-define')
+#    "$define-$define"|'-define') 
 #	cat <<EOM >&4
 #
 #*** I'm ignoring large files for this build because
@@ -510,7 +504,7 @@ EOF
 EOCBU
 
 cat >UU/uselargefiles.cbu <<'EOCBU'
-# This script UU/uselargefiles.cbu will get 'called-back' by Configure
+# This script UU/uselargefiles.cbu will get 'called-back' by Configure 
 # after it has prompted the user for whether to use large files.
 case "$uselargefiles" in
     ""|$define|true|[yY]*)
@@ -537,7 +531,7 @@ EOCBU
 
 # THREADING
 
-# This script UU/usethreads.cbu will get 'called-back' by Configure
+# This script UU/usethreads.cbu will get 'called-back' by Configure 
 # after it has prompted the user for whether to use threads.
 cat >UU/usethreads.cbu <<'EOCBU'
 case "$usethreads" in
@@ -605,7 +599,7 @@ pthread_h_first="$define"
 		    localtime_r_proto='REENTRANT_PROTO_I_TS'
 
 		    # Avoid the poisonous conflicting (and irrelevant)
-		    # prototypes of setkey ().
+		    # prototypes of setkey(). 
 		    i_crypt="$undef"
 
 		    # CMA redefines select to cma_select, and cma_select
@@ -645,24 +639,32 @@ EOM
 	    set `echo X "$libswanted "| sed -e 's/ c / pthread c /'`
 	    shift
 	    libswanted="$*"
-
-	    # HP-UX 11.X seems to have no easy
-	    # way of detecting these *time_r protos.
-	    d_gmtime_r_proto='define'
-	    gmtime_r_proto='REENTRANT_PROTO_S_TS'
-	    d_localtime_r_proto='define'
-	    localtime_r_proto='REENTRANT_PROTO_S_TS'
 	    fi
+
 	;;
     esac
 EOCBU
 
-# There used to be:
-#  The mysterious io_xs memory corruption in 11.00 32bit seems to get
-#  fixed by not using Perl's malloc.  Flip side is performance loss.
-#  So we want mymalloc for all situations possible
-# That set usemymalloc to 'n' for threaded builds and non-gcc 32bit
-#  non-debugging builds and 'y' for all others
+# The mysterious io_xs memory corruption in 11.00 32bit seems to get
+# fixed by not using Perl's malloc.  Flip side is performance loss.
+# So we want mymalloc for all situations possible
+usemymalloc='y'
+case "$usethreads" in
+    $define|true|[yY]*) usemymalloc='n' ;;
+    *)  case "$ccisgcc" in
+           $undef|false|[nN]*)
+               case "$use64bitint" in
+                   $undef|false|[nN]*)
+                       case "$ccflags" in
+                           *-DDEBUGGING*) ;;
+                           *) usemymalloc='n' ;;
+                           esac
+                       ;;
+                   esac
+               ;;
+           esac
+       ;;
+    esac
 
 usemymalloc='n'
 case "$useperlio" in
@@ -671,10 +673,10 @@ case "$useperlio" in
 
 # malloc wrap works
 case "$usemallocwrap" in
-    '') usemallocwrap='define' ;;
-    esac
+'') usemallocwrap='define' ;;
+esac
 
-# ctime_r () and asctime_r () seem to have issues for versions before
+# ctime_r() and asctime_r() seem to have issues for versions before
 # HP-UX 11
 if [ $xxOsRevMajor -lt 11 ]; then
     d_ctime_r="$undef"
@@ -682,7 +684,7 @@ if [ $xxOsRevMajor -lt 11 ]; then
     fi
 
 
-# fpclassify () is a macro, the library call is Fpclassify
+# fpclassify() is a macro, the library call is Fpclassify
 # Similarly with the others below.
 d_fpclassify='define'
 d_isnan='define'

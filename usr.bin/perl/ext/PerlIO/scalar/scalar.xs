@@ -24,12 +24,6 @@ PerlIOScalar_pushed(pTHX_ PerlIO * f, const char *mode, SV * arg,
      */
     if (arg) {
 	if (SvROK(arg)) {
-	    if (SvREADONLY(SvRV(arg)) && mode && *mode != 'r') {
-		if (ckWARN(WARN_LAYER))
-		    Perl_warner(aTHX_ packWARN(WARN_LAYER), PL_no_modify);
-		SETERRNO(EINVAL, SS_IVCHAN);
-		return -1;
-	    }
 	    s->var = SvREFCNT_inc(SvRV(arg));
 	    if (!SvPOK(s->var) && SvTYPE(SvRV(arg)) > SVt_NULL)
 		(void)SvPV_nolen(s->var);
@@ -83,36 +77,20 @@ IV
 PerlIOScalar_seek(pTHX_ PerlIO * f, Off_t offset, int whence)
 {
     PerlIOScalar *s = PerlIOSelf(f, PerlIOScalar);
-    STRLEN oldcur = SvCUR(s->var);
-    STRLEN newlen;
     switch (whence) {
-    case SEEK_SET:
+    case 0:
 	s->posn = offset;
 	break;
-    case SEEK_CUR:
+    case 1:
 	s->posn = offset + s->posn;
 	break;
-    case SEEK_END:
+    case 2:
 	s->posn = offset + SvCUR(s->var);
 	break;
     }
-    if (s->posn < 0) {
-        if (ckWARN(WARN_LAYER))
-	    Perl_warner(aTHX_ packWARN(WARN_LAYER), "Offset outside string");
-	SETERRNO(EINVAL, SS_IVCHAN);
-	return -1;
+    if ((STRLEN) s->posn > SvCUR(s->var)) {
+	(void) SvGROW(s->var, (STRLEN) s->posn);
     }
-    newlen = (STRLEN) s->posn;
-    if (newlen > oldcur) {
-	(void) SvGROW(s->var, newlen);
-	Zero(SvPVX(s->var) + oldcur, newlen - oldcur, char);
-	/* No SvCUR_set(), though.  This is just a seek, not a write. */
-    }
-    else if (!SvPVX(s->var)) {
-	/* ensure there's always a character buffer */
-	(void)SvGROW(s->var,1);
-    }
-    SvPOK_on(s->var);
     return 0;
 }
 
@@ -275,7 +253,7 @@ PerlIOScalar_dup(pTHX_ PerlIO * f, PerlIO * o, CLONE_PARAMS * param,
     return f;
 }
 
-PERLIO_FUNCS_DECL(PerlIO_scalar) = {
+PerlIO_funcs PerlIO_scalar = {
     sizeof(PerlIO_funcs),
     "scalar",
     sizeof(PerlIOScalar),
@@ -316,7 +294,7 @@ PROTOTYPES: ENABLE
 BOOT:
 {
 #ifdef PERLIO_LAYERS
- PerlIO_define_layer(aTHX_ PERLIO_FUNCS_CAST(&PerlIO_scalar));
+ PerlIO_define_layer(aTHX_ &PerlIO_scalar);
 #endif
 }
 

@@ -3783,7 +3783,6 @@ describe_other_breakpoints (CORE_ADDR pc, asection *section)
 			       b->number,
 			       ((b->enable_state == bp_disabled || 
 				 b->enable_state == bp_shlib_disabled || 
-				 b->enable_state == bp_startup_disabled || 
 				 b->enable_state == bp_call_disabled) 
 				? " (disabled)" 
 				: b->enable_state == bp_permanent 
@@ -4457,60 +4456,6 @@ re_enable_breakpoints_in_shlibs (void)
 }
 
 #endif
-
-void
-disable_breakpoints_at_startup (int silent)
-{
-  struct breakpoint *b;
-  int disabled_startup_breaks = 0;
-
-  if (bfd_get_start_address (exec_bfd) != entry_point_address ())
-    {
-      ALL_BREAKPOINTS (b)
-	{
-	  if (((b->type == bp_breakpoint) ||
-	       (b->type == bp_hardware_breakpoint)) &&
-	      b->enable_state == bp_enabled &&
-	      !b->loc->duplicate &&
-	      !b->pending)
-	    {
-	      b->enable_state = bp_startup_disabled;
-	      if (!silent)
-		{
-		  if (!disabled_startup_breaks)
-		    {
-		      target_terminal_ours_for_output ();
-		      warning ("Temporarily disabling breakpoints:");
-		    }
-		  disabled_startup_breaks = 1;
-		  warning ("breakpoint #%d addr 0x%s", b->number, paddr_nz(b->loc->address));
-		}
-	    }
-	}
-    }
-}
-
-/* Try to reenable any breakpoints after startup.  */
-void
-re_enable_breakpoints_at_startup (void)
-{
-  struct breakpoint *b;
-
-  if (bfd_get_start_address (exec_bfd) != entry_point_address ())
-    {
-      ALL_BREAKPOINTS (b)
-	if (b->enable_state == bp_startup_disabled)
-	  {
-	    char buf[1];
-
-	    /* Do not reenable the breakpoint if the shared library
-	       is still not mapped in.  */
-	    if (target_read_memory (b->loc->address, buf, 1) == 0)
-	      b->enable_state = bp_enabled;
-	  }
-    }
-}
-
 
 static void
 solib_load_unload_1 (char *hookname, int tempflag, char *dll_pathname,
@@ -7033,7 +6978,6 @@ delete_breakpoint (struct breakpoint *bpt)
 	    && !b->loc->duplicate
 	    && b->enable_state != bp_disabled
 	    && b->enable_state != bp_shlib_disabled
-	    && b->enable_state != bp_startup_disabled
 	    && !b->pending
 	    && b->enable_state != bp_call_disabled)
 	{
@@ -7247,8 +7191,7 @@ breakpoint_re_set_one (void *bint)
 	break;
 
       save_enable = b->enable_state;
-      if (b->enable_state != bp_shlib_disabled
-          && b->enable_state != bp_startup_disabled)
+      if (b->enable_state != bp_shlib_disabled)
         b->enable_state = bp_disabled;
       else
 	/* If resetting a shlib-disabled breakpoint, we don't want to

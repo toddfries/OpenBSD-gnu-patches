@@ -61,9 +61,9 @@ OUT
 
     My::Test::ok($$err eq <<ERR);
 #   Failed test 'oh no!'
-#   at $0 line 38.
+#   in $0 at line 38.
 #   Failed test 'damnit'
-#   at $0 line 39.
+#   in $0 at line 39.
 # Looks like you failed 2 tests of 5.
 ERR
 

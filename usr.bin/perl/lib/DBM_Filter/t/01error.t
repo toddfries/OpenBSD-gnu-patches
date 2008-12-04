@@ -1,12 +1,9 @@
+
 use strict;
 use warnings;
 use Carp;
 
-BEGIN {
-    chdir 't' if -d 't';
-    @INC = qw(. ../lib);
-}
-
+use lib '.';
 our $db ;
 
 {
@@ -48,17 +45,7 @@ print "# runFilter $name\n" ;
 use Test::More tests => 21;
 
 BEGIN { use_ok('DBM_Filter') };
-my $db_file;
-BEGIN {
-    use Config;
-    foreach (qw/ODBM_File SDBM_File NDBM_File GDBM_File DB_File/) {
-        if ($Config{extensions} =~ /\b$_\b/) {
-            $db_file = $_;
-            last;
-        }
-    }
-    use_ok($db_file);
-};
+BEGIN { use_ok('SDBM_File') };
 BEGIN { use_ok('Fcntl') };
 
 unlink <Op_dbmx*>;
@@ -66,9 +53,9 @@ END { unlink <Op_dbmx*>; }
 
 my %h1 = () ;
 my %h2 = () ;
-$db = tie(%h1, $db_file,'Op_dbmx', O_RDWR|O_CREAT, 0640) ;
+$db = tie(%h1, 'SDBM_File','Op_dbmx', O_RDWR|O_CREAT, 0640) ;
 
-ok $db, "tied to $db_file ok";
+ok $db, "tied to SDBM_File ok";
 
 
 # Error cases

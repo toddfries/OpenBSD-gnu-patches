@@ -41,12 +41,7 @@ sub unctrl {
 	local($v) ; 
 
 	return \$_ if ref \$_ eq "GLOB";
-        if (ord('A') == 193) { # EBCDIC.
-	    # EBCDIC has no concept of "\cA" or "A" being related
-	    # to each other by a linear/boolean mapping.
-	} else {
-	    s/([\001-\037\177])/'^'.pack('c',ord($1)^64)/eg;
-	}
+	s/([\001-\037\177])/'^'.pack('c',ord($1)^64)/eg;
 	$_;
 }
 
@@ -68,19 +63,11 @@ sub stringify {
 	    and %overload:: and defined &{'overload::StrVal'};
 	
 	if ($tick eq 'auto') {
-	    if (ord('A') == 193) {
-		if (/[\000-\011]/ or /[\013-\024\31-\037\177]/) {
-		    $tick = '"';
-		} else {
-		    $tick = "'";
-		}
-            }  else {
-		if (/[\000-\011\013-\037\177]/) {
-		    $tick = '"';
-		} else {
-		    $tick = "'";
-		}
-	    }
+	  if (/[\000-\011\013-\037\177]/) {
+	    $tick = '"';
+	  }else {
+	    $tick = "'";
+	  }
 	}
 	if ($tick eq "'") {
 	  s/([\'\\])/\\$1/g;
@@ -93,11 +80,7 @@ sub stringify {
 	} elsif ($unctrl eq 'quote') {
 	  s/([\"\\\$\@])/\\$1/g if $tick eq '"';
 	  s/\033/\\e/g;
-	  if (ord('A') == 193) { # EBCDIC.
-	      s/([\000-\037\177])/'\\c'.chr(193)/eg; # Unfinished.
-	  } else {
-	      s/([\000-\037\177])/'\\c'._escaped_ord($1)/eg;
-	  }
+	  s/([\000-\037\177])/'\\c'._escaped_ord($1)/eg;
 	}
 	$_ = uniescape($_);
 	s/([\200-\377])/'\\'.sprintf('%3o',ord($1))/eg if $quoteHighBit;
@@ -299,14 +282,14 @@ sub unwrap {
       if ($globPrint) {
 	$s += 3;
        dumpglob($s, "{$$v}", $$v, 1, $m-1);
-      } elsif (defined ($fileno = eval {fileno($v)})) {
+      } elsif (defined ($fileno = fileno($v))) {
 	print( (' ' x ($s+3)) .  "FileHandle({$$v}) => fileno($fileno)\n" );
       }
     } elsif (ref \$v eq 'GLOB') {
       # Raw glob (again?)
       if ($globPrint) {
        dumpglob($s, "{$v}", $v, 1, $m-1) if $globPrint;
-      } elsif (defined ($fileno = eval {fileno(\$v)})) {
+      } elsif (defined ($fileno = fileno(\$v))) {
 	print( (' ' x $s) .  "FileHandle({$v}) => fileno($fileno)\n" );
       }
     }
@@ -385,7 +368,7 @@ sub dumpglob {
       unwrap(\%entry,3+$off,$m) ;
       print( (' ' x $off) .  ")\n" );
     }
-    if (defined ($fileno = eval{fileno(*entry)})) {
+    if (defined ($fileno = fileno(*entry))) {
       print( (' ' x $off) .  "FileHandle($key) => fileno($fileno)\n" );
     }
     if ($all) {

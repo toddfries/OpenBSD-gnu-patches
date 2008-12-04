@@ -1,5 +1,5 @@
 #
-# $Id: tr_sjis.t,v 1.5 2008/09/29 17:36:20 millert Exp $
+# $Id: tr_sjis.t,v 1.4 2006/03/28 19:23:13 millert Exp $
 #
 # This script is written intentionally in Shift JIS
 # -- dankogai

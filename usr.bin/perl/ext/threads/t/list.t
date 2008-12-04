@@ -1,72 +1,54 @@
-use strict;
-use warnings;
 
 BEGIN {
-    if ($ENV{'PERL_CORE'}){
-        chdir 't';
-        unshift @INC, '../lib';
-    }
-    use Config;
-    if (! $Config{'useithreads'}) {
-        print("1..0 # Skip: Perl not compiled with 'useithreads'\n");
-        exit(0);
+    chdir 't' if -d 't';
+    push @INC, '../lib';
+    require Config; import Config;
+    unless ($Config{'useithreads'}) {
+        print "1..0 # Skip: no useithreads\n";
+        exit 0;
     }
 }
 
 use ExtUtils::testlib;
 
-sub ok {
+use strict;
+
+
+BEGIN { $| = 1; print "1..8\n" };
+use threads;
+
+
+
+print "ok 1\n";
+
+
+#########################
+sub ok {	
     my ($id, $ok, $name) = @_;
 
     # You have to do it this way or VMS will get confused.
-    if ($ok) {
-        print("ok $id - $name\n");
-    } else {
-        print("not ok $id - $name\n");
-        printf("# Failed test at line %d\n", (caller)[2]);
-    }
+    print $ok ? "ok $id - $name\n" : "not ok $id - $name\n";
 
-    return ($ok);
+    printf "# Failed test at line %d\n", (caller)[2] unless $ok;
+
+    return $ok;
 }
 
-BEGIN {
-    $| = 1;
-    print("1..15\n");   ### Number of tests that will be run ###
-};
+ok(2, scalar @{[threads->list]} == 0,'');
 
-use threads;
-ok(1, 1, 'Loaded');
 
-### Start of Testing ###
-
-ok(2, scalar @{[threads->list()]} == 0, 'No threads yet');
 
 threads->create(sub {})->join();
-ok(3, scalar @{[threads->list()]} == 0, 'Empty thread list after join');
+ok(3, scalar @{[threads->list]} == 0,'');
 
 my $thread = threads->create(sub {});
-ok(4, scalar(threads->list()) == 1, 'Non-empty thread list');
-ok(5, threads->list() == 1,             'Non-empty thread list');
+ok(4, scalar @{[threads->list]} == 1,'');
 $thread->join();
-ok(6, scalar @{[threads->list()]} == 0, 'Thread list empty again');
-ok(7, threads->list() == 0,             'Thread list empty again');
+ok(5, scalar @{[threads->list]} == 0,'');
 
-$thread = threads->create(sub {
-    ok(8, threads->list() == 1, 'Non-empty thread list in thread');
-    ok(9, threads->self == (threads->list())[0], 'Self in thread list')
-});
-
+$thread = threads->create(sub { ok(6, threads->self == (threads->list)[0],'')});
 threads->yield; # help out non-preemptive thread implementations
 sleep 1;
-
-ok(10, scalar(threads->list()) == 1, 'Thread count 1');
-ok(11, threads->list() == 1,             'Thread count 1');
-my $cnt = threads->list();
-ok(12, $cnt == 1,                        'Thread count 1');
-my ($thr_x) = threads->list();
-ok(13, $thread == $thr_x,                'Thread in list');
+ok(7, $thread == (threads->list)[0],'');
 $thread->join();
-ok(14, scalar @{[threads->list()]} == 0, 'Thread list empty');
-ok(15, threads->list() == 0,             'Thread list empty');
-
-# EOF
+ok(8, scalar @{[threads->list]} == 0,'');

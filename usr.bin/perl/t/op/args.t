@@ -6,7 +6,7 @@ BEGIN {
 }
 
 require './test.pl';
-plan( tests => 23 );
+plan( tests => 14 );
 
 # test various operations on @_
 
@@ -73,19 +73,7 @@ sub local2 { local $_[0]; last L }
 L: { local2 }
 pass();
 
-# the following test for local(@_) used to be in t/op/nothr5005.t (because it
-# failed with 5005threads)
-
-$|=1;
-
-sub foo { local(@_) = ('p', 'q', 'r'); }
-sub bar { unshift @_, 'D'; @_ }
-sub baz { push @_, 'E'; return @_ }
-for (1..3) { 
-    is(join('',foo('a', 'b', 'c')),'pqr');
-    is(join('',bar('d')),'Dd');
-    is(join('',baz('e')),'eE');
-} 
+# blead has 9 tests for local(@_) from in t/op/nothr5005.t inserted here
 
 # [perl #28032] delete $_[0] was freeing things too early
 

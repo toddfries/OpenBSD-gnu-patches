@@ -19,10 +19,14 @@ my @Core_Modules = grep /\S/, <DATA>;
 chomp @Core_Modules;
 
 if (eval { require Socket }) {
+  push @Core_Modules, qw(Net::Domain);
   # Two Net:: modules need the Convert::EBCDIC if in EBDCIC.
   if (ord("A") != 193 || eval { require Convert::EBCDIC }) {
       push @Core_Modules, qw(Net::Cmd Net::POP3);
   }
+}
+if(eval { require B }) {
+  push @Core_Modules, qw(B::C B::CC B::Stackobj);
 }
 
 @Core_Modules = sort @Core_Modules;
@@ -69,3 +73,7 @@ sub compile_module {
 # http://www.pobox.com/~schwern/cgi-bin/perl-qa-wiki.cgi?UntestedModules
 # and vice-versa.  The list should only shrink.
 __DATA__
+ByteLoader
+CPAN::FirstTime
+DynaLoader
+Pod::Plainer

@@ -34,7 +34,7 @@ use Storable qw(store nstore retrieve thaw freeze);
 }
 # Better than no plan, because I was getting out of memory errors, at which
 # point Test::More tidily prints up 1..79 as if I meant to finish there.
-use Test::More tests=>144;
+use Test::More tests=>148;
 use bytes ();
 my %utf8hash;
 
@@ -57,10 +57,13 @@ my @ords = (
 foreach my $i (@ords){
     my $u = chr($i); utf8::upgrade($u);
     # warn sprintf "%d,%d", bytes::length($u), is_utf8($u);
-    my $b = chr($i); utf8::encode($b);
+    my $b = pack("C*", unpack("C*", $u));
     # warn sprintf "%d,%d" ,bytes::length($b), is_utf8($b);
 
-    isnt($u, $b, "equivalence - with utf8flag");
+    isnt($u,	                        $b, 
+	 "equivalence - with utf8flag");
+    is   (pack("C*", unpack("C*", $u)), pack("C*", unpack("C*", $b)),
+	  "equivalence - without utf8flag");
 
     $utf8hash{$u} = $utf8hash{$b} = $i;
 }

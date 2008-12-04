@@ -45,12 +45,8 @@ sub main::err_ok ($) {
 package main;
 
 require Test::More;
-my $Total = 30;
+my $Total = 28;
 Test::More->import(tests => $Total);
-
-# This should all work in the presence of a __DIE__ handler.
-local $SIG{__DIE__} = sub { $TB->ok(0, "DIE handler called: ".join "", @_); };
-
 
 my $tb = Test::More->builder;
 $tb->use_numbers(0);
@@ -62,7 +58,7 @@ my $Filename = quotemeta $0;
 ok( 0, 'failing' );
 err_ok( <<ERR );
 #   Failed test 'failing'
-#   at $0 line 38.
+#   in $0 at line 38.
 ERR
 
 #line 40
@@ -72,19 +68,19 @@ is( undef, 0,     'undef is 0?');
 is( '',    0,     'empty string is 0?' );
 err_ok( <<ERR );
 #   Failed test 'foo is bar?'
-#   at $0 line 40.
+#   in $0 at line 40.
 #          got: 'foo'
 #     expected: 'bar'
 #   Failed test 'undef is empty string?'
-#   at $0 line 41.
+#   in $0 at line 41.
 #          got: undef
 #     expected: ''
 #   Failed test 'undef is 0?'
-#   at $0 line 42.
+#   in $0 at line 42.
 #          got: undef
 #     expected: '0'
 #   Failed test 'empty string is 0?'
-#   at $0 line 43.
+#   in $0 at line 43.
 #          got: ''
 #     expected: '0'
 ERR
@@ -95,17 +91,17 @@ isn't("foo", "foo",'foo isn\'t foo?' );
 isnt(undef, undef, 'undef isnt undef?');
 err_ok( <<ERR );
 #   Failed test 'foo isnt foo?'
-#   at $0 line 45.
+#   in $0 at line 45.
 #     'foo'
 #         ne
 #     'foo'
 #   Failed test 'foo isn\'t foo?'
-#   at $0 line 46.
+#   in $0 at line 46.
 #     'foo'
 #         ne
 #     'foo'
 #   Failed test 'undef isnt undef?'
-#   at $0 line 47.
+#   in $0 at line 47.
 #     undef
 #         ne
 #     undef
@@ -116,11 +112,11 @@ like( "foo", '/that/',  'is foo like that' );
 unlike( "foo", '/foo/', 'is foo unlike foo' );
 err_ok( <<ERR );
 #   Failed test 'is foo like that'
-#   at $0 line 48.
+#   in $0 at line 48.
 #                   'foo'
 #     doesn't match '/that/'
 #   Failed test 'is foo unlike foo'
-#   at $0 line 49.
+#   in $0 at line 49.
 #                   'foo'
 #           matches '/foo/'
 ERR
@@ -130,7 +126,7 @@ ERR
 like( "bug", '/(%)/',   'regex with % in it' );
 err_ok( <<ERR );
 #   Failed test 'regex with % in it'
-#   at $0 line 60.
+#   in $0 at line 60.
 #                   'bug'
 #     doesn't match '/(%)/'
 ERR
@@ -139,28 +135,20 @@ ERR
 fail('fail()');
 err_ok( <<ERR );
 #   Failed test 'fail()'
-#   at $0 line 67.
+#   in $0 at line 67.
 ERR
 
 #line 52
 can_ok('Mooble::Hooble::Yooble', qw(this that));
 can_ok('Mooble::Hooble::Yooble', ());
-can_ok(undef, undef);
-can_ok([], "foo");
 err_ok( <<ERR );
 #   Failed test 'Mooble::Hooble::Yooble->can(...)'
-#   at $0 line 52.
+#   in $0 at line 52.
 #     Mooble::Hooble::Yooble->can('this') failed
 #     Mooble::Hooble::Yooble->can('that') failed
 #   Failed test 'Mooble::Hooble::Yooble->can(...)'
-#   at $0 line 53.
+#   in $0 at line 53.
 #     can_ok() called with no methods
-#   Failed test '->can(...)'
-#   at $0 line 54.
-#     can_ok() called with empty class or reference
-#   Failed test 'ARRAY->can('foo')'
-#   at $0 line 55.
-#     ARRAY->can('foo') failed
 ERR
 
 #line 55
@@ -170,16 +158,16 @@ isa_ok(undef, "Wibble", "Another Wibble");
 isa_ok([],    "HASH");
 err_ok( <<ERR );
 #   Failed test 'The object isa Wibble'
-#   at $0 line 55.
+#   in $0 at line 55.
 #     The object isn't a 'Wibble' it's a 'Foo'
 #   Failed test 'My Wibble isa Wibble'
-#   at $0 line 56.
+#   in $0 at line 56.
 #     My Wibble isn't a reference
 #   Failed test 'Another Wibble isa Wibble'
-#   at $0 line 57.
+#   in $0 at line 57.
 #     Another Wibble isn't defined
 #   Failed test 'The object isa HASH'
-#   at $0 line 58.
+#   in $0 at line 58.
 #     The object isn't a 'HASH' it's a 'ARRAY'
 ERR
 
@@ -190,20 +178,20 @@ cmp_ok( 42,    '!=', 42   , '       !=' );
 cmp_ok( 1,     '&&', 0    , '       &&' );
 err_ok( <<ERR );
 #   Failed test 'cmp_ok eq'
-#   at $0 line 68.
+#   in $0 at line 68.
 #          got: 'foo'
 #     expected: 'bar'
 #   Failed test '       =='
-#   at $0 line 69.
+#   in $0 at line 69.
 #          got: 42.1
 #     expected: 23
 #   Failed test '       !='
-#   at $0 line 70.
+#   in $0 at line 70.
 #     '42'
 #         !=
 #     '42'
 #   Failed test '       &&'
-#   at $0 line 71.
+#   in $0 at line 71.
 #     '1'
 #         &&
 #     '0'
@@ -214,7 +202,7 @@ ERR
 cmp_ok( 42,    'eq', "foo", '       eq with numbers' );
 err_ok( <<ERR );
 #   Failed test '       eq with numbers'
-#   at $0 line 196.
+#   in $0 at line 196.
 #          got: '42'
 #     expected: 'foo'
 ERR
@@ -228,7 +216,7 @@ ERR
     cmp_ok( 42,    '==', "foo", '       == with strings' );
     err_ok( <<ERR );
 #   Failed test '       == with strings'
-#   at $0 line 211.
+#   in $0 at line 211.
 #          got: 42
 #     expected: foo
 ERR
@@ -247,11 +235,11 @@ cmp_ok( $!,    'eq', '',    '       eq with stringified errno' );
 cmp_ok( $!,    '==', -1,    '       eq with numerified errno' );
 err_ok( <<ERR );
 #   Failed test '       eq with stringified errno'
-#   at $0 line 80.
+#   in $0 at line 80.
 #          got: '$Errno_String'
 #     expected: ''
 #   Failed test '       eq with numerified errno'
-#   at $0 line 81.
+#   in $0 at line 81.
 #          got: $Errno_Number
 #     expected: -1
 ERR
@@ -261,9 +249,10 @@ use_ok('Hooble::mooble::yooble');
 
 my $more_err_re = <<ERR;
 #   Failed test 'use Hooble::mooble::yooble;'
-#   at $Filename line 84\\.
+#   in $Filename at line 84\\.
 #     Tried to use 'Hooble::mooble::yooble'.
 #     Error:  Can't locate Hooble.* in \\\@INC .*
+# BEGIN failed--compilation aborted at $Filename line 84.
 ERR
 
 My::Test::like($err->read, "/^$more_err_re/");
@@ -273,7 +262,7 @@ My::Test::like($err->read, "/^$more_err_re/");
 require_ok('ALL::YOUR::BASE::ARE::BELONG::TO::US::wibble');
 $more_err_re = <<ERR;
 #   Failed test 'require ALL::YOUR::BASE::ARE::BELONG::TO::US::wibble;'
-#   at $Filename line 85\\.
+#   in $Filename at line 85\\.
 #     Tried to require 'ALL::YOUR::BASE::ARE::BELONG::TO::US::wibble'.
 #     Error:  Can't locate ALL.* in \\\@INC .*
 ERR
@@ -299,8 +288,6 @@ not ok - regex with % in it
 not ok - fail()
 not ok - Mooble::Hooble::Yooble->can(...)
 not ok - Mooble::Hooble::Yooble->can(...)
-not ok - ->can(...)
-not ok - ARRAY->can('foo')
 not ok - The object isa Wibble
 not ok - My Wibble isa Wibble
 not ok - Another Wibble isa Wibble

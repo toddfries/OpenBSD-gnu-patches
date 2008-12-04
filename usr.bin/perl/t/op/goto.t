@@ -10,8 +10,7 @@ BEGIN {
 
 use warnings;
 use strict;
-plan tests => 58;
-our $TODO;
+plan tests => 57;
 
 our $foo;
 while ($?) {
@@ -447,15 +446,3 @@ like($@, qr/Can't goto subroutine from an eval-block/, 'eval block');
     );
     like($r, qr/bar/, "goto &foo in warn");
 }
-
-TODO: {
-    local $TODO = "[perl #43403] goto() from an if to an else doesn't undo local () changes";
-    our $global = "unmodified";
-    if ($global) { # true but not constant-folded
-         local $global = "modified";
-         goto ELSE;
-    } else {
-         ELSE: is($global, "unmodified");
-    }
-}
-

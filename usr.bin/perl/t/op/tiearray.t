@@ -134,20 +134,9 @@ sub EXISTS {
   exists $ob->[$id];
 }
 
-#
-# Returning -1 from FETCHSIZE used to get casted to U32 causing a
-# segfault
-#
-
-package NegFetchsize;
-
-sub TIEARRAY  { bless [] }
-sub FETCH     { }
-sub FETCHSIZE { -1 }
-
 package main;
   
-print "1..62\n";                   
+print "1..61\n";                   
 my $test = 1;
 
 {my @ary;
@@ -335,14 +324,6 @@ untie @ary;
                            
 
                            
-{
-    tie my @dummy, "NegFetchsize";
-    eval { "@dummy"; };
-    print "# $@" if $@;
-    print "not " unless $@ =~ /^FETCHSIZE returned a negative value/;
-    print "ok ", $test++, " - croak on negative FETCHSIZE\n";
-}
-
 print "not " unless $seen{'DESTROY'} == 3;
 print "ok ", $test++,"\n";         
 

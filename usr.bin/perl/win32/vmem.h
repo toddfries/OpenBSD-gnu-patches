@@ -21,9 +21,7 @@
 #ifndef ___VMEM_H_INC___
 #define ___VMEM_H_INC___
 
-#ifndef UNDER_CE
 #define _USE_MSVCRT_MEM_ALLOC
-#endif
 #define _USE_LINKED_LIST
 
 // #define _USE_BUDDY_BLOCKS
@@ -164,10 +162,6 @@ void* VMem::Malloc(size_t size)
 #ifdef _USE_LINKED_LIST
     GetLock();
     PMEMORY_BLOCK_HEADER ptr = (PMEMORY_BLOCK_HEADER)m_pmalloc(size+sizeof(MEMORY_BLOCK_HEADER));
-    if (!ptr) {
-	FreeLock();
-	return NULL;
-    }
     LinkBlock(ptr);
     FreeLock();
     return (ptr+1);
@@ -191,10 +185,6 @@ void* VMem::Realloc(void* pMem, size_t size)
     PMEMORY_BLOCK_HEADER ptr = (PMEMORY_BLOCK_HEADER)(((char*)pMem)-sizeof(MEMORY_BLOCK_HEADER));
     UnlinkBlock(ptr);
     ptr = (PMEMORY_BLOCK_HEADER)m_prealloc(ptr, size+sizeof(MEMORY_BLOCK_HEADER));
-    if (!ptr) {
-	FreeLock();
-	return NULL;
-    }
     LinkBlock(ptr);
     FreeLock();
 
@@ -215,8 +205,7 @@ void VMem::Free(void* pMem)
 		dTHX;
 	    	int *nowhere = NULL;
 	    	Perl_warn(aTHX_ "Free to wrong pool %p not %p",this,ptr->owner);
-            	*nowhere = 0; /* this segfault is deliberate, 
-            	                 so you can see the stack trace */
+            	*nowhere = 0;
 #else
                 ptr->owner->Free(pMem);	
 #endif

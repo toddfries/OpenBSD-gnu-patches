@@ -2,7 +2,7 @@ package Test::Builder::Tester;
 
 use strict;
 use vars qw(@EXPORT $VERSION @ISA);
-$VERSION = "1.09";
+$VERSION = "1.02";
 
 use Test::Builder;
 use Symbol;
@@ -102,8 +102,8 @@ my $output_handle = gensym;
 my $error_handle  = gensym;
 
 # and tie them to this package
-my $out = tie *$output_handle, "Test::Builder::Tester::Tie", "STDOUT";
-my $err = tie *$error_handle,  "Test::Builder::Tester::Tie", "STDERR";
+my $out = tie *$output_handle, "Test::Tester::Tie", "STDOUT";
+my $err = tie *$error_handle,  "Test::Tester::Tie", "STDERR";
 
 ####
 # exported functions
@@ -154,7 +154,7 @@ sub _start_testing
     $t->no_ending(1);
 }
 
-=head2 Functions
+=head2 Methods
 
 These are the six methods that are exported as default.
 
@@ -214,7 +214,7 @@ so
 
     test_err("# Failed test ($0 at line ".line_num(+1).")");
 
-C<test_fail> exists as a convenience function that can be called
+C<test_fail> exists as a convenience method that can be called
 instead.  It takes one argument, the offset from the current line that
 the line that causes the fail is on.
 
@@ -376,7 +376,7 @@ sub test_test
 A utility function that returns the line number that the function was
 called on.  You can pass it an offset which will be added to the
 result.  This is very useful for working out the correct text of
-diagnostic functions that contain line numbers.
+diagnostic methods that contain line numbers.
 
 Essentially this is the same as the C<__LINE__> macro, but the
 C<line_num(+3)> idiom is arguably nicer.
@@ -442,10 +442,10 @@ sub color
 
 =head1 BUGS
 
-Calls C<<Test::Builder->no_ending>> turning off the ending tests.
-This is needed as otherwise it will trip out because we've run more
-tests than we strictly should have and it'll register any failures we
-had that we were testing for as real failures.
+Calls B<Test::Builder>'s C<no_ending> method turning off the ending
+tests.  This is needed as otherwise it will trip out because we've run
+more tests than we strictly should have and it'll register any
+failures we had that we were testing for as real failures.
 
 The color function doesn't work unless B<Term::ANSIColor> is installed
 and is compatible with your terminal.
@@ -485,7 +485,7 @@ L<Test::Builder>, L<Test::Builder::Tester::Color>, L<Test::More>.
 ####################################################################
 # Helper class that is used to remember expected and received data
 
-package Test::Builder::Tester::Tie;
+package Test::Tester::Tie;
 
 ##
 # add line(s) to be expected
@@ -497,17 +497,17 @@ sub expect
     my @checks = @_;
     foreach my $check (@checks) {
         $check = $self->_translate_Failed_check($check);
-        push @{$self->{wanted}}, ref $check ? $check : "$check\n";
+        push @{$self->[2]}, ref $check ? $check : "$check\n";
     }
 }
 
 
-sub _translate_Failed_check
+sub _translate_Failed_check 
 {
     my($self, $check) = @_;
 
-    if( $check =~ /\A(.*)#     (Failed .*test) \((.*?) at line (\d+)\)\Z(?!\n)/ ) {
-        $check = "/\Q$1\E#\\s+\Q$2\E.*?\\n?.*?\Qat $3\E line \Q$4\E.*\\n?/";
+    if( $check =~ /\A(.*)#     (Failed .*test) \((.*?) at line (\d+)\)\z/ ) {
+        $check = qr/\Q$1\E#\s+\Q$2\E.*?\n?.*?\Q$3\E at line \Q$4\E.*\n?/;
     }
 
     return $check;
@@ -524,10 +524,10 @@ sub check
     # turn off warnings as these might be undef
     local $^W = 0;
 
-    my @checks = @{$self->{wanted}};
-    my $got = $self->{got};
+    my @checks = @{$self->[2]};
+    my $got = $self->[1];
     foreach my $check (@checks) {
-        $check = "\Q$check\E" unless ($check =~ s,^/(.*)/$,$1, or ref $check);
+        $check = qr/^\Q$check\E/ unless ref $check;
         return 0 unless $got =~ s/^$check//;
     }
 
@@ -592,30 +592,26 @@ sub complaint
 sub reset
 {
     my $self = shift;
-    %$self = (
-              type   => $self->{type},
-              got    => '',
-              wanted => [],
-             );
+    @$self = ($self->[0], '', []);
 }
 
 
 sub got
 {
     my $self = shift;
-    return $self->{got};
+    return $self->[1];
 }
 
 sub wanted
 {
     my $self = shift;
-    return $self->{wanted};
+    return $self->[2];
 }
 
 sub type
 {
     my $self = shift;
-    return $self->{type};
+    return $self->[0];
 }
 
 ###
@@ -624,16 +620,13 @@ sub type
 
 sub PRINT  {
     my $self = shift;
-    $self->{got} .= join '', @_;
+    $self->[1] .= join '', @_;
 }
 
 sub TIEHANDLE {
     my($class, $type) = @_;
 
-    my $self = bless {
-                   type => $type
-               }, $class;
-
+    my $self = bless [$type], $class;
     $self->reset;
 
     return $self;

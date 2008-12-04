@@ -1156,11 +1156,11 @@ perl_get_emergency_buffer(IV *size)
     dTHX;
     /* First offense, give a possibility to recover by dieing. */
     /* No malloc involved here: */
+    GV **gvp = (GV**)hv_fetch(PL_defstash, "^M", 2, 0);
     SV *sv;
     char *pv;
-    GV **gvp = (GV**)hv_fetchs(PL_defstash, "^M", FALSE);
 
-    if (!gvp) gvp = (GV**)hv_fetchs(PL_defstash, "\015", FALSE);
+    if (!gvp) gvp = (GV**)hv_fetch(PL_defstash, "\015", 1, 0);
     if (!gvp || !(sv = GvSV(*gvp)) || !SvPOK(sv) 
         || (SvLEN(sv) < (1<<LOG_OF_MIN_ARENA) - M_OVERHEAD))
         return NULL;		/* Now die die die... */
@@ -1173,7 +1173,7 @@ perl_get_emergency_buffer(IV *size)
     }
 
     SvPOK_off(sv);
-    SvPV_set(sv, NULL);
+    SvPV_set(sv, Nullch);
     SvCUR_set(sv, 0);
     SvLEN_set(sv, 0);
     *size = malloced_size(pv) + M_OVERHEAD;
@@ -1249,7 +1249,7 @@ emergency_sbrk(MEM_SIZE size)
 	if (emergency_buffer_size) {
 	    add_to_chain(emergency_buffer, emergency_buffer_size, 0);
 	    emergency_buffer_size = 0;
-	    emergency_buffer = NULL;
+	    emergency_buffer = Nullch;
 	    have = 1;
 	}
 
@@ -1276,7 +1276,7 @@ emergency_sbrk(MEM_SIZE size)
     MALLOC_UNLOCK;
     emergency_sbrk_croak("Out of memory during request for %"UVuf" bytes, total sbrk() is %"UVuf" bytes", (UV)size, (UV)(goodsbrk + sbrk_slack));
     /* NOTREACHED */
-    return NULL;
+    return Nullch;
 }
 
 #else /*  !defined(PERL_EMERGENCY_SBRK) */
@@ -1291,12 +1291,10 @@ write2(char *mess)
 
 #ifdef DEBUGGING
 #undef ASSERT
-#define	ASSERT(p,diag)   if (!(p)) botch(diag,STRINGIFY(p),__FILE__,__LINE__);
-
+#define	ASSERT(p,diag)   if (!(p)) botch(diag,STRINGIFY(p),__FILE__,__LINE__);  else
 static void
 botch(char *diag, char *s, char *file, int line)
 {
-    dVAR;
     if (!(PERL_MAYBE_ALIVE && PERL_GET_THX))
 	goto do_write;
     else {
@@ -1410,7 +1408,6 @@ cmp_pat_4bytes(unsigned char *s, size_t nbytes, const unsigned char *fill)
 Malloc_t
 Perl_malloc(register size_t nbytes)
 {
-        dVAR;
   	register union overhead *p;
   	register int bucket;
   	register MEM_SIZE shiftr;
@@ -1668,7 +1665,6 @@ get_from_bigger_buckets(int bucket, MEM_SIZE size)
 static union overhead *
 getpages(MEM_SIZE needed, int *nblksp, int bucket)
 {
-    dVAR;
     /* Need to do (possibly expensive) system call. Try to
        optimize it for rare calling. */
     MEM_SIZE require = needed - sbrked_remains;
@@ -1869,7 +1865,6 @@ getpages_adjacent(MEM_SIZE require)
 static void
 morecore(register int bucket)
 {
-        dVAR;
   	register union overhead *ovp;
   	register int rnu;       /* 2^rnu bytes will be requested */
   	int nblks;		/* become nblks blocks of the desired size */
@@ -2002,12 +1997,11 @@ morecore(register int bucket)
 }
 
 Free_t
-Perl_mfree(Malloc_t where)
+Perl_mfree(void *mp)
 {
-        dVAR;
   	register MEM_SIZE size;
 	register union overhead *ovp;
-	char *cp = (char*)where;
+	char *cp = (char*)mp;
 #ifdef PACK_MALLOC
 	u_char bucket;
 #endif 
@@ -2109,7 +2103,6 @@ Perl_mfree(Malloc_t where)
 Malloc_t
 Perl_realloc(void *mp, size_t nbytes)
 {
-        dVAR;
   	register MEM_SIZE onb;
 	union overhead *ovp;
   	char *res;
@@ -2148,7 +2141,7 @@ Perl_realloc(void *mp, size_t nbytes)
 		    bad_free_warn = (pbf) ? atoi(pbf) : 1;
 		}
 		if (!bad_free_warn)
-		    return NULL;
+		    return Nullch;
 #ifdef RCHECK
 #ifdef PERL_CORE
 		{
@@ -2176,7 +2169,7 @@ Perl_realloc(void *mp, size_t nbytes)
 		warn("%s", "Bad realloc() ignored");
 #endif
 #endif
-		return NULL;			/* sanity */
+		return Nullch;			/* sanity */
 	    }
 
 	onb = BUCKET_SIZE_REAL(bucket);
@@ -2325,7 +2318,7 @@ Perl_strdup(const char *s)
     MEM_SIZE l = strlen(s);
     char *s1 = (char *)Perl_malloc(l+1);
 
-    return (char *)CopyD(s, s1, (MEM_SIZE)(l+1), char);
+    return CopyD(s, s1, (MEM_SIZE)(l+1), char);
 }
 
 #ifdef PERL_CORE
@@ -2348,7 +2341,7 @@ Perl_putenv(char *a)
   if (l < sizeof(buf))
       var = buf;
   else
-      var = (char *)Perl_malloc(l + 1);
+      var = Perl_malloc(l + 1);
   Copy(a, var, l, char);
   var[l + 1] = 0;
   my_setenv(var, val+1);

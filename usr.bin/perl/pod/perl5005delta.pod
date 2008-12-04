@@ -572,7 +572,7 @@ in perl.
 
 =item Test
 
-A framework for writing test suites.
+A framework for writing testsuites.
 
 =item Tie::Array
 

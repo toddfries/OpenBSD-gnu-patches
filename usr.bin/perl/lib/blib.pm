@@ -46,18 +46,7 @@ $Verbose = 0;
 sub import
 {
  my $package = shift;
- my $dir;
- if ($^O eq "MSWin32" && -f "Win32.xs") {
-     # We don't use getcwd() on Windows because it will internally
-     # call Win32::GetCwd(), which will get the Win32 module loaded.
-     # That means that it would not be possible to run `make test`
-     # for the Win32 module because blib.pm would always load the
-     # installed version before @INC gets updated with the blib path.
-     chomp($dir = `cd`);
- }
- else {
-     $dir = getcwd;
- }
+ my $dir = getcwd;
  if ($^O eq 'VMS') { ($dir = VMS::Filespec::unixify($dir)) =~ s-/\z--; }
  if (@_)
   {

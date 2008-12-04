@@ -1,9 +1,9 @@
 package autouse;
 
 #use strict;		# debugging only
-use 5.006;		# use warnings
+use 5.003_90;		# ->can, for my $var
 
-$autouse::VERSION = '1.06';
+$autouse::VERSION = '1.05';
 
 $autouse::DEBUG ||= 0;
 
@@ -53,7 +53,7 @@ sub import {
 		require $pm;
 		vet_import $module;
 	    }
-            no warnings qw(redefine prototype);
+            no warnings 'redefine';
 	    *$closure_import_func = \&{"${module}::$closure_func"};
 	    print "autousing $module; "
 		  ."imported $closure_func as $closure_import_func\n"
@@ -73,10 +73,9 @@ sub import {
 sub vet_import ($) {
     my $module = shift;
     if (my $import = $module->can('import')) {
-	croak "autoused module $module has unique import() method"
+	croak "autoused module has unique import() method"
 	    unless defined(&Exporter::import)
-		   && ($import == \&Exporter::import ||
-		       $import == \&UNIVERSAL::import)
+		   && $import == \&Exporter::import;
     }
 }
 

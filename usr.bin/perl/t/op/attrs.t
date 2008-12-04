@@ -1,8 +1,6 @@
-#!./perl
+#!./perl -w
 
 # Regression tests for attributes.pm and the C< : attrs> syntax.
-
-use warnings;
 
 BEGIN {
     chdir 't' if -d 't';
@@ -83,10 +81,6 @@ like $@, qr/^SCALAR package attribute may clash with future reserved word: ["']?
 eval 'my A $x : plugh plover;';
 like $@, qr/^SCALAR package attributes may clash with future reserved words: ["']?plugh["']? /;
 
-no warnings 'reserved';
-eval 'my A $x : plugh;';
-is $@, '';
-
 eval 'package Cat; my Cat @socks;';
 like $@, qr/^Can't declare class for non-scalar \@socks in "my"/;
 
@@ -153,12 +147,13 @@ eval_ok '
 
 # bug #15898
 eval 'our ${""} : foo = 1';
-like $@, qr/Can't declare scalar dereference in "our"/;
+like $@, qr/Can't declare scalar dereference in our/;
 eval 'my $$foo : bar = 1';
-like $@, qr/Can't declare scalar dereference in "my"/;
+like $@, qr/Can't declare scalar dereference in my/;
 
 
 my @code = qw(lvalue locked method);
+unshift @code, 'assertion' if $] >= 5.009;
 my @other = qw(shared unique);
 my %valid;
 $valid{CODE} = {map {$_ => 1} @code};

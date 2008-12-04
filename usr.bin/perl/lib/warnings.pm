@@ -6,14 +6,7 @@
 
 package warnings;
 
-our $VERSION = '1.06';
-
-# Verify that we're called correctly so that warnings will work.
-# see also strict.pm.
-unless ( __FILE__ =~ /(^|[\/\\])\Q${\__PACKAGE__}\E\.pmc?$/ ) {
-    my (undef, $f, $l) = caller;
-    die("Incorrect use of pragma '${\__PACKAGE__}' at $f line $l.\n");
-}
+our $VERSION = '1.05';
 
 =head1 NAME
 
@@ -138,6 +131,8 @@ See L<perlmodlib/Pragmatic Modules> and L<perllexwarn>.
 
 =cut
 
+use Carp ();
+
 our %Offsets = (
 
     # Warnings Categories added in Perl 5.008
@@ -188,10 +183,11 @@ our %Offsets = (
     'untie'		=> 86,
     'utf8'		=> 88,
     'void'		=> 90,
+    'y2k'		=> 92,
   );
 
 our %Bits = (
-    'all'		=> "\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x05", # [0..45]
+    'all'		=> "\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x15", # [0..46]
     'ambiguous'		=> "\x00\x00\x00\x00\x00\x00\x00\x04\x00\x00\x00\x00", # [29]
     'bareword'		=> "\x00\x00\x00\x00\x00\x00\x00\x10\x00\x00\x00\x00", # [30]
     'closed'		=> "\x00\x10\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00", # [6]
@@ -237,10 +233,11 @@ our %Bits = (
     'untie'		=> "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x40\x00", # [43]
     'utf8'		=> "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01", # [44]
     'void'		=> "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x04", # [45]
+    'y2k'		=> "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x10", # [46]
   );
 
 our %DeadBits = (
-    'all'		=> "\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\x0a", # [0..45]
+    'all'		=> "\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\x2a", # [0..46]
     'ambiguous'		=> "\x00\x00\x00\x00\x00\x00\x00\x08\x00\x00\x00\x00", # [29]
     'bareword'		=> "\x00\x00\x00\x00\x00\x00\x00\x20\x00\x00\x00\x00", # [30]
     'closed'		=> "\x00\x20\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00", # [6]
@@ -286,17 +283,17 @@ our %DeadBits = (
     'untie'		=> "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x80\x00", # [43]
     'utf8'		=> "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02", # [44]
     'void'		=> "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x08", # [45]
+    'y2k'		=> "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x20", # [46]
   );
 
 $NONE     = "\0\0\0\0\0\0\0\0\0\0\0\0";
-$LAST_BIT = 92 ;
+$LAST_BIT = 94 ;
 $BYTES    = 12 ;
 
 $All = "" ; vec($All, $Offsets{'all'}, 2) = 3 ;
 
 sub Croaker
 {
-    require Carp::Heavy; # this initializes %CarpInternal
     local $Carp::CarpInternal{'warnings'};
     delete $Carp::CarpInternal{'warnings'};
     Carp::croak(@_);
@@ -439,17 +436,16 @@ sub __chk
 	$i -= 2 ;
     }
     else {
-        $i = _error_loc(); # see where Carp will allocate the error
+        for ($i = 2 ; $pkg = (caller($i))[0] ; ++ $i) {
+            last if $pkg ne $this_pkg ;
+        }
+        $i = 2
+            if !$pkg || $pkg eq $this_pkg ;
     }
 
     my $callers_bitmask = (caller($i))[9] ;
     return ($callers_bitmask, $offset, $i) ;
 }
-
-sub _error_loc {
-    require Carp::Heavy;
-    goto &Carp::short_error_loc; # don't introduce another stack frame
-}                                                             
 
 sub enabled
 {
@@ -471,7 +467,6 @@ sub warn
 
     my $message = pop ;
     my ($callers_bitmask, $offset, $i) = __chk(@_) ;
-    require Carp;
     Carp::croak($message)
 	if vec($callers_bitmask, $offset+1, 1) ||
 	   vec($callers_bitmask, $Offsets{'all'}+1, 1) ;
@@ -491,7 +486,6 @@ sub warnif
             	(vec($callers_bitmask, $offset, 1) ||
             	vec($callers_bitmask, $Offsets{'all'}, 1)) ;
 
-    require Carp;
     Carp::croak($message)
 	if vec($callers_bitmask, $offset+1, 1) ||
 	   vec($callers_bitmask, $Offsets{'all'}+1, 1) ;

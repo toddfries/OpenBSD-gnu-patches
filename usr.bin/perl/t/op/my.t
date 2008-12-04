@@ -1,5 +1,7 @@
 #!./perl
 
+# $RCSfile: my.t,v $
+
 print "1..36\n";
 
 sub foo {
@@ -109,20 +111,9 @@ print "ok 32\n";
 eval { my $x = opth };
 print "not " if $@;
 print "ok 33\n";
-
-
-sub foo3 {
-    ++my $x->{foo};
-    print "not " if defined $x->{bar};
-    ++$x->{bar};
-}
-eval { foo3(); foo3(); };
-print "not " if $@;
-print "ok 34\n";
-
 # my $foo = undef should always assign [perl #37776]
 {
-    my $count = 35;
+    my $count = 34;
     loop:
     my $test = undef;
     print "not " if defined $test;

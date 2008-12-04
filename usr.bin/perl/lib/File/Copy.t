@@ -1,10 +1,8 @@
 #!./perl
 
 BEGIN {
-   if( $ENV{PERL_CORE} ) {
-        chdir 't' if -d 't';
-        @INC = '../lib';
-    }
+    chdir 't' if -d 't';
+    @INC = '../lib';
 }
 
 use Test::More;
@@ -27,7 +25,7 @@ foreach my $code ("copy()", "copy('arg')", "copy('arg', 'arg', 'arg', 'arg')",
                  )
 {
     eval $code;
-    like $@, qr/^Usage: /, "'$code' is a usage error";
+    like $@, qr/^Usage: /;
 }
 
 
@@ -51,11 +49,10 @@ for my $cross_partition_test (0..1) {
   $foo = <F>;
   close(F);
 
-  is -s "file-$$", -s "copy-$$", 'copy(fn, fn): files of the same size';
+  is -s "file-$$", -s "copy-$$";
 
-  is $foo, "ok\n", 'copy(fn, fn): same contents';
+  is $foo, "ok\n";
 
-  print("# next test checks copying to STDOUT\n");
   binmode STDOUT unless $^O eq 'VMS'; # Copy::copy works in binary mode
   # This outputs "ok" so its a test.
   copy "copy-$$", \*STDOUT;
@@ -65,14 +62,14 @@ for my $cross_partition_test (0..1) {
   open(F,"file-$$");
   copy(*F, "copy-$$");
   open(R, "copy-$$") or die "open copy-$$: $!"; $foo = <R>; close(R);
-  is $foo, "ok\n", 'copy(*F, fn): same contents';
+  is $foo, "ok\n";
   unlink "copy-$$" or die "unlink: $!";
 
   open(F,"file-$$");
   copy(\*F, "copy-$$");
   close(F) or die "close: $!";
   open(R, "copy-$$") or die; $foo = <R>; close(R) or die "close: $!";
-  is $foo, "ok\n", 'copy(\*F, fn): same contents';
+  is $foo, "ok\n";
   unlink "copy-$$" or die "unlink: $!";
 
   require IO::File;
@@ -81,7 +78,7 @@ for my $cross_partition_test (0..1) {
   copy("file-$$",$fh);
   $fh->close or die "close: $!";
   open(R, "copy-$$") or die; $foo = <R>; close(R);
-  is $foo, "ok\n", 'copy(fn, io): same contents';
+  is $foo, "ok\n";
   unlink "copy-$$" or die "unlink: $!";
 
   require FileHandle;
@@ -90,7 +87,7 @@ for my $cross_partition_test (0..1) {
   copy("file-$$",$fh);
   $fh->close;
   open(R, "copy-$$") or die; $foo = <R>; close(R);
-  is $foo, "ok\n", 'copy(fn, fh): same contents';
+  is $foo, "ok\n";
   unlink "file-$$" or die "unlink: $!";
 
   ok !move("file-$$", "copy-$$"), "move on missing file";
@@ -109,7 +106,7 @@ for my $cross_partition_test (0..1) {
   ok -e "file-$$",              '  destination exists';
   ok !-e "copy-$$",              '  source does not';
   open(R, "file-$$") or die; $foo = <R>; close(R);
-  is $foo, "ok\n", 'contents preserved';
+  is $foo, "ok\n";
 
   TODO: {
     local $TODO = 'mtime only preserved on ODS-5 with POSIX dates and DECC$EFS_FILE_TIMESTAMPS enabled' if $^O eq 'VMS';
@@ -120,32 +117,30 @@ for my $cross_partition_test (0..1) {
       ($cross_partition_test ? " while testing cross-partition" : "");
   }
 
-  # trick: create lib/ if not exists - not needed in Perl core
-  unless (-d 'lib') { mkdir 'lib' or die; }
   copy "file-$$", "lib";
-  open(R, "lib/file-$$") or die $!; $foo = <R>; close(R);
-  is $foo, "ok\n", 'copy(fn, dir): same contents';
+  open(R, "lib/file-$$") or die; $foo = <R>; close(R);
+  is $foo, "ok\n";
   unlink "lib/file-$$" or die "unlink: $!";
 
   # Do it twice to ensure copying over the same file works.
   copy "file-$$", "lib";
   open(R, "lib/file-$$") or die; $foo = <R>; close(R);
-  is $foo, "ok\n", 'copy over the same file works';
+  is $foo, "ok\n";
   unlink "lib/file-$$" or die "unlink: $!";
 
   { 
     my $warnings = '';
     local $SIG{__WARN__} = sub { $warnings .= join '', @_ };
-    ok copy("file-$$", "file-$$"), 'copy(fn, fn) succeeds';
+    ok copy("file-$$", "file-$$");
 
-    like $warnings, qr/are identical/, 'but warns';
-    ok -s "file-$$", 'contents preserved';
+    like $warnings, qr/are identical/;
+    ok -s "file-$$";
   }
 
   move "file-$$", "lib";
   open(R, "lib/file-$$") or die "open lib/file-$$: $!"; $foo = <R>; close(R);
-  is $foo, "ok\n", 'move(fn, dir): same contents';
-  ok !-e "file-$$", 'file moved indeed';
+  is $foo, "ok\n";
+  ok !-e "file-$$";
   unlink "lib/file-$$" or die "unlink: $!";
 
   SKIP: {
@@ -158,9 +153,9 @@ for my $cross_partition_test (0..1) {
 
     my $warnings = '';
     local $SIG{__WARN__} = sub { $warnings .= join '', @_ };
-    ok !copy("file-$$", "symlink-$$"), 'copy to itself (via symlink) fails';
+    ok !copy("file-$$", "symlink-$$");
 
-    like $warnings, qr/are identical/, 'emits a warning';
+    like $warnings, qr/are identical/;
     ok !-z "file-$$", 
       'rt.perl.org 5196: copying to itself would truncate the file';
 
@@ -169,8 +164,7 @@ for my $cross_partition_test (0..1) {
   }
 
   SKIP: {
-    skip "Testing hard links", 3 
-         if !$Config{d_link} or $^O eq 'MSWin32' or $^O eq 'cygwin';
+    skip "Testing hard links", 3 if !$Config{d_link} or $^O eq 'MSWin32';
 
     open(F, ">file-$$") or die $!;
     print F "dummy content\n";
@@ -179,9 +173,9 @@ for my $cross_partition_test (0..1) {
 
     my $warnings = '';
     local $SIG{__WARN__} = sub { $warnings .= join '', @_ };
-    ok !copy("file-$$", "hardlink-$$"), 'copy to itself (via hardlink) fails';
+    ok !copy("file-$$", "hardlink-$$");
 
-    like $warnings, qr/are identical/, 'emits a warning';
+    like $warnings, qr/are identical/;
     ok ! -z "file-$$",
       'rt.perl.org 5196: copying to itself would truncate the file';
 

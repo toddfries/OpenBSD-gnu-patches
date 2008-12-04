@@ -11,7 +11,7 @@ BEGIN {
 
 no utf8; # needed for use utf8 not griping about the raw octets
 
-BEGIN { require "./test.pl"; }
+require "./test.pl";
 
 plan(tests => 55);
 
@@ -118,7 +118,9 @@ close(F);
     is( $x, chr(300).chr(130), sprintf('(%vd)', $x) );
 
     open F, ">", "a" or die $!;
-    binmode(F, ":bytes:");
+    if (${^OPEN} =~ /:utf8/) {
+        binmode(F, ":bytes:");
+    }
 
     # Now let's make it suffer.
     my $w;
@@ -231,7 +233,7 @@ is($failed, undef);
     print F chr(0x100);
     close(F);
 
-    isnt( defined $@, !0 );
+    isnt( defined $@ );
 
     undef $@;
     open F, ">a";
@@ -239,7 +241,7 @@ is($failed, undef);
     print F chr(0x100);
     close(F);
 
-    isnt( defined $@, !0 );
+    isnt( defined $@ );
 
     no warnings 'utf8';
 
@@ -248,7 +250,7 @@ is($failed, undef);
     print F chr(0x100);
     close(F);
 
-    isnt( defined $@, !0 );
+    isnt( defined $@ );
 
     use warnings 'utf8';
 

@@ -9,7 +9,7 @@
 
 package Data::Dumper;
 
-$VERSION = '2.121_14';
+$VERSION = '2.121_08';
 
 #$| = 1;
 
@@ -101,26 +101,16 @@ sub new {
   return bless($s, $c);
 }
 
-if ($] >= 5.006) {
-  # Packed numeric addresses take less memory. Plus pack is faster than sprintf
-  *init_refaddr_format = sub {};
+sub init_refaddr_format {
+  require Config;
+  my $f = $Config::Config{uvxformat};
+  $f =~ tr/"//d;
+  our $refaddr_format = "0x%" . $f;
+}
 
-  *format_refaddr  = sub {
-    require Scalar::Util;
-    pack "J", Scalar::Util::refaddr(shift);
-  };
-} else {
-  *init_refaddr_format = sub {
-    require Config;
-    my $f = $Config::Config{uvxformat};
-    $f =~ tr/"//d;
-    our $refaddr_format = "0x%" . $f;
-  };
-
-  *format_refaddr = sub {
-    require Scalar::Util;
-    sprintf our $refaddr_format, Scalar::Util::refaddr(shift);
-  }
+sub format_refaddr {
+  require Scalar::Util;
+  sprintf our $refaddr_format, Scalar::Util::refaddr(shift);
 }
 
 #
@@ -129,7 +119,6 @@ if ($] >= 5.006) {
 sub Seen {
   my($s, $g) = @_;
   if (defined($g) && (ref($g) eq 'HASH'))  {
-    init_refaddr_format();
     my($k, $v, $id);
     while (($k, $v) = each %$g) {
       if (defined $v and ref $v) {
@@ -231,11 +220,6 @@ sub Dumpperl {
       $name = "\$" . $s->{varname} . $i;
     }
 
-    # Ensure hash iterator is reset
-    if (ref($val) eq 'HASH') {
-        keys(%$val);
-    }
-
     my $valstr;
     {
       local($s->{apad}) = $s->{apad};
@@ -251,13 +235,6 @@ sub Dumpperl {
     push @out, $out;
   }
   return wantarray ? @out : join('', @out);
-}
-
-# wrap string in single quotes (escaping if needed)
-sub _quote {
-    my $val = shift;
-    $val =~ s/([\\\'])/\\$1/g;
-    return  "'" . $val .  "'";
 }
 
 #
@@ -445,7 +422,7 @@ sub _dump {
     }
     
     if ($realpack) { # we have a blessed ref
-      $out .= ', ' . _quote($realpack) . ' )';
+      $out .= ', \'' . $realpack . '\'' . ' )';
       $out .= '->' . $s->{toaster} . '()'  if $s->{toaster} ne '';
       $s->{apad} = $blesspad;
     }
@@ -505,11 +482,12 @@ sub _dump {
     }
     else {				 # string
       if ($s->{useqq} or $val =~ tr/\0-\377//c) {
-        # Fall back to qq if there's Unicode
+        # Fall back to qq if there's unicode
 	$out .= qquote($val, $s->{useqq});
       }
       else {
-        $out .= _quote($val);
+	$val =~ s/([\\\'])/\\$1/g;
+	$out .= '\'' . $val .  '\'';
       }
     }
   }

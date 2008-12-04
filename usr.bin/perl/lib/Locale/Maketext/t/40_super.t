@@ -1,11 +1,10 @@
-#!/usr/bin/perl -Tw
 
-use strict;
-use Test::More tests=>19;
+# Time-stamp: "2004-03-30 18:02:24 AST"
+#sub Locale::Maketext::DEBUG () {10}
+use Locale::Maketext;
 
-BEGIN {
-    use_ok( 'Locale::Maketext' );
-}
+use Test;
+BEGIN { plan tests => 19 };
 
 print "#\n# Testing non-tight insertion of super-ordinate language tags...\n#\n";
 
@@ -39,23 +38,42 @@ pt-br-janeiro de pt-br fr => pt-br-janeiro de pt-br fr pt
 
 $Locale::Maketext::MATCH_SUPERS_TIGHTLY = 0;
 
-foreach my $in ( @in ) {
-    $in =~ s/^\s+//s;
-    $in =~ s/\s+$//s;
-    $in =~ s/#.+//s;
-    next unless $in =~ m/\S/;
-
+foreach my $in (@in) {
+  $in =~ s/^\s+//s;
+  $in =~ s/\s+$//s;
+  $in =~ s/#.+//s;
+  next unless $in =~ m/\S/;
+  
+  my(@in, @should);
+  {
     die "What kind of line is <$in>?!"
-        unless $in =~ m/^(.+)=>(.+)$/s;
+     unless $in =~ m/^(.+)=>(.+)$/s;
+  
+    my($i,$s) = ($1, $2);
+    @in     = ($i =~ m/(\S+)/g);
+    @should = ($s =~ m/(\S+)/g);
+    #print "{@in}{@should}\n";
+  }
+  my @out = Locale::Maketext->_add_supers(
+    ("@in" eq 'NIX') ? () : @in
+  );
+  #print "O: ", join(' ', map "<$_>", @out), "\n";
+  @out = 'NIX' unless @out;
 
-    my ($i,$s) = ($1, $2);
-    my @in     = ($i =~ m/(\S+)/g);
-    my @should = ($s =~ m/(\S+)/g);
-
-    my @out = Locale::Maketext->_add_supers(
-        ("@in" eq 'NIX') ? () : @in
-    );
-    @out = 'NIX' unless @out;
-
-    is_deeply( \@out, \@should, "Happily got [@out] from $in" );
+  
+  if( @out == @should
+      and lc( join "\e", @out ) eq lc( join "\e", @should )
+  ) {
+    print "#     Happily got [@out] from [$in]\n";
+    ok 1;
+  } else {
+    ok 0;
+    print "#!!Got:         [@out]\n",
+          "#!! but wanted: [@should]\n",
+          "#!! from \"$in\"\n#\n";
+  }
 }
+
+print "#\n#\n# Bye-bye!\n";
+ok 1;
+

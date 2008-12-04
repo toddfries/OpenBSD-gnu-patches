@@ -1,27 +1,18 @@
 #!./perl
 
-BEGIN {
-    chdir 't' if -d 't';
-    @INC = qw(. ../lib);
-}
+$n=0;
 
-require "test.pl";
-plan( tests => 7 );
+print "1..3\n";
 
 sub foo {
     $a='abcd';
+
     $a=~/(.)/g;
-    cmp_ok($1,'eq','a','context ' . curr_test());
+
+    $1 eq 'a' or print 'not ';
+    print "ok ",++$n,"\n";
 }
 
 $a=foo;
 @a=foo;
 foo;
-foo(foo);
-
-my $before = curr_test();
-$h{foo} = foo;
-my $after = curr_test();
-
-cmp_ok($after-$before,'==',1,'foo called once')
-	or diag("nr tests: before=$before, after=$after");

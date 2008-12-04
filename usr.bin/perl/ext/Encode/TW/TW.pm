@@ -1,15 +1,14 @@
 package Encode::TW;
 BEGIN {
-    if ( ord("A") == 193 ) {
-        die "Encode::TW not supported on EBCDIC\n";
+    if (ord("A") == 193) {
+	die "Encode::TW not supported on EBCDIC\n";
     }
 }
-use strict;
-use warnings;
+our $VERSION = do { my @r = (q$Revision: 2.0 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
+
 use Encode;
-our $VERSION = do { my @r = ( q$Revision: 2.2 $ =~ /\d+/g ); sprintf "%d." . "%02d" x $#r, @r };
 use XSLoader;
-XSLoader::load( __PACKAGE__, $VERSION );
+XSLoader::load(__PACKAGE__,$VERSION);
 
 1;
 __END__
@@ -33,8 +32,8 @@ Encodings supported are as follows.
   Canonical   Alias		Description
   --------------------------------------------------------------------
   big5-eten   /\bbig-?5$/i	Big5 encoding (with ETen extensions)
-          /\bbig5-?et(en)?$/i
-          /\btca-?big5$/i
+	      /\bbig5-?et(en)?$/i
+	      /\btca-?big5$/i
   big5-hkscs  /\bbig5-?hk(scs)?$/i
               /\bhk(scs)?-?big5$/i
                                 Big5 + Cantonese characters in Hong Kong

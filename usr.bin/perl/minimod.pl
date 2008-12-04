@@ -1,5 +1,4 @@
-#./miniperl -w
-# minimod.pl writes the contents of miniperlmain.c into the module
+# minimod.PL writes the contents of miniperlmain.c into the module
 # ExtUtils::Miniperl for later perusal (when the perl source is
 # deleted)
 #
@@ -10,10 +9,6 @@
 #          <Tim.Bunce@ig.co.uk>
 #
 # Version 1.0, Feb 2nd 1995 by Andreas Koenig
-
-BEGIN { unshift @INC, "lib" }
-
-use strict;
 
 print <<'END';
 # This File keeps the contents of miniperlmain.c.

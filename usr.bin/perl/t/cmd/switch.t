@@ -1,5 +1,7 @@
 #!./perl
 
+# $RCSfile: switch.t,v $$Revision: 1.7 $$Date: 2003/12/03 03:02:47 $
+
 print "1..18\n";
 
 sub foo1 {

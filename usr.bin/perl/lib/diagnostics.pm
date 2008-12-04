@@ -181,11 +181,11 @@ Tom Christiansen <F<tchrist@mox.perl.com>>, 25 June 1995.
 =cut
 
 use strict;
-use 5.009001;
+use 5.006;
 use Carp;
 $Carp::Internal{__PACKAGE__.""}++;
 
-our $VERSION = 1.17;
+our $VERSION = 1.15;
 our $DEBUG;
 our $VERBOSE;
 our $PRETTY;
@@ -221,7 +221,7 @@ $DEBUG ||= 0;
 my $WHOAMI = ref bless [];  # nobody's business, prolly not even mine
 
 local $| = 1;
-my $_;
+local $_;
 
 my $standalone;
 my(%HTML_2_Troff, %HTML_2_Latin_1, %HTML_2_ASCII_7);
@@ -323,6 +323,7 @@ my %msg;
 {
     print STDERR "FINISHING COMPILATION for $_\n" if $DEBUG;
     local $/ = '';
+    local $_;
     my $header;
     my $for_item;
     while (<POD_DIAG>) {
@@ -394,7 +395,7 @@ my %msg;
                         $toks[$i] = '[\da-f]+';
                    }
                 } elsif( length( $toks[$i] ) ){
-                    $toks[$i] = quotemeta $toks[$i];
+                    $toks[$i] =~ s/^.*$/\Q$&\E/;
                     $conlen += length( $toks[$i] );
                 }
             }  
@@ -465,12 +466,12 @@ sub import {
 				    $PRETTY++;
 				    next;
 			       };
-	# matches trace and traceonly for legacy doc mixup reasons
-	/^-t(race(only)?)?$/	&& do {
+
+	/^-t(race)?$/ 		&& do {
 				    $TRACEONLY++;
 				    next;
 			       };
-	/^-w(arntrace)?$/ 	&& do {
+	/^-w(arntrace)?$/ 		&& do {
 				    $WARNTRACE++;
 				    next;
 			       };
@@ -547,9 +548,8 @@ my $count;
 my $wantspace;
 sub splainthis {
     return 0 if $TRACEONLY;
-    $_ = shift;
+    local $_ = shift;
     local $\;
-    local $!;
     ### &finish_compilation unless %msg;
     s/\.?\n+$//;
     my $orig = $_;
@@ -562,7 +562,6 @@ sub splainthis {
     # but be aware of messsages containing " at this-or-that"
     my $real = 0;
     my @secs = split( / at / );
-    return unless @secs;
     $_ = $secs[0];
     for my $i ( 1..$#secs ){
         if( $secs[$i] =~ /.+? (?:line|chunk) \d+/ ){

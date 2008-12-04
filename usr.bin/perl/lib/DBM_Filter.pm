@@ -2,7 +2,7 @@ package DBM_Filter ;
 
 use strict;
 use warnings;
-our $VERSION = '0.02';
+our $VERSION = '0.01';
 
 package Tie::Hash ;
 
@@ -91,7 +91,6 @@ sub _do_Filter_Push
         # if $class already contains "::", don't prefix "DBM_Filter::"
         $class = "DBM_Filter::$class" unless $class =~ /::/;
     
-        no strict 'refs';
         # does the "DBM_Filter::$class" exist?
 	if ( ! defined %{ "${class}::"} ) {
 	    # Nope, so try to load it.
@@ -99,6 +98,7 @@ sub _do_Filter_Push
             croak "$caller: Cannot Load DBM Filter '$class': $@" if $@;
         }
     
+        no strict 'refs';
         my $fetch  = *{ "${class}::Fetch"  }{CODE};
         my $store  = *{ "${class}::Store"  }{CODE};
         my $filter = *{ "${class}::Filter" }{CODE};

@@ -1,67 +1,53 @@
-use strict;
-use warnings;
-
 BEGIN {
-    if ($ENV{'PERL_CORE'}){
-        chdir 't';
-        unshift @INC, '../lib';
-    }
-    use Config;
-    if (! $Config{'useithreads'}) {
-        print("1..0 # Skip: Perl not compiled with 'useithreads'\n");
-        exit(0);
+    chdir 't' if -d 't';
+    push @INC, '../lib';
+    require Config; import Config;
+    unless ($Config{'useithreads'}) {
+	print "1..0 # Skip: no useithreads\n";
+ 	exit 0;	
     }
 }
 
 use ExtUtils::testlib;
-
-my $test = 0;
-sub ok {
-    my ($ok, $name) = @_;
-    $test++;
-
-    # You have to do it this way or VMS will get confused.
-    if ($ok) {
-        print("ok $test - $name\n");
-    } else {
-        print("not ok $test - $name\n");
-        printf("# Failed test at line %d\n", (caller)[2]);
-    }
-
-    return ($ok);
-}
-
-BEGIN {
-    $| = 1;
-    print("1..61\n");   ### Number of tests that will be run ###
-};
-
+use strict;
+BEGIN { print "1..64\n" };
 use threads;
-ok(1, 'Loaded');
 
-### Start of Testing ###
 
-my $cnt = 30;
+print "ok 1\n";
 
-sub stress_re {
-    my $s = "abcd" x (1000 + $_[0]);
-    my $t = '';
-    while ($s =~ /(.)/g) { $t .= $1 }
-    return ($s eq $t) ? 'ok' : 'not';
+
+
+
+sub ok {	
+    my ($id, $ok, $name) = @_;
+    
+    # You have to do it this way or VMS will get confused.
+    print $ok ? "ok $id - $name\n" : "not ok $id - $name\n";
+
+    printf "# Failed test at line %d\n", (caller)[2] unless $ok;
+    
+    return $ok;
 }
 
+
+ok(2,1,"");
+
+sub test9 {
+  my $s = "abcd" x (1000 + $_[0]);
+  my $t = '';
+  while ($s =~ /(.)/g) { $t .= $1 }
+  print "not ok $_[0]\n" if $s ne $t;
+}
 my @threads;
-for (1..$cnt) {
-    my $thr = threads->create('stress_re', $_);
-    ok($thr, "Thread created - iter $_");
-    push(@threads, $thr);
+for(3..33) {
+  ok($_,1,"Multiple thread test");
+  push @threads ,threads->create('test9',$_);
 }
 
-for (1..$cnt) {
-    my ($result, $thr);
-    $thr = $threads[$_-1];
-    $result = $thr->join if $thr;
-    ok($thr && defined($result) && ($result eq 'ok'), "Thread joined - iter $_");
+my $i = 34;
+for(@threads) {
+  $_->join;
+  ok($i++,1,"Thread joined");
 }
 
-# EOF

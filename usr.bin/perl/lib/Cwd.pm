@@ -35,8 +35,7 @@ absolute path of the current working directory.
 
 Returns the current working directory.
 
-Exposes the POSIX function getcwd(3) or re-implements it if it's not
-available.
+Re-implements the getcwd(3) (or getwd(3)) functions in Perl.
 
 =item cwd
 
@@ -171,7 +170,7 @@ use strict;
 use Exporter;
 use vars qw(@ISA @EXPORT @EXPORT_OK $VERSION);
 
-$VERSION = '3.2501';
+$VERSION = '3.12';
 
 @ISA = qw/ Exporter /;
 @EXPORT = qw(cwd getcwd fastcwd fastgetcwd);
@@ -303,7 +302,6 @@ foreach my $try ('/bin/pwd',
         last;
     }
 }
-my $found_pwd_cmd = defined($pwd_cmd);
 unless ($pwd_cmd) {
     # Isn't this wrong?  _backtick_pwd() will fail if somenone has
     # pwd in their path but it is not /bin/pwd or /usr/bin/pwd?
@@ -336,19 +334,9 @@ unless ($METHOD_MAP{$^O}{cwd} or defined &cwd) {
     # The pwd command is not available in some chroot(2)'ed environments
     my $sep = $Config::Config{path_sep} || ':';
     my $os = $^O;  # Protect $^O from tainting
-
-
-    # Try again to find a pwd, this time searching the whole PATH.
-    if (defined $ENV{PATH} and $os ne 'MSWin32') {  # no pwd on Windows
-	my @candidates = split($sep, $ENV{PATH});
-	while (!$found_pwd_cmd and @candidates) {
-	    my $candidate = shift @candidates;
-	    $found_pwd_cmd = 1 if -x "$candidate/pwd";
-	}
-    }
-
-    # MacOS has some special magic to make `pwd` work.
-    if( $os eq 'MacOS' || $found_pwd_cmd )
+    if( $os eq 'MacOS' || (defined $ENV{PATH} &&
+			   $os ne 'MSWin32' &&  # no pwd on Windows
+			   grep { -x "$_/pwd" } split($sep, $ENV{PATH})) )
     {
 	*cwd = \&_backtick_pwd;
     }
@@ -357,25 +345,19 @@ unless ($METHOD_MAP{$^O}{cwd} or defined &cwd) {
     }
 }
 
-if ($^O eq 'cygwin') {
-  # We need to make sure cwd() is called with no args, because it's
-  # got an arg-less prototype and will die if args are present.
-  local $^W = 0;
-  my $orig_cwd = \&cwd;
-  *cwd = sub { &$orig_cwd() }
-}
-
-
 # set a reasonable (and very safe) default for fastgetcwd, in case it
 # isn't redefined later (20001212 rspier)
 *fastgetcwd = \&cwd;
 
-# A non-XS version of getcwd() - also used to bootstrap the perl build
-# process, when miniperl is running and no XS loading happens.
-sub _perl_getcwd
+# By Brandon S. Allbery
+#
+# Usage: $cwd = getcwd();
+
+sub getcwd
 {
     abs_path('.');
 }
+
 
 # By John Bazik
 #
@@ -479,9 +461,7 @@ sub chdir {
 	return 1;
     }
 
-    if (ref $newdir eq 'GLOB') { # in case a file/dir handle is passed in
-	$ENV{'PWD'} = cwd();
-    } elsif ($newdir =~ m#^/#s) {
+    if ($newdir =~ m#^/#s) {
 	$ENV{'PWD'} = $newdir;
     } else {
 	my @curdir = split(m#/#,$ENV{'PWD'});
@@ -644,19 +624,11 @@ sub _vms_cwd {
 
 sub _vms_abs_path {
     return $ENV{'DEFAULT'} unless @_;
-    my $path = shift;
-
-    if (-l $path) {
-        my $link_target = readlink($path);
-        die "Can't resolve link $path: $!" unless defined $link_target;
-	    
-        return _vms_abs_path($link_target);
-    }
 
     # may need to turn foo.dir into [.foo]
-    my $pathified = VMS::Filespec::pathify($path);
-    $path = $pathified if defined $pathified;
-	
+    my $path = VMS::Filespec::pathify($_[0]);
+    $path = $_[0] unless defined $path;
+
     return VMS::Filespec::rmsexpand($path);
 }
 
@@ -668,12 +640,7 @@ sub _os2_cwd {
 }
 
 sub _win32_cwd {
-    if (defined &DynaLoader::boot_DynaLoader) {
-	$ENV{'PWD'} = Win32::GetCwd();
-    }
-    else { # miniperl
-	chomp($ENV{'PWD'} = `cd`);
-    }
+    $ENV{'PWD'} = Win32::GetCwd();
     $ENV{'PWD'} =~ s:\\:/:g ;
     return $ENV{'PWD'};
 }
@@ -735,7 +702,6 @@ if (exists $METHOD_MAP{$^O}) {
 
 # In case the XS version doesn't load.
 *abs_path = \&_perl_abs_path unless defined &abs_path;
-*getcwd = \&_perl_getcwd unless defined &getcwd;
 
 # added function alias for those of us more
 # used to the libc function.  --tchrist 27-Jan-00

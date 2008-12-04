@@ -60,7 +60,8 @@ esac
 
 util_cflags='ccflags="$ccflags -DLOCALE_ENVIRON_REQUIRED"'
 groupstype='int'
-# The configure test should be beefed up to try using the field when
+# This will cause a WHOA THERE warning, but it's accurate.  The
+# configure test should be beefed up to try using the field when
 # it can't find any of the standardly-named fields.
 d_dirnamlen='define'
 

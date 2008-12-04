@@ -1,7 +1,7 @@
 /*
  * dl_beos.xs, by Tom Spindler
  * based on dl_dlopen.xs, by Paul Marquess
- * $Id: dl_beos.xs,v 1.7 2008/09/29 17:36:04 millert Exp $
+ * $Id: dl_beos.xs,v 1.6 2003/12/03 03:02:28 millert Exp $
  */
 
 #include "EXTERN.h"
@@ -102,10 +102,9 @@ dl_install_xsub(perl_name, symref, filename="$Package")
     CODE:
     DLDEBUG(2,PerlIO_printf(Perl_debug_log, "dl_install_xsub(name=%s, symref=%lx)\n",
 		perl_name, (unsigned long) symref));
-    ST(0) = sv_2mortal(newRV((SV*)newXS_flags(perl_name,
-					      (void(*)(pTHX_ CV *))symref,
-					      filename, NULL,
-					      XS_DYNAMIC_FILENAME)));
+    ST(0) = sv_2mortal(newRV((SV*)newXS(perl_name,
+					(void(*)(pTHX_ CV *))symref,
+					filename)));
 
 
 char *

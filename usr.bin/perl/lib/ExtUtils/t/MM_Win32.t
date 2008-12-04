@@ -37,7 +37,6 @@ my $MM = bless {
                 MAKEFILE => 'Makefile',
                 RM_RF   => 'rm -rf',
                 MV      => 'mv',
-                MAKE    => $Config{make}
                }, 'MM';
 
 

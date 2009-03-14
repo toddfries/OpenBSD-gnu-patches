@@ -5,8 +5,8 @@
  *		Adapted from dl_dlopen.xs reference implementation by
  *              Paul Marquess (pmarquess@bfsec.bt.co.uk)
  * $Log: dl_mac.xs,v $
- * Revision 1.4  2003/12/03 03:02:28  millert
- * Resolve conflicts for perl 5.8.2, remove old files, and add OpenBSD-specific scaffolding
+ * Revision 1.5  2008/09/29 17:36:04  millert
+ * fix conflicts and merge in local changes to perl 5.10.0
  *
  * Revision 1.3  1998/04/07 01:47:24  neeri
  * MacPerl 5.2.0r4b1
@@ -133,7 +133,10 @@ dl_install_xsub(perl_name, symref, filename="$Package")
     CODE:
     DLDEBUG(2,PerlIO_printf(Perl_debug_log,"dl_install_xsub(name=%s, symref=%x)\n",
 		perl_name, symref));
-    ST(0)=sv_2mortal(newRV((SV*)newXS(perl_name, (void(*)())symref, filename)));
+    ST(0) = sv_2mortal(newRV((SV*)newXS_flags(perl_name,
+					      (void(*)(pTHX_ CV *))symref,
+					      filename, NULL,
+					      XS_DYNAMIC_FILENAME)));
 
 
 char *

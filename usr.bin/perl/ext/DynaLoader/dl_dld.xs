@@ -7,14 +7,14 @@
  *    You may distribute under the terms of either the GNU General Public
  *    License or the Artistic License, as specified in the README file.
  *
- * $Date: 2003/12/03 03:02:28 $
+ * $Date: 2008/09/29 17:36:04 $
  * $Source: /cvs/src/gnu/usr.bin/perl/ext/DynaLoader/dl_dld.xs,v $
- * $Revision: 1.7 $
+ * $Revision: 1.8 $
  * $State: Exp $
  *
  * $Log: dl_dld.xs,v $
- * Revision 1.7  2003/12/03 03:02:28  millert
- * Resolve conflicts for perl 5.8.2, remove old files, and add OpenBSD-specific scaffolding
+ * Revision 1.8  2008/09/29 17:36:04  millert
+ * fix conflicts and merge in local changes to perl 5.10.0
  *
  * Removed implicit link against libc.  1994/09/14 William Setzer.
  *
@@ -176,10 +176,10 @@ dl_install_xsub(perl_name, symref, filename="$Package")
     CODE:
     DLDEBUG(2,PerlIO_printf(Perl_debug_log, "dl_install_xsub(name=%s, symref=%x)\n",
 	    perl_name, symref));
-    ST(0) = sv_2mortal(newRV((SV*)newXS(perl_name,
-					(void(*)(pTHX_ CV *))symref,
-					filename)));
-
+    ST(0) = sv_2mortal(newRV((SV*)newXS_flags(perl_name,
+					      (void(*)(pTHX_ CV *))symref,
+					      filename, NULL,
+					      XS_DYNAMIC_FILENAME)));
 
 char *
 dl_error()

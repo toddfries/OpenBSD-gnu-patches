@@ -1,7 +1,5 @@
 #!./perl
 
-# $RCSfile: cond.t,v $$Revision: 1.7 $$Date: 2003/12/03 03:02:48 $
-
 print "1..4\n";
 
 print 1 ? "ok 1\n" : "not ok 1\n";	# compile time

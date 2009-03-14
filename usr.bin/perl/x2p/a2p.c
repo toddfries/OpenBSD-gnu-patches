@@ -10,7 +10,7 @@ static const char yysccsid[] = "@(#)yaccpar	1.9 (Berkeley) 02/21/93";
 extern int yyparse(void);
 #define YYPREFIX "yy"
 #line 2 "a2p.y"
-/* $RCSfile: a2p.c,v $$Revision: 1.8 $$Date: 2006/03/28 19:23:15 $
+/* $RCSfile: a2p.c,v $$Revision: 1.10 $$Date: 2008/09/29 17:36:23 $
  *
  *    Copyright (C) 1991, 1992, 1993, 1994, 1996, 1997, 1999, 2000,
  *    by Larry Wall and others
@@ -19,8 +19,8 @@ extern int yyparse(void);
  *    License or the Artistic License, as specified in the README file.
  *
  * $Log: a2p.c,v $
- * Revision 1.8  2006/03/28 19:23:15  millert
- * merge in perl 5.8.8
+ * Revision 1.10  2008/09/29 17:36:23  millert
+ * fix conflicts and merge in local changes to perl 5.10.0
  *
  */
 
@@ -2182,13 +2182,21 @@ int yyparse (void);
 #define YYREJECT goto yyabort
 #define YYACCEPT goto yyaccept
 #define YYERROR goto yyerrlab
+
+#if YYDEBUG
+#  if defined(WIN32) && !defined(__BORLANDC__)
+EXTERN_C _CRTIMP char *getenv(const char *);
+#  else
+EXTERN_C char *getenv(const char *);
+#  endif
+#endif
+
 int
 yyparse(void)
 {
     register int yym, yyn, yystate;
 #if YYDEBUG
     register char *yys;
-    extern char *getenv();
 
     if ((yys = getenv("YYDEBUG")))
     {

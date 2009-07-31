@@ -1,0 +1,14 @@
+? .git
+? .gitignore
+? status.log
+? up.log
+U lib/libstdc++/shlib_version
+P usr.bin/binutils/gdb/amd64obsd-tdep.c
+P usr.bin/binutils/gdb/bsd-uthread.c
+P usr.bin/binutils/gdb/bsd-uthread.h
+P usr.bin/binutils/gdb/i386obsd-tdep.c
+P usr.bin/gcc/Makefile.bsd-wrapper
+P usr.bin/gcc/gcc/configure
+P usr.bin/gcc/gcc/configure.in
+P usr.bin/gcc/gcc/config/openbsd.h
+P usr.bin/gcc/gcc/config/m68k/openbsd.h

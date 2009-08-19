@@ -2,9 +2,5 @@
 ? .gitignore
 ? status.log
 ? up.log
-P usr.bin/binutils/binutils/rddbg.c
-P usr.bin/gcc/gcc/configure
-P usr.bin/gcc/gcc/configure.in
-P usr.bin/lynx/Makefile.bsd-wrapper
-P usr.bin/lynx/configure
-P usr.bin/lynx/src/HTML.c
+P usr.bin/perl/toke.c
+P usr.bin/perl/t/comp/require.t

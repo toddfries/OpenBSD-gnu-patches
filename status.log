@@ -5,10 +5,7 @@
 #
 #	modified:   status.log
 #	modified:   up.log
-#	modified:   usr.bin/binutils/binutils/rddbg.c
-#	modified:   usr.bin/gcc/gcc/configure
-#	modified:   usr.bin/gcc/gcc/configure.in
-#	modified:   usr.bin/lynx/Makefile.bsd-wrapper
-#	modified:   usr.bin/lynx/src/HTML.c
+#	modified:   usr.bin/perl/t/comp/require.t
+#	modified:   usr.bin/perl/toke.c
 #
 no changes added to commit (use "git add" and/or "git commit -a")

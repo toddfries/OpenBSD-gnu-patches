@@ -5,7 +5,6 @@
 #
 #	modified:   status.log
 #	modified:   up.log
-#	modified:   usr.bin/perl/t/comp/require.t
-#	modified:   usr.bin/perl/toke.c
+#	modified:   usr.bin/gcc/gcc/config/pa/openbsd.h
 #
 no changes added to commit (use "git add" and/or "git commit -a")

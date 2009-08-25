@@ -2,5 +2,4 @@
 ? .gitignore
 ? status.log
 ? up.log
-P usr.bin/perl/toke.c
-P usr.bin/perl/t/comp/require.t
+P usr.bin/gcc/gcc/config/pa/openbsd.h

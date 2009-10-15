@@ -11,7 +11,7 @@
 ;# Waldemar Kebsch, Federal Republic of Germany, November 1988
 ;# kebsch.pad@nixpbe.UUCP
 ;# Modified March 1990, Feb 1991 to properly handle timezones
-;#  $RCSfile: ctime.pl,v $$Revision: 1.8 $$Date: 2008/09/29 17:36:09 $
+;#  $RCSfile: ctime.pl,v $$Revision: 1.9 $$Date: 2009/10/12 18:24:38 $
 ;#   Marion Hakanson (hakanson@cse.ogi.edu)
 ;#   Oregon Graduate Institute of Science and Technology
 ;#

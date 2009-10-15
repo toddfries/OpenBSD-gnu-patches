@@ -1,6 +1,6 @@
 #!./perl
 
-# $RCSfile: sdbm.t,v $$Revision: 1.3 $$Date: 2008/09/29 17:36:06 $
+# $RCSfile: sdbm.t,v $$Revision: 1.4 $$Date: 2009/10/12 18:24:34 $
 
 BEGIN {
     chdir 't' if -d 't';
@@ -490,7 +490,7 @@ unlink <Op_dbmx*>, $Dfile;
    $h{"fred"} = "joe" ;
    ok(76, $h{"fred"} eq "joe");
 
-   eval { grep { $h{$_} } (1, 2, 3) };
+   eval { map { $h{$_} } (1, 2, 3) };
    ok (77, ! $@);
 
 
@@ -506,7 +506,7 @@ unlink <Op_dbmx*>, $Dfile;
 
    ok(79, $db->FIRSTKEY() eq "fred") ;
    
-   eval { grep { $h{$_} } (1, 2, 3) };
+   eval { map { $h{$_} } (1, 2, 3) };
    ok (80, ! $@);
 
    undef $db ;

@@ -10,7 +10,7 @@ static const char yysccsid[] = "@(#)yaccpar	1.9 (Berkeley) 02/21/93";
 extern int yyparse(void);
 #define YYPREFIX "yy"
 #line 2 "a2p.y"
-/* $RCSfile: a2p.c,v $$Revision: 1.10 $$Date: 2008/09/29 17:36:23 $
+/* $RCSfile: a2p.c,v $$Revision: 1.11 $$Date: 2009/10/12 18:30:28 $
  *
  *    Copyright (C) 1991, 1992, 1993, 1994, 1996, 1997, 1999, 2000,
  *    by Larry Wall and others
@@ -19,8 +19,8 @@ extern int yyparse(void);
  *    License or the Artistic License, as specified in the README file.
  *
  * $Log: a2p.c,v $
- * Revision 1.10  2008/09/29 17:36:23  millert
- * fix conflicts and merge in local changes to perl 5.10.0
+ * Revision 1.11  2009/10/12 18:30:28  millert
+ * Merge in perl 5.10.1; part two
  *
  */
 
@@ -1987,7 +1987,7 @@ short yycheck[] = {                                      41,
 #endif
 #define YYMAXTOKEN 306
 #if YYDEBUG
-char *yyname[] = {
+const char *yyname[] = {
 "end-of-file",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,"'%'",0,0,"'('","')'","'*'","'+'","','","'-'",0,"'/'",0,0,0,0,0,0,0,0,0,0,
 "':'","';'","'<'",0,"'>'","'?'",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -2002,7 +2002,7 @@ char *yyname[] = {
 "DELETE","ASGNOP","OROR","ANDAND","NUMBER","VAR","SUBSTR","INDEX","MATCHOP",
 "RELOP","OR","STRING","UMINUS","NOT","INCR","DECR","FIELD","VFIELD","SVFIELD",
 };
-char *yyrule[] = {
+const char *yyrule[] = {
 "$accept : program",
 "program : junk hunks",
 "begin : BEGIN '{' maybe states '}' junk",
@@ -2196,7 +2196,7 @@ yyparse(void)
 {
     register int yym, yyn, yystate;
 #if YYDEBUG
-    register char *yys;
+    register const char *yys;
 
     if ((yys = getenv("YYDEBUG")))
     {

@@ -5,8 +5,8 @@
  *		Adapted from dl_dlopen.xs reference implementation by
  *              Paul Marquess (pmarquess@bfsec.bt.co.uk)
  * $Log: dl_mac.xs,v $
- * Revision 1.5  2008/09/29 17:36:04  millert
- * fix conflicts and merge in local changes to perl 5.10.0
+ * Revision 1.6  2009/10/12 18:24:27  millert
+ * Merge in perl 5.10.1
  *
  * Revision 1.3  1998/04/07 01:47:24  neeri
  * MacPerl 5.2.0r4b1
@@ -129,7 +129,7 @@ void
 dl_install_xsub(perl_name, symref, filename="$Package")
     char *		perl_name
     void *		symref 
-    char *		filename
+    const char *	filename
     CODE:
     DLDEBUG(2,PerlIO_printf(Perl_debug_log,"dl_install_xsub(name=%s, symref=%x)\n",
 		perl_name, symref));
@@ -146,5 +146,20 @@ dl_error()
     RETVAL = dl_last_error ;
     OUTPUT:
     RETVAL
+
+#if defined(USE_ITHREADS)
+
+void
+CLONE(...)
+    CODE:
+    MY_CXT_CLONE;
+
+    /* MY_CXT_CLONE just does a memcpy on the whole structure, so to avoid
+     * using Perl variables that belong to another thread, we create our 
+     * own for this thread.
+     */
+    MY_CXT.x_dl_last_error = newSVpvn("", 0);
+
+#endif
 
 # end.

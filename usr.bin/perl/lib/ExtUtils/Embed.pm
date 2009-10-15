@@ -1,4 +1,4 @@
-# $Id: Embed.pm,v 1.8 2008/09/29 17:36:11 millert Exp $
+# $Id: Embed.pm,v 1.9 2009/10/12 18:24:40 millert Exp $
 require 5.002;
 
 package ExtUtils::Embed;
@@ -19,7 +19,7 @@ use vars qw(@ISA @EXPORT $VERSION
 use strict;
 
 # This is not a dual-life module, so no need for development version numbers
-$VERSION = '1.27';
+$VERSION = '1.28';
 
 @ISA = qw(Exporter);
 @EXPORT = qw(&xsinit &ldopts 
@@ -281,7 +281,7 @@ sub canon {
        s:^(lib|ext)/(auto/)?::;
        s:/\w+\.\w+$::;
     }
-    grep(s:/:$as:, @ext) if ($as ne '/');
+    map(s:/:$as:, @ext) if ($as ne '/');
     @ext;
 }
 

@@ -1,6 +1,6 @@
 #!./perl
 
-# $RCSfile: gdbm.t,v $$Revision: 1.3 $$Date: 2008/09/29 17:36:04 $
+# $RCSfile: gdbm.t,v $$Revision: 1.4 $$Date: 2009/10/12 18:24:29 $
 
 BEGIN {
     chdir 't' if -d 't';
@@ -487,7 +487,7 @@ EOM
    $h{"fred"} = "joe" ;
    ok(76, $h{"fred"} eq "joe");
 
-   eval { grep { $h{$_} } (1, 2, 3) };
+   eval { my @r= grep { $h{$_} } (1, 2, 3) };
    ok (77, ! $@);
 
 
@@ -503,7 +503,7 @@ EOM
 
    ok(79, $db->FIRSTKEY() eq "fred") ;
    
-   eval { grep { $h{$_} } (1, 2, 3) };
+   eval { my @r= grep { $h{$_} } (1, 2, 3) };
    ok (80, ! $@);
 
    undef $db ;

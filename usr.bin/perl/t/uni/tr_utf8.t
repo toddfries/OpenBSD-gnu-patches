@@ -1,5 +1,5 @@
 #
-# $Id: tr_utf8.t,v 1.5 2008/09/29 17:36:20 millert Exp $
+# $Id: tr_utf8.t,v 1.6 2009/10/12 18:30:28 millert Exp $
 #
 # This script is written intentionally in UTF-8
 # Requires Encode 1.83 or better

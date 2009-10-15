@@ -1,7 +1,7 @@
 /*
  * dl_beos.xs, by Tom Spindler
  * based on dl_dlopen.xs, by Paul Marquess
- * $Id: dl_beos.xs,v 1.7 2008/09/29 17:36:04 millert Exp $
+ * $Id: dl_beos.xs,v 1.8 2009/10/12 18:24:27 millert Exp $
  */
 
 #include "EXTERN.h"
@@ -98,7 +98,7 @@ void
 dl_install_xsub(perl_name, symref, filename="$Package")
     char *		perl_name
     void *		symref 
-    char *		filename
+    const char *	filename
     CODE:
     DLDEBUG(2,PerlIO_printf(Perl_debug_log, "dl_install_xsub(name=%s, symref=%lx)\n",
 		perl_name, (unsigned long) symref));
@@ -115,5 +115,20 @@ dl_error()
     RETVAL = dl_last_error ;
     OUTPUT:
     RETVAL
+
+#if defined(USE_ITHREADS)
+
+void
+CLONE(...)
+    CODE:
+    MY_CXT_CLONE;
+
+    /* MY_CXT_CLONE just does a memcpy on the whole structure, so to avoid
+     * using Perl variables that belong to another thread, we create our 
+     * own for this thread.
+     */
+    MY_CXT.x_dl_last_error = newSVpvn("", 0);
+
+#endif
 
 # end.

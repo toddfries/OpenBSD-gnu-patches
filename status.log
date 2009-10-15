@@ -1,8 +1,2390 @@
 # On branch master
+# Your branch is ahead of 'origin/master' by 1 commit.
+#
 # Changed but not updated:
-#   (use "git add <file>..." to update what will be committed)
+#   (use "git add/rm <file>..." to update what will be committed)
 #   (use "git checkout -- <file>..." to discard changes in working directory)
 #
+#	modified:   lib/libiberty/Makefile.bsd-wrapper
+#	modified:   lib/libiberty/include/libiberty.h
+#	modified:   lib/libiberty/include/md5.h
+#	modified:   lib/libiberty/shlib_version
 #	modified:   status.log
+#	modified:   up.log
+#	modified:   usr.bin/perl/AUTHORS
+#	modified:   usr.bin/perl/Changes
+#	deleted:    usr.bin/perl/Changes5.000
+#	deleted:    usr.bin/perl/Changes5.001
+#	deleted:    usr.bin/perl/Changes5.002
+#	deleted:    usr.bin/perl/Changes5.003
+#	deleted:    usr.bin/perl/Changes5.004
+#	deleted:    usr.bin/perl/Changes5.005
+#	deleted:    usr.bin/perl/Changes5.6
+#	deleted:    usr.bin/perl/Changes5.8
+#	modified:   usr.bin/perl/Configure
+#	modified:   usr.bin/perl/Cross/Makefile
+#	modified:   usr.bin/perl/Cross/Makefile-cross-SH
+#	modified:   usr.bin/perl/Cross/build-arm-n770-sh
+#	modified:   usr.bin/perl/Cross/cflags-cross-arm
+#	modified:   usr.bin/perl/Cross/config.sh-arm-linux
+#	modified:   usr.bin/perl/Cross/config.sh-arm-linux-n770
+#	modified:   usr.bin/perl/INSTALL
+#	modified:   usr.bin/perl/MANIFEST
+#	modified:   usr.bin/perl/META.yml
+#	modified:   usr.bin/perl/Makefile.SH
+#	modified:   usr.bin/perl/Makefile.bsd-wrapper
+#	modified:   usr.bin/perl/Makefile.bsd-wrapper1
+#	modified:   usr.bin/perl/NetWare/Makefile
+#	modified:   usr.bin/perl/NetWare/config.wc
+#	modified:   usr.bin/perl/NetWare/config_H.wc
+#	modified:   usr.bin/perl/NetWare/nw5.c
+#	modified:   usr.bin/perl/NetWare/nwperlhost.h
+#	modified:   usr.bin/perl/NetWare/nwperlsys.h
+#	modified:   usr.bin/perl/NetWare/nwstdio.h
+#	modified:   usr.bin/perl/Porting/Glossary
+#	modified:   usr.bin/perl/Porting/Maintainers.pl
+#	modified:   usr.bin/perl/Porting/Maintainers.pm
+#	modified:   usr.bin/perl/Porting/add-package.pl
+#	deleted:    usr.bin/perl/Porting/apply
+#	modified:   usr.bin/perl/Porting/checkAUTHORS.pl
+#	modified:   usr.bin/perl/Porting/checkcfgvar.pl
+#	modified:   usr.bin/perl/Porting/cmpVERSION.pl
+#	modified:   usr.bin/perl/Porting/config.sh
+#	modified:   usr.bin/perl/Porting/config_H
+#	modified:   usr.bin/perl/Porting/corecpan.pl
+#	modified:   usr.bin/perl/Porting/corelist.pl
+#	modified:   usr.bin/perl/Porting/makemeta
+#	modified:   usr.bin/perl/Porting/makerel
+#	modified:   usr.bin/perl/Porting/manicheck
+#	deleted:    usr.bin/perl/Porting/p4d2p
+#	deleted:    usr.bin/perl/Porting/p4genpatch
+#	deleted:    usr.bin/perl/Porting/patching.pod
+#	deleted:    usr.bin/perl/Porting/patchls
+#	modified:   usr.bin/perl/Porting/pumpkin.pod
+#	deleted:    usr.bin/perl/Porting/repository.pod
+#	modified:   usr.bin/perl/Porting/testall.atom
+#	modified:   usr.bin/perl/Porting/thirdclean
+#	modified:   usr.bin/perl/README
+#	modified:   usr.bin/perl/README.aix
+#	modified:   usr.bin/perl/README.cn
+#	modified:   usr.bin/perl/README.cygwin
+#	modified:   usr.bin/perl/README.hpux
+#	modified:   usr.bin/perl/README.macosx
+#	modified:   usr.bin/perl/README.os2
+#	modified:   usr.bin/perl/README.tw
+#	modified:   usr.bin/perl/README.vms
+#	modified:   usr.bin/perl/README.vos
+#	modified:   usr.bin/perl/README.win32
+#	deleted:    usr.bin/perl/Todo.micro
+#	modified:   usr.bin/perl/XSUB.h
+#	modified:   usr.bin/perl/autodoc.pl
+#	modified:   usr.bin/perl/av.c
+#	modified:   usr.bin/perl/av.h
+#	modified:   usr.bin/perl/beos/nm.c
+#	modified:   usr.bin/perl/cc_runtime.h
+#	modified:   usr.bin/perl/cflags.SH
+#	modified:   usr.bin/perl/config_h.SH
+#	modified:   usr.bin/perl/configpm
+#	modified:   usr.bin/perl/configure.com
+#	modified:   usr.bin/perl/configure.gnu
+#	modified:   usr.bin/perl/cop.h
+#	modified:   usr.bin/perl/cv.h
+#	deleted:    usr.bin/perl/cygwin/Makefile.SHs
+#	modified:   usr.bin/perl/cygwin/cygwin.c
+#	modified:   usr.bin/perl/deb.c
+#	modified:   usr.bin/perl/djgpp/configure.bat
+#	modified:   usr.bin/perl/djgpp/djgpp.c
+#	modified:   usr.bin/perl/doio.c
+#	modified:   usr.bin/perl/doop.c
+#	modified:   usr.bin/perl/dosish.h
+#	modified:   usr.bin/perl/dump.c
+#	modified:   usr.bin/perl/emacs/cperl-mode.el
+#	modified:   usr.bin/perl/embed.fnc
+#	modified:   usr.bin/perl/embed.h
+#	modified:   usr.bin/perl/embed.pl
+#	modified:   usr.bin/perl/embedvar.h
+#	modified:   usr.bin/perl/epoc/config.sh
+#	modified:   usr.bin/perl/epoc/createpkg.pl
+#	modified:   usr.bin/perl/epoc/epoc.c
+#	modified:   usr.bin/perl/ext/B/B.pm
+#	modified:   usr.bin/perl/ext/B/B.xs
+#	modified:   usr.bin/perl/ext/B/B/Concise.pm
+#	modified:   usr.bin/perl/ext/B/B/Debug.pm
+#	modified:   usr.bin/perl/ext/B/B/Deparse.pm
+#	modified:   usr.bin/perl/ext/B/B/Lint.pm
+#	modified:   usr.bin/perl/ext/B/B/Xref.pm
+#	modified:   usr.bin/perl/ext/B/Makefile.PL
+#	modified:   usr.bin/perl/ext/B/O.pm
+#	modified:   usr.bin/perl/ext/B/defsubs_h.PL
+#	modified:   usr.bin/perl/ext/B/t/b.t
+#	modified:   usr.bin/perl/ext/B/t/concise-xs.t
+#	modified:   usr.bin/perl/ext/B/t/concise.t
+#	modified:   usr.bin/perl/ext/B/t/debug.t
+#	modified:   usr.bin/perl/ext/B/t/deparse.t
+#	modified:   usr.bin/perl/ext/B/t/lint.t
+#	modified:   usr.bin/perl/ext/B/t/optree_constants.t
+#	modified:   usr.bin/perl/ext/B/t/terse.t
+#	modified:   usr.bin/perl/ext/B/typemap
+#	deleted:    usr.bin/perl/ext/Compress/Raw/Zlib/Changes
+#	deleted:    usr.bin/perl/ext/Compress/Raw/Zlib/Makefile.PL
+#	deleted:    usr.bin/perl/ext/Compress/Raw/Zlib/README
+#	deleted:    usr.bin/perl/ext/Compress/Raw/Zlib/Zlib.xs
+#	deleted:    usr.bin/perl/ext/Compress/Raw/Zlib/config.in
+#	deleted:    usr.bin/perl/ext/Compress/Raw/Zlib/examples/filtdef
+#	deleted:    usr.bin/perl/ext/Compress/Raw/Zlib/examples/filtinf
+#	deleted:    usr.bin/perl/ext/Compress/Raw/Zlib/fallback/constants.h
+#	deleted:    usr.bin/perl/ext/Compress/Raw/Zlib/fallback/constants.xs
+#	deleted:    usr.bin/perl/ext/Compress/Raw/Zlib/lib/Compress/Raw/Zlib.pm
+#	deleted:    usr.bin/perl/ext/Compress/Raw/Zlib/private/MakeUtil.pm
+#	deleted:    usr.bin/perl/ext/Compress/Raw/Zlib/t/01version.t
+#	deleted:    usr.bin/perl/ext/Compress/Raw/Zlib/t/02zlib.t
+#	deleted:    usr.bin/perl/ext/Compress/Raw/Zlib/t/07bufsize.t
+#	deleted:    usr.bin/perl/ext/Compress/Raw/Zlib/t/18lvalue.t
+#	deleted:    usr.bin/perl/ext/Compress/Raw/Zlib/typemap
+#	deleted:    usr.bin/perl/ext/Compress/Raw/Zlib/zlib-src/adler32.c
+#	deleted:    usr.bin/perl/ext/Compress/Raw/Zlib/zlib-src/compress.c
+#	deleted:    usr.bin/perl/ext/Compress/Raw/Zlib/zlib-src/crc32.c
+#	deleted:    usr.bin/perl/ext/Compress/Raw/Zlib/zlib-src/crc32.h
+#	deleted:    usr.bin/perl/ext/Compress/Raw/Zlib/zlib-src/deflate.c
+#	deleted:    usr.bin/perl/ext/Compress/Raw/Zlib/zlib-src/deflate.h
+#	deleted:    usr.bin/perl/ext/Compress/Raw/Zlib/zlib-src/infback.c
+#	deleted:    usr.bin/perl/ext/Compress/Raw/Zlib/zlib-src/inffast.c
+#	deleted:    usr.bin/perl/ext/Compress/Raw/Zlib/zlib-src/inffast.h
+#	deleted:    usr.bin/perl/ext/Compress/Raw/Zlib/zlib-src/inffixed.h
+#	deleted:    usr.bin/perl/ext/Compress/Raw/Zlib/zlib-src/inflate.c
+#	deleted:    usr.bin/perl/ext/Compress/Raw/Zlib/zlib-src/inflate.h
+#	deleted:    usr.bin/perl/ext/Compress/Raw/Zlib/zlib-src/inftrees.c
+#	deleted:    usr.bin/perl/ext/Compress/Raw/Zlib/zlib-src/inftrees.h
+#	deleted:    usr.bin/perl/ext/Compress/Raw/Zlib/zlib-src/trees.c
+#	deleted:    usr.bin/perl/ext/Compress/Raw/Zlib/zlib-src/trees.h
+#	deleted:    usr.bin/perl/ext/Compress/Raw/Zlib/zlib-src/uncompr.c
+#	deleted:    usr.bin/perl/ext/Compress/Raw/Zlib/zlib-src/zconf.h
+#	deleted:    usr.bin/perl/ext/Compress/Raw/Zlib/zlib-src/zlib.h
+#	deleted:    usr.bin/perl/ext/Compress/Raw/Zlib/zlib-src/zutil.c
+#	deleted:    usr.bin/perl/ext/Compress/Raw/Zlib/zlib-src/zutil.h
+#	deleted:    usr.bin/perl/ext/Compress/Zlib/Changes
+#	deleted:    usr.bin/perl/ext/Compress/Zlib/Makefile.PL
+#	deleted:    usr.bin/perl/ext/Compress/Zlib/README
+#	deleted:    usr.bin/perl/ext/Compress/Zlib/examples/filtdef
+#	deleted:    usr.bin/perl/ext/Compress/Zlib/examples/filtinf
+#	deleted:    usr.bin/perl/ext/Compress/Zlib/examples/gzcat
+#	deleted:    usr.bin/perl/ext/Compress/Zlib/examples/gzgrep
+#	deleted:    usr.bin/perl/ext/Compress/Zlib/examples/gzstream
+#	deleted:    usr.bin/perl/ext/Compress/Zlib/lib/Compress/Zlib.pm
+#	deleted:    usr.bin/perl/ext/Compress/Zlib/private/MakeUtil.pm
+#	deleted:    usr.bin/perl/ext/Compress/Zlib/t/01version.t
+#	deleted:    usr.bin/perl/ext/Compress/Zlib/t/03zlib-v1.t
+#	deleted:    usr.bin/perl/ext/Compress/Zlib/t/05examples.t
+#	deleted:    usr.bin/perl/ext/Compress/Zlib/t/06gzsetp.t
+#	deleted:    usr.bin/perl/ext/Compress/Zlib/t/08encoding.t
+#	deleted:    usr.bin/perl/ext/Compress/Zlib/t/14gzopen.t
+#	modified:   usr.bin/perl/ext/Cwd/Changes
+#	modified:   usr.bin/perl/ext/Cwd/Cwd.xs
+#	modified:   usr.bin/perl/ext/Cwd/t/cwd.t
+#	modified:   usr.bin/perl/ext/Cwd/t/win32.t
+#	modified:   usr.bin/perl/ext/DB_File/Changes
+#	modified:   usr.bin/perl/ext/DB_File/DB_File.pm
+#	modified:   usr.bin/perl/ext/DB_File/DB_File.xs
+#	modified:   usr.bin/perl/ext/DB_File/Makefile.PL
+#	modified:   usr.bin/perl/ext/DB_File/dbinfo
+#	modified:   usr.bin/perl/ext/DB_File/t/db-btree.t
+#	modified:   usr.bin/perl/ext/DB_File/t/db-hash.t
+#	modified:   usr.bin/perl/ext/DB_File/t/db-recno.t
+#	modified:   usr.bin/perl/ext/DB_File/typemap
+#	modified:   usr.bin/perl/ext/DB_File/version.c
+#	deleted:    usr.bin/perl/ext/Data/Dumper/Changes
+#	deleted:    usr.bin/perl/ext/Data/Dumper/Dumper.pm
+#	deleted:    usr.bin/perl/ext/Data/Dumper/Dumper.xs
+#	deleted:    usr.bin/perl/ext/Data/Dumper/Makefile.PL
+#	deleted:    usr.bin/perl/ext/Data/Dumper/Todo
+#	deleted:    usr.bin/perl/ext/Data/Dumper/t/bless.t
+#	deleted:    usr.bin/perl/ext/Data/Dumper/t/bugs.t
+#	deleted:    usr.bin/perl/ext/Data/Dumper/t/dumper.t
+#	deleted:    usr.bin/perl/ext/Data/Dumper/t/freezer.t
+#	deleted:    usr.bin/perl/ext/Data/Dumper/t/overload.t
+#	deleted:    usr.bin/perl/ext/Data/Dumper/t/pair.t
+#	deleted:    usr.bin/perl/ext/Devel/DProf/Changes
+#	deleted:    usr.bin/perl/ext/Devel/DProf/DProf.pm
+#	deleted:    usr.bin/perl/ext/Devel/DProf/DProf.xs
+#	deleted:    usr.bin/perl/ext/Devel/DProf/Makefile.PL
+#	deleted:    usr.bin/perl/ext/Devel/DProf/Todo
+#	deleted:    usr.bin/perl/ext/Devel/DProf/t/DProf.t
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/Changes
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/HACKERS
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/MANIFEST.SKIP
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/Makefile.PL
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/PPPort.xs
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/PPPort_pm.PL
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/PPPort_xs.PL
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/README
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/TODO
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/apicheck_c.PL
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/devel/buildperl.pl
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/devel/devtools.pl
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/devel/mkapidoc.sh
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/devel/mktodo
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/devel/mktodo.pl
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/devel/regenerate
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/devel/scanprov
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/mktests.PL
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/module2.c
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/module3.c
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/apicheck.pl
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/apidoc.fnc
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/base/5004000
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/base/5004010
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/base/5004020
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/base/5004030
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/base/5004040
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/base/5004050
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/base/5005000
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/base/5005010
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/base/5005020
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/base/5005030
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/base/5005040
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/base/5006000
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/base/5006001
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/base/5006002
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/base/5007000
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/base/5007001
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/base/5007002
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/base/5007003
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/base/5008000
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/base/5008001
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/base/5008002
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/base/5008003
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/base/5008004
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/base/5008005
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/base/5008006
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/base/5008007
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/base/5008008
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/base/5009000
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/base/5009001
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/base/5009002
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/base/5009003
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/base/5009004
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/base/5009005
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/embed.fnc
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/inc/MY_CXT
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/inc/SvPV
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/inc/SvREFCNT
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/inc/Sv_set
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/inc/call
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/inc/cop
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/inc/exception
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/inc/format
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/inc/grok
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/inc/limits
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/inc/mPUSH
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/inc/magic
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/inc/memory
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/inc/misc
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/inc/newCONSTSUB
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/inc/newRV
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/inc/podtest
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/inc/ppphbin
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/inc/ppphdoc
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/inc/ppphtest
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/inc/pvs
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/inc/shared_pv
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/inc/snprintf
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/inc/strlfuncs
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/inc/sv_xpvf
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/inc/threads
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/inc/uv
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/inc/variables
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/inc/version
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/inc/warn
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/ppport.fnc
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/ppptools.pl
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/todo/5004000
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/todo/5004010
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/todo/5004020
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/todo/5004030
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/todo/5004040
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/todo/5004050
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/todo/5005000
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/todo/5005010
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/todo/5005020
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/todo/5005030
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/todo/5005040
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/todo/5006000
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/todo/5006001
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/todo/5006002
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/todo/5007000
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/todo/5007001
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/todo/5007002
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/todo/5007003
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/todo/5008000
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/todo/5008001
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/todo/5008002
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/todo/5008003
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/todo/5008004
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/todo/5008005
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/todo/5008006
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/todo/5008007
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/todo/5008008
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/todo/5009000
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/todo/5009001
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/todo/5009002
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/todo/5009003
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/todo/5009004
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/parts/todo/5009005
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/ppport_h.PL
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/soak
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/t/MY_CXT.t
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/t/SvPV.t
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/t/SvREFCNT.t
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/t/Sv_set.t
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/t/call.t
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/t/cop.t
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/t/exception.t
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/t/grok.t
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/t/limits.t
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/t/mPUSH.t
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/t/magic.t
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/t/memory.t
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/t/misc.t
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/t/newCONSTSUB.t
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/t/newRV.t
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/t/podtest.t
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/t/ppphtest.t
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/t/pvs.t
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/t/shared_pv.t
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/t/snprintf.t
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/t/strlfuncs.t
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/t/sv_xpvf.t
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/t/testutil.pl
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/t/threads.t
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/t/uv.t
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/t/variables.t
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/t/warn.t
+#	deleted:    usr.bin/perl/ext/Devel/PPPort/typemap
+#	deleted:    usr.bin/perl/ext/Devel/Peek/Changes
+#	deleted:    usr.bin/perl/ext/Devel/Peek/Makefile.PL
+#	deleted:    usr.bin/perl/ext/Devel/Peek/Peek.pm
+#	deleted:    usr.bin/perl/ext/Devel/Peek/Peek.xs
+#	deleted:    usr.bin/perl/ext/Devel/Peek/t/Peek.t
+#	deleted:    usr.bin/perl/ext/Digest/MD5/Changes
+#	deleted:    usr.bin/perl/ext/Digest/MD5/MD5.pm
+#	deleted:    usr.bin/perl/ext/Digest/MD5/MD5.xs
+#	deleted:    usr.bin/perl/ext/Digest/MD5/Makefile.PL
+#	deleted:    usr.bin/perl/ext/Digest/MD5/README
+#	deleted:    usr.bin/perl/ext/Digest/MD5/hints/MacOS.pl
+#	deleted:    usr.bin/perl/ext/Digest/MD5/hints/dec_osf.pl
+#	deleted:    usr.bin/perl/ext/Digest/MD5/hints/irix_6.pl
+#	deleted:    usr.bin/perl/ext/Digest/MD5/t/align.t
+#	deleted:    usr.bin/perl/ext/Digest/MD5/t/badfile.t
+#	deleted:    usr.bin/perl/ext/Digest/MD5/t/bits.t
+#	deleted:    usr.bin/perl/ext/Digest/MD5/t/clone.t
+#	deleted:    usr.bin/perl/ext/Digest/MD5/t/files.t
+#	deleted:    usr.bin/perl/ext/Digest/MD5/t/md5-aaa.t
+#	deleted:    usr.bin/perl/ext/Digest/MD5/t/utf8.t
+#	deleted:    usr.bin/perl/ext/Digest/MD5/typemap
+#	deleted:    usr.bin/perl/ext/Digest/SHA/Changes
+#	deleted:    usr.bin/perl/ext/Digest/SHA/Makefile.PL
+#	deleted:    usr.bin/perl/ext/Digest/SHA/README
+#	deleted:    usr.bin/perl/ext/Digest/SHA/SHA.pm
+#	deleted:    usr.bin/perl/ext/Digest/SHA/SHA.xs
+#	deleted:    usr.bin/perl/ext/Digest/SHA/bin/shasum
+#	deleted:    usr.bin/perl/ext/Digest/SHA/src/hmac.c
+#	deleted:    usr.bin/perl/ext/Digest/SHA/src/hmac.h
+#	deleted:    usr.bin/perl/ext/Digest/SHA/src/hmacxtra.c
+#	deleted:    usr.bin/perl/ext/Digest/SHA/src/sha.c
+#	deleted:    usr.bin/perl/ext/Digest/SHA/src/sha.h
+#	deleted:    usr.bin/perl/ext/Digest/SHA/src/sha64bit.c
+#	deleted:    usr.bin/perl/ext/Digest/SHA/src/sha64bit.h
+#	deleted:    usr.bin/perl/ext/Digest/SHA/src/shaxtra.c
+#	deleted:    usr.bin/perl/ext/Digest/SHA/t/allfcns.t
+#	deleted:    usr.bin/perl/ext/Digest/SHA/t/base64.t
+#	deleted:    usr.bin/perl/ext/Digest/SHA/t/bitbuf.t
+#	deleted:    usr.bin/perl/ext/Digest/SHA/t/dumpload.t
+#	deleted:    usr.bin/perl/ext/Digest/SHA/t/fips198.t
+#	deleted:    usr.bin/perl/ext/Digest/SHA/t/gg.t
+#	deleted:    usr.bin/perl/ext/Digest/SHA/t/gglong.t
+#	deleted:    usr.bin/perl/ext/Digest/SHA/t/hmacsha.t
+#	deleted:    usr.bin/perl/ext/Digest/SHA/t/ireland.t
+#	deleted:    usr.bin/perl/ext/Digest/SHA/t/methods.t
+#	deleted:    usr.bin/perl/ext/Digest/SHA/t/nistbit.t
+#	deleted:    usr.bin/perl/ext/Digest/SHA/t/nistbyte.t
+#	deleted:    usr.bin/perl/ext/Digest/SHA/t/rfc2202.t
+#	deleted:    usr.bin/perl/ext/Digest/SHA/t/sha1.t
+#	deleted:    usr.bin/perl/ext/Digest/SHA/t/sha224.t
+#	deleted:    usr.bin/perl/ext/Digest/SHA/t/sha256.t
+#	deleted:    usr.bin/perl/ext/Digest/SHA/t/sha384.t
+#	deleted:    usr.bin/perl/ext/Digest/SHA/t/sha512.t
+#	deleted:    usr.bin/perl/ext/Digest/SHA/t/woodbury.t
+#	deleted:    usr.bin/perl/ext/Digest/SHA/typemap
+#	modified:   usr.bin/perl/ext/DynaLoader/DynaLoader_pm.PL
+#	modified:   usr.bin/perl/ext/DynaLoader/Makefile.PL
+#	modified:   usr.bin/perl/ext/DynaLoader/XSLoader_pm.PL
+#	modified:   usr.bin/perl/ext/DynaLoader/dl_aix.xs
+#	modified:   usr.bin/perl/ext/DynaLoader/dl_beos.xs
+#	modified:   usr.bin/perl/ext/DynaLoader/dl_dld.xs
+#	modified:   usr.bin/perl/ext/DynaLoader/dl_dllload.xs
+#	modified:   usr.bin/perl/ext/DynaLoader/dl_dlopen.xs
+#	modified:   usr.bin/perl/ext/DynaLoader/dl_dyld.xs
+#	modified:   usr.bin/perl/ext/DynaLoader/dl_hpux.xs
+#	modified:   usr.bin/perl/ext/DynaLoader/dl_mac.xs
+#	modified:   usr.bin/perl/ext/DynaLoader/dl_mpeix.xs
+#	modified:   usr.bin/perl/ext/DynaLoader/dl_next.xs
+#	modified:   usr.bin/perl/ext/DynaLoader/dl_symbian.xs
+#	modified:   usr.bin/perl/ext/DynaLoader/dl_vmesa.xs
+#	modified:   usr.bin/perl/ext/DynaLoader/dl_vms.xs
+#	modified:   usr.bin/perl/ext/DynaLoader/dlutils.c
+#	modified:   usr.bin/perl/ext/DynaLoader/t/DynaLoader.t
+#	modified:   usr.bin/perl/ext/DynaLoader/t/XSLoader.t
+#	modified:   usr.bin/perl/ext/Encode/AUTHORS
+#	modified:   usr.bin/perl/ext/Encode/Byte/Makefile.PL
+#	modified:   usr.bin/perl/ext/Encode/Changes
+#	modified:   usr.bin/perl/ext/Encode/Encode.pm
+#	modified:   usr.bin/perl/ext/Encode/Encode.xs
+#	modified:   usr.bin/perl/ext/Encode/Makefile.PL
+#	modified:   usr.bin/perl/ext/Encode/Unicode/Unicode.pm
+#	modified:   usr.bin/perl/ext/Encode/Unicode/Unicode.xs
+#	modified:   usr.bin/perl/ext/Encode/bin/enc2xs
+#	modified:   usr.bin/perl/ext/Encode/bin/piconv
+#	modified:   usr.bin/perl/ext/Encode/bin/ucmlint
+#	modified:   usr.bin/perl/ext/Encode/bin/ucmsort
+#	modified:   usr.bin/perl/ext/Encode/encoding.pm
+#	modified:   usr.bin/perl/ext/Encode/lib/Encode/Alias.pm
+#	modified:   usr.bin/perl/ext/Encode/lib/Encode/CN/HZ.pm
+#	modified:   usr.bin/perl/ext/Encode/lib/Encode/Config.pm
+#	modified:   usr.bin/perl/ext/Encode/lib/Encode/GSM0338.pm
+#	modified:   usr.bin/perl/ext/Encode/lib/Encode/Guess.pm
+#	modified:   usr.bin/perl/ext/Encode/lib/Encode/JP/JIS7.pm
+#	modified:   usr.bin/perl/ext/Encode/lib/Encode/MIME/Header.pm
+#	modified:   usr.bin/perl/ext/Encode/lib/Encode/Unicode/UTF7.pm
+#	modified:   usr.bin/perl/ext/Encode/t/Aliases.t
+#	modified:   usr.bin/perl/ext/Encode/t/Mod_EUCJP.pm
+#	modified:   usr.bin/perl/ext/Encode/t/enc_data.t
+#	modified:   usr.bin/perl/ext/Encode/t/enc_eucjp.t
+#	modified:   usr.bin/perl/ext/Encode/t/enc_module.t
+#	modified:   usr.bin/perl/ext/Encode/t/enc_utf8.t
+#	modified:   usr.bin/perl/ext/Encode/t/guess.t
+#	modified:   usr.bin/perl/ext/Encode/t/mime-header.t
+#	modified:   usr.bin/perl/ext/Encode/t/rt.pl
+#	modified:   usr.bin/perl/ext/Encode/ucm/cp850.ucm
+#	modified:   usr.bin/perl/ext/Encode/ucm/cp852.ucm
+#	modified:   usr.bin/perl/ext/Encode/ucm/cp855.ucm
+#	modified:   usr.bin/perl/ext/Encode/ucm/cp856.ucm
+#	modified:   usr.bin/perl/ext/Encode/ucm/cp857.ucm
+#	modified:   usr.bin/perl/ext/Encode/ucm/cp860.ucm
+#	modified:   usr.bin/perl/ext/Encode/ucm/cp861.ucm
+#	modified:   usr.bin/perl/ext/Encode/ucm/cp862.ucm
+#	modified:   usr.bin/perl/ext/Encode/ucm/cp863.ucm
+#	modified:   usr.bin/perl/ext/Encode/ucm/cp864.ucm
+#	modified:   usr.bin/perl/ext/Encode/ucm/cp865.ucm
+#	modified:   usr.bin/perl/ext/Encode/ucm/cp866.ucm
+#	modified:   usr.bin/perl/ext/Encode/ucm/cp869.ucm
+#	modified:   usr.bin/perl/ext/Encode/ucm/cp874.ucm
+#	modified:   usr.bin/perl/ext/Encode/ucm/cp875.ucm
+#	deleted:    usr.bin/perl/ext/Encode/ucm/gsm0338.ucm
+#	modified:   usr.bin/perl/ext/Encode/ucm/macJapanese.ucm
+#	modified:   usr.bin/perl/ext/Errno/Errno_pm.PL
+#	modified:   usr.bin/perl/ext/Errno/Makefile.PL
+#	modified:   usr.bin/perl/ext/Fcntl/Makefile.PL
+#	deleted:    usr.bin/perl/ext/File/Glob/Changes
+#	deleted:    usr.bin/perl/ext/File/Glob/Glob.pm
+#	deleted:    usr.bin/perl/ext/File/Glob/Glob.xs
+#	deleted:    usr.bin/perl/ext/File/Glob/Makefile.PL
+#	deleted:    usr.bin/perl/ext/File/Glob/TODO
+#	deleted:    usr.bin/perl/ext/File/Glob/bsd_glob.c
+#	deleted:    usr.bin/perl/ext/File/Glob/bsd_glob.h
+#	deleted:    usr.bin/perl/ext/File/Glob/t/basic.t
+#	deleted:    usr.bin/perl/ext/File/Glob/t/case.t
+#	deleted:    usr.bin/perl/ext/File/Glob/t/global.t
+#	deleted:    usr.bin/perl/ext/File/Glob/t/taint.t
+#	deleted:    usr.bin/perl/ext/Filter/Util/Call/Call.pm
+#	deleted:    usr.bin/perl/ext/Filter/Util/Call/Call.xs
+#	deleted:    usr.bin/perl/ext/Filter/Util/Call/Makefile.PL
+#	deleted:    usr.bin/perl/ext/Filter/t/call.t
+#	modified:   usr.bin/perl/ext/GDBM_File/GDBM_File.pm
+#	modified:   usr.bin/perl/ext/GDBM_File/Makefile.PL
+#	modified:   usr.bin/perl/ext/GDBM_File/t/gdbm.t
+#	modified:   usr.bin/perl/ext/GDBM_File/typemap
+#	deleted:    usr.bin/perl/ext/Hash/Util/Changes
+#	deleted:    usr.bin/perl/ext/Hash/Util/FieldHash/Changes
+#	deleted:    usr.bin/perl/ext/Hash/Util/FieldHash/FieldHash.xs
+#	deleted:    usr.bin/perl/ext/Hash/Util/FieldHash/Makefile.PL
+#	deleted:    usr.bin/perl/ext/Hash/Util/FieldHash/lib/Hash/Util/FieldHash.pm
+#	deleted:    usr.bin/perl/ext/Hash/Util/FieldHash/t/01_load.t
+#	deleted:    usr.bin/perl/ext/Hash/Util/FieldHash/t/02_function.t
+#	deleted:    usr.bin/perl/ext/Hash/Util/FieldHash/t/03_class.t
+#	deleted:    usr.bin/perl/ext/Hash/Util/FieldHash/t/04_thread.t
+#	deleted:    usr.bin/perl/ext/Hash/Util/FieldHash/t/05_perlhook.t
+#	deleted:    usr.bin/perl/ext/Hash/Util/FieldHash/t/10_hash.t
+#	deleted:    usr.bin/perl/ext/Hash/Util/FieldHash/t/11_hashassign.t
+#	deleted:    usr.bin/perl/ext/Hash/Util/FieldHash/t/12_hashwarn.t
+#	deleted:    usr.bin/perl/ext/Hash/Util/Makefile.PL
+#	deleted:    usr.bin/perl/ext/Hash/Util/Util.xs
+#	deleted:    usr.bin/perl/ext/Hash/Util/lib/Hash/Util.pm
+#	deleted:    usr.bin/perl/ext/Hash/Util/t/Util.t
+#	deleted:    usr.bin/perl/ext/I18N/Langinfo/Langinfo.pm
+#	deleted:    usr.bin/perl/ext/I18N/Langinfo/Langinfo.xs
+#	deleted:    usr.bin/perl/ext/I18N/Langinfo/Makefile.PL
+#	deleted:    usr.bin/perl/ext/I18N/Langinfo/fallback/const-c.inc
+#	deleted:    usr.bin/perl/ext/I18N/Langinfo/fallback/const-xs.inc
+#	deleted:    usr.bin/perl/ext/I18N/Langinfo/t/Langinfo.t
+#	modified:   usr.bin/perl/ext/IO/ChangeLog
+#	modified:   usr.bin/perl/ext/IO/IO.pm
+#	modified:   usr.bin/perl/ext/IO/IO.xs
+#	modified:   usr.bin/perl/ext/IO/Makefile.PL
+#	modified:   usr.bin/perl/ext/IO/lib/IO/Dir.pm
+#	modified:   usr.bin/perl/ext/IO/lib/IO/Handle.pm
+#	modified:   usr.bin/perl/ext/IO/lib/IO/Socket.pm
+#	modified:   usr.bin/perl/ext/IO/lib/IO/Socket/INET.pm
+#	modified:   usr.bin/perl/ext/IO/t/io_dir.t
+#	modified:   usr.bin/perl/ext/IO/t/io_multihomed.t
+#	modified:   usr.bin/perl/ext/IO/t/io_taint.t
+#	modified:   usr.bin/perl/ext/IO/t/io_udp.t
+#	deleted:    usr.bin/perl/ext/IO_Compress_Base/Changes
+#	deleted:    usr.bin/perl/ext/IO_Compress_Base/Makefile.PL
+#	deleted:    usr.bin/perl/ext/IO_Compress_Base/README
+#	deleted:    usr.bin/perl/ext/IO_Compress_Base/lib/File/GlobMapper.pm
+#	deleted:    usr.bin/perl/ext/IO_Compress_Base/lib/IO/Compress/Base.pm
+#	deleted:    usr.bin/perl/ext/IO_Compress_Base/lib/IO/Compress/Base/Common.pm
+#	deleted:    usr.bin/perl/ext/IO_Compress_Base/lib/IO/Uncompress/AnyUncompress.pm
+#	deleted:    usr.bin/perl/ext/IO_Compress_Base/lib/IO/Uncompress/Base.pm
+#	deleted:    usr.bin/perl/ext/IO_Compress_Base/private/MakeUtil.pm
+#	deleted:    usr.bin/perl/ext/IO_Compress_Base/t/01misc.t
+#	deleted:    usr.bin/perl/ext/IO_Compress_Base/t/globmapper.t
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/Changes
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/Makefile.PL
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/README
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/examples/gzappend
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/examples/gzcat
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/examples/gzgrep
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/examples/gzstream
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/examples/unzip
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/lib/IO/Compress/Adapter/Deflate.pm
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/lib/IO/Compress/Adapter/Identity.pm
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/lib/IO/Compress/Deflate.pm
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/lib/IO/Compress/Gzip.pm
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/lib/IO/Compress/Gzip/Constants.pm
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/lib/IO/Compress/RawDeflate.pm
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/lib/IO/Compress/Zip.pm
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/lib/IO/Compress/Zip/Constants.pm
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/lib/IO/Compress/Zlib/Constants.pm
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/lib/IO/Compress/Zlib/Extra.pm
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/lib/IO/Uncompress/Adapter/Identity.pm
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/lib/IO/Uncompress/Adapter/Inflate.pm
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/lib/IO/Uncompress/AnyInflate.pm
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/lib/IO/Uncompress/Gunzip.pm
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/lib/IO/Uncompress/Inflate.pm
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/lib/IO/Uncompress/RawInflate.pm
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/lib/IO/Uncompress/Unzip.pm
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/private/MakeUtil.pm
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/t/001zlib-generic-deflate.t
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/t/001zlib-generic-gzip.t
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/t/001zlib-generic-rawdeflate.t
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/t/001zlib-generic-zip.t
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/t/002any-deflate.t
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/t/002any-gzip.t
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/t/002any-rawdeflate.t
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/t/002any-transparent.t
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/t/002any-zip.t
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/t/004gziphdr.t
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/t/005defhdr.t
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/t/010examples.t
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/t/020isize.t
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/t/050interop-gzip.t
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/t/100generic-deflate.t
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/t/100generic-gzip.t
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/t/100generic-rawdeflate.t
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/t/100generic-zip.t
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/t/101truncate-deflate.t
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/t/101truncate-gzip.t
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/t/101truncate-rawdeflate.t
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/t/101truncate-zip.t
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/t/102tied-deflate.t
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/t/102tied-gzip.t
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/t/102tied-rawdeflate.t
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/t/102tied-zip.t
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/t/103newtied-deflate.t
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/t/103newtied-gzip.t
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/t/103newtied-rawdeflate.t
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/t/103newtied-zip.t
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/t/104destroy-deflate.t
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/t/104destroy-gzip.t
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/t/104destroy-rawdeflate.t
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/t/104destroy-zip.t
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/t/105oneshot-deflate.t
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/t/105oneshot-gzip-only.t
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/t/105oneshot-gzip.t
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/t/105oneshot-rawdeflate.t
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/t/105oneshot-zip-only.t
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/t/105oneshot-zip.t
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/t/106prime-deflate.t
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/t/106prime-gzip.t
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/t/106prime-rawdeflate.t
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/t/106prime-zip.t
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/t/107multi-deflate.t
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/t/107multi-gzip.t
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/t/107multi-rawdeflate.t
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/t/107multi-zip.t
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/t/108anyunc-deflate.t
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/t/108anyunc-gzip.t
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/t/108anyunc-rawdeflate.t
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/t/108anyunc-transparent.t
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/t/108anyunc-zip.t
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/t/109merge-deflate.t
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/t/109merge-gzip.t
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/t/109merge-rawdeflate.t
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/t/109merge-zip.t
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/t/110encode-deflate.t
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/t/110encode-gzip.t
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/t/110encode-rawdeflate.t
+#	deleted:    usr.bin/perl/ext/IO_Compress_Zlib/t/110encode-zip.t
+#	deleted:    usr.bin/perl/ext/IPC/SysV/ChangeLog
+#	deleted:    usr.bin/perl/ext/IPC/SysV/MANIFEST
+#	deleted:    usr.bin/perl/ext/IPC/SysV/Makefile.PL
+#	deleted:    usr.bin/perl/ext/IPC/SysV/Msg.pm
+#	deleted:    usr.bin/perl/ext/IPC/SysV/README
+#	deleted:    usr.bin/perl/ext/IPC/SysV/Semaphore.pm
+#	deleted:    usr.bin/perl/ext/IPC/SysV/SysV.pm
+#	deleted:    usr.bin/perl/ext/IPC/SysV/SysV.xs
+#	deleted:    usr.bin/perl/ext/IPC/SysV/hints/cygwin.pl
+#	deleted:    usr.bin/perl/ext/IPC/SysV/hints/next_3.pl
+#	deleted:    usr.bin/perl/ext/IPC/SysV/t/ipcsysv.t
+#	deleted:    usr.bin/perl/ext/IPC/SysV/t/msg.t
+#	deleted:    usr.bin/perl/ext/IPC/SysV/t/sem.t
+#	deleted:    usr.bin/perl/ext/List/Util/Changes
+#	deleted:    usr.bin/perl/ext/List/Util/Makefile.PL
+#	deleted:    usr.bin/perl/ext/List/Util/README
+#	deleted:    usr.bin/perl/ext/List/Util/Util.xs
+#	deleted:    usr.bin/perl/ext/List/Util/lib/List/Util.pm
+#	deleted:    usr.bin/perl/ext/List/Util/lib/Scalar/Util.pm
+#	deleted:    usr.bin/perl/ext/List/Util/multicall.h
+#	deleted:    usr.bin/perl/ext/List/Util/t/00version.t
+#	deleted:    usr.bin/perl/ext/List/Util/t/blessed.t
+#	deleted:    usr.bin/perl/ext/List/Util/t/dualvar.t
+#	deleted:    usr.bin/perl/ext/List/Util/t/first.t
+#	deleted:    usr.bin/perl/ext/List/Util/t/isvstring.t
+#	deleted:    usr.bin/perl/ext/List/Util/t/lln.t
+#	deleted:    usr.bin/perl/ext/List/Util/t/max.t
+#	deleted:    usr.bin/perl/ext/List/Util/t/maxstr.t
+#	deleted:    usr.bin/perl/ext/List/Util/t/min.t
+#	deleted:    usr.bin/perl/ext/List/Util/t/minstr.t
+#	deleted:    usr.bin/perl/ext/List/Util/t/openhan.t
+#	deleted:    usr.bin/perl/ext/List/Util/t/p_blessed.t
+#	deleted:    usr.bin/perl/ext/List/Util/t/p_first.t
+#	deleted:    usr.bin/perl/ext/List/Util/t/p_lln.t
+#	deleted:    usr.bin/perl/ext/List/Util/t/p_max.t
+#	deleted:    usr.bin/perl/ext/List/Util/t/p_maxstr.t
+#	deleted:    usr.bin/perl/ext/List/Util/t/p_min.t
+#	deleted:    usr.bin/perl/ext/List/Util/t/p_minstr.t
+#	deleted:    usr.bin/perl/ext/List/Util/t/p_openhan.t
+#	deleted:    usr.bin/perl/ext/List/Util/t/p_readonly.t
+#	deleted:    usr.bin/perl/ext/List/Util/t/p_reduce.t
+#	deleted:    usr.bin/perl/ext/List/Util/t/p_refaddr.t
+#	deleted:    usr.bin/perl/ext/List/Util/t/p_reftype.t
+#	deleted:    usr.bin/perl/ext/List/Util/t/p_shuffle.t
+#	deleted:    usr.bin/perl/ext/List/Util/t/p_sum.t
+#	deleted:    usr.bin/perl/ext/List/Util/t/p_tainted.t
+#	deleted:    usr.bin/perl/ext/List/Util/t/proto.t
+#	deleted:    usr.bin/perl/ext/List/Util/t/readonly.t
+#	deleted:    usr.bin/perl/ext/List/Util/t/reduce.t
+#	deleted:    usr.bin/perl/ext/List/Util/t/refaddr.t
+#	deleted:    usr.bin/perl/ext/List/Util/t/reftype.t
+#	deleted:    usr.bin/perl/ext/List/Util/t/shuffle.t
+#	deleted:    usr.bin/perl/ext/List/Util/t/sum.t
+#	deleted:    usr.bin/perl/ext/List/Util/t/tainted.t
+#	deleted:    usr.bin/perl/ext/List/Util/t/weak.t
+#	deleted:    usr.bin/perl/ext/MIME/Base64/Base64.pm
+#	deleted:    usr.bin/perl/ext/MIME/Base64/Base64.xs
+#	deleted:    usr.bin/perl/ext/MIME/Base64/Changes
+#	deleted:    usr.bin/perl/ext/MIME/Base64/Makefile.PL
+#	deleted:    usr.bin/perl/ext/MIME/Base64/QuotedPrint.pm
+#	deleted:    usr.bin/perl/ext/MIME/Base64/README
+#	deleted:    usr.bin/perl/ext/MIME/Base64/t/base64.t
+#	deleted:    usr.bin/perl/ext/MIME/Base64/t/quoted-print.t
+#	deleted:    usr.bin/perl/ext/MIME/Base64/t/unicode.t
+#	deleted:    usr.bin/perl/ext/MIME/Base64/t/warn.t
+#	deleted:    usr.bin/perl/ext/Math/BigInt/FastCalc/FastCalc.pm
+#	deleted:    usr.bin/perl/ext/Math/BigInt/FastCalc/FastCalc.xs
+#	deleted:    usr.bin/perl/ext/Math/BigInt/FastCalc/Makefile.PL
+#	deleted:    usr.bin/perl/ext/Math/BigInt/FastCalc/t/bigintfc.t
+#	deleted:    usr.bin/perl/ext/Math/BigInt/FastCalc/t/bootstrap.t
+#	deleted:    usr.bin/perl/ext/Math/BigInt/FastCalc/t/leak.t
+#	deleted:    usr.bin/perl/ext/Math/BigInt/FastCalc/t/mbi_rand.t
+#	modified:   usr.bin/perl/ext/NDBM_File/Makefile.PL
+#	modified:   usr.bin/perl/ext/NDBM_File/NDBM_File.pm
+#	modified:   usr.bin/perl/ext/NDBM_File/NDBM_File.xs
+#	modified:   usr.bin/perl/ext/NDBM_File/t/ndbm.t
+#	modified:   usr.bin/perl/ext/NDBM_File/typemap
+#	modified:   usr.bin/perl/ext/ODBM_File/Makefile.PL
+#	modified:   usr.bin/perl/ext/ODBM_File/t/odbm.t
+#	modified:   usr.bin/perl/ext/ODBM_File/typemap
+#	deleted:    usr.bin/perl/ext/Opcode/Makefile.PL
+#	modified:   usr.bin/perl/ext/Opcode/Opcode.xs
+#	deleted:    usr.bin/perl/ext/Opcode/Safe.pm
+#	modified:   usr.bin/perl/ext/Opcode/ops.pm
+#	modified:   usr.bin/perl/ext/POSIX/Makefile.PL
+#	modified:   usr.bin/perl/ext/POSIX/POSIX.pm
+#	modified:   usr.bin/perl/ext/POSIX/POSIX.pod
+#	modified:   usr.bin/perl/ext/POSIX/POSIX.xs
+#	modified:   usr.bin/perl/ext/POSIX/t/posix.t
+#	modified:   usr.bin/perl/ext/POSIX/t/sysconf.t
+#	deleted:    usr.bin/perl/ext/PerlIO/encoding/MANIFEST
+#	deleted:    usr.bin/perl/ext/PerlIO/encoding/Makefile.PL
+#	deleted:    usr.bin/perl/ext/PerlIO/encoding/encoding.pm
+#	deleted:    usr.bin/perl/ext/PerlIO/encoding/encoding.xs
+#	deleted:    usr.bin/perl/ext/PerlIO/encoding/t/nolooping.t
+#	deleted:    usr.bin/perl/ext/PerlIO/scalar/Makefile.PL
+#	deleted:    usr.bin/perl/ext/PerlIO/scalar/scalar.pm
+#	deleted:    usr.bin/perl/ext/PerlIO/scalar/scalar.xs
+#	deleted:    usr.bin/perl/ext/PerlIO/t/PerlIO.t
+#	deleted:    usr.bin/perl/ext/PerlIO/t/encoding.t
+#	deleted:    usr.bin/perl/ext/PerlIO/t/fail.t
+#	deleted:    usr.bin/perl/ext/PerlIO/t/fallback.t
+#	deleted:    usr.bin/perl/ext/PerlIO/t/open.t
+#	deleted:    usr.bin/perl/ext/PerlIO/t/scalar.t
+#	deleted:    usr.bin/perl/ext/PerlIO/t/via.t
+#	deleted:    usr.bin/perl/ext/PerlIO/via/Makefile.PL
+#	deleted:    usr.bin/perl/ext/PerlIO/via/hints/aix.pl
+#	deleted:    usr.bin/perl/ext/PerlIO/via/via.pm
+#	deleted:    usr.bin/perl/ext/PerlIO/via/via.xs
+#	modified:   usr.bin/perl/ext/SDBM_File/Makefile.PL
+#	modified:   usr.bin/perl/ext/SDBM_File/sdbm/hash.c
+#	modified:   usr.bin/perl/ext/SDBM_File/sdbm/pair.c
+#	modified:   usr.bin/perl/ext/SDBM_File/sdbm/readme.ms
+#	modified:   usr.bin/perl/ext/SDBM_File/sdbm/sdbm.3
+#	modified:   usr.bin/perl/ext/SDBM_File/sdbm/sdbm.c
+#	modified:   usr.bin/perl/ext/SDBM_File/sdbm/sdbm.h
+#	modified:   usr.bin/perl/ext/SDBM_File/t/sdbm.t
+#	modified:   usr.bin/perl/ext/SDBM_File/typemap
+#	modified:   usr.bin/perl/ext/Safe/t/safe3.t
+#	modified:   usr.bin/perl/ext/Safe/t/safeops.t
+#	modified:   usr.bin/perl/ext/Safe/t/safeuniversal.t
+#	modified:   usr.bin/perl/ext/Socket/Makefile.PL
+#	modified:   usr.bin/perl/ext/Socket/Socket.pm
+#	modified:   usr.bin/perl/ext/Socket/Socket.xs
+#	modified:   usr.bin/perl/ext/Storable/ChangeLog
+#	deleted:    usr.bin/perl/ext/Storable/MANIFEST
+#	modified:   usr.bin/perl/ext/Storable/Makefile.PL
+#	modified:   usr.bin/perl/ext/Storable/Storable.pm
+#	modified:   usr.bin/perl/ext/Storable/Storable.xs
+#	modified:   usr.bin/perl/ext/Storable/t/overload.t
+#	deleted:    usr.bin/perl/ext/Sys/Hostname/Hostname.pm
+#	deleted:    usr.bin/perl/ext/Sys/Hostname/Hostname.xs
+#	deleted:    usr.bin/perl/ext/Sys/Hostname/Makefile.PL
+#	deleted:    usr.bin/perl/ext/Sys/Hostname/t/Hostname.t
+#	deleted:    usr.bin/perl/ext/Sys/Syslog/Changes
+#	deleted:    usr.bin/perl/ext/Sys/Syslog/Makefile.PL
+#	deleted:    usr.bin/perl/ext/Sys/Syslog/README
+#	deleted:    usr.bin/perl/ext/Sys/Syslog/README.win32
+#	deleted:    usr.bin/perl/ext/Sys/Syslog/Syslog.pm
+#	deleted:    usr.bin/perl/ext/Sys/Syslog/Syslog.xs
+#	deleted:    usr.bin/perl/ext/Sys/Syslog/eg/syslog.pl
+#	deleted:    usr.bin/perl/ext/Sys/Syslog/fallback/const-c.inc
+#	deleted:    usr.bin/perl/ext/Sys/Syslog/fallback/const-xs.inc
+#	deleted:    usr.bin/perl/ext/Sys/Syslog/fallback/syslog.h
+#	deleted:    usr.bin/perl/ext/Sys/Syslog/t/00-load.t
+#	deleted:    usr.bin/perl/ext/Sys/Syslog/t/constants.t
+#	deleted:    usr.bin/perl/ext/Sys/Syslog/t/portfs.t
+#	deleted:    usr.bin/perl/ext/Sys/Syslog/t/syslog.t
+#	deleted:    usr.bin/perl/ext/Sys/Syslog/win32/PerlLog.mc
+#	deleted:    usr.bin/perl/ext/Sys/Syslog/win32/PerlLog_RES.uu
+#	deleted:    usr.bin/perl/ext/Sys/Syslog/win32/PerlLog_dll.uu
+#	deleted:    usr.bin/perl/ext/Sys/Syslog/win32/Win32.pm
+#	deleted:    usr.bin/perl/ext/Sys/Syslog/win32/compile.pl
+#	deleted:    usr.bin/perl/ext/Text/Soundex/Changes
+#	deleted:    usr.bin/perl/ext/Text/Soundex/Makefile.PL
+#	deleted:    usr.bin/perl/ext/Text/Soundex/README
+#	deleted:    usr.bin/perl/ext/Text/Soundex/Soundex.pm
+#	deleted:    usr.bin/perl/ext/Text/Soundex/Soundex.xs
+#	deleted:    usr.bin/perl/ext/Text/Soundex/t/Soundex.t
+#	deleted:    usr.bin/perl/ext/Time/HiRes/Changes
+#	deleted:    usr.bin/perl/ext/Time/HiRes/HiRes.pm
+#	deleted:    usr.bin/perl/ext/Time/HiRes/HiRes.xs
+#	deleted:    usr.bin/perl/ext/Time/HiRes/Makefile.PL
+#	deleted:    usr.bin/perl/ext/Time/HiRes/fallback/const-c.inc
+#	deleted:    usr.bin/perl/ext/Time/HiRes/fallback/const-xs.inc
+#	deleted:    usr.bin/perl/ext/Time/HiRes/hints/aix.pl
+#	deleted:    usr.bin/perl/ext/Time/HiRes/hints/dec_osf.pl
+#	deleted:    usr.bin/perl/ext/Time/HiRes/hints/dynixptx.pl
+#	deleted:    usr.bin/perl/ext/Time/HiRes/hints/irix.pl
+#	deleted:    usr.bin/perl/ext/Time/HiRes/hints/linux.pl
+#	deleted:    usr.bin/perl/ext/Time/HiRes/hints/sco.pl
+#	deleted:    usr.bin/perl/ext/Time/HiRes/hints/solaris.pl
+#	deleted:    usr.bin/perl/ext/Time/HiRes/hints/svr4.pl
+#	deleted:    usr.bin/perl/ext/Time/HiRes/t/HiRes.t
+#	deleted:    usr.bin/perl/ext/Time/HiRes/typemap
+#	deleted:    usr.bin/perl/ext/Time/Piece/Changes
+#	deleted:    usr.bin/perl/ext/Time/Piece/Makefile.PL
+#	deleted:    usr.bin/perl/ext/Time/Piece/Piece.pm
+#	deleted:    usr.bin/perl/ext/Time/Piece/Piece.xs
+#	deleted:    usr.bin/perl/ext/Time/Piece/README
+#	deleted:    usr.bin/perl/ext/Time/Piece/Seconds.pm
+#	deleted:    usr.bin/perl/ext/Time/Piece/t/01base.t
+#	deleted:    usr.bin/perl/ext/Time/Piece/t/02core.t
+#	deleted:    usr.bin/perl/ext/Time/Piece/t/03compare.t
+#	deleted:    usr.bin/perl/ext/Time/Piece/t/04mjd.t
+#	deleted:    usr.bin/perl/ext/Time/Piece/t/05overload.t
+#	deleted:    usr.bin/perl/ext/Time/Piece/t/06subclass.t
+#	deleted:    usr.bin/perl/ext/Unicode/Normalize/Changes
+#	deleted:    usr.bin/perl/ext/Unicode/Normalize/Makefile.PL
+#	deleted:    usr.bin/perl/ext/Unicode/Normalize/Normalize.pm
+#	deleted:    usr.bin/perl/ext/Unicode/Normalize/Normalize.xs
+#	deleted:    usr.bin/perl/ext/Unicode/Normalize/README
+#	deleted:    usr.bin/perl/ext/Unicode/Normalize/mkheader
+#	deleted:    usr.bin/perl/ext/Unicode/Normalize/t/fcdc.t
+#	deleted:    usr.bin/perl/ext/Unicode/Normalize/t/form.t
+#	deleted:    usr.bin/perl/ext/Unicode/Normalize/t/func.t
+#	deleted:    usr.bin/perl/ext/Unicode/Normalize/t/illegal.t
+#	deleted:    usr.bin/perl/ext/Unicode/Normalize/t/norm.t
+#	deleted:    usr.bin/perl/ext/Unicode/Normalize/t/null.t
+#	deleted:    usr.bin/perl/ext/Unicode/Normalize/t/proto.t
+#	deleted:    usr.bin/perl/ext/Unicode/Normalize/t/split.t
+#	deleted:    usr.bin/perl/ext/Unicode/Normalize/t/test.t
+#	deleted:    usr.bin/perl/ext/Unicode/Normalize/t/tie.t
+#	modified:   usr.bin/perl/ext/Win32/Changes
+#	modified:   usr.bin/perl/ext/Win32/Makefile.PL
+#	modified:   usr.bin/perl/ext/Win32/Win32.pm
+#	modified:   usr.bin/perl/ext/Win32/Win32.xs
+#	modified:   usr.bin/perl/ext/Win32/t/GetCurrentThreadId.t
+#	deleted:    usr.bin/perl/ext/Win32API/File/Changes
+#	deleted:    usr.bin/perl/ext/Win32API/File/ExtUtils/Myconst2perl.pm
+#	deleted:    usr.bin/perl/ext/Win32API/File/File.pm
+#	deleted:    usr.bin/perl/ext/Win32API/File/File.xs
+#	deleted:    usr.bin/perl/ext/Win32API/File/Makefile.PL
+#	deleted:    usr.bin/perl/ext/Win32API/File/README
+#	deleted:    usr.bin/perl/ext/Win32API/File/buffers.h
+#	deleted:    usr.bin/perl/ext/Win32API/File/cFile.h
+#	deleted:    usr.bin/perl/ext/Win32API/File/cFile.pc
+#	deleted:    usr.bin/perl/ext/Win32API/File/const2perl.h
+#	deleted:    usr.bin/perl/ext/Win32API/File/t/file.t
+#	deleted:    usr.bin/perl/ext/Win32API/File/t/tie.t
+#	deleted:    usr.bin/perl/ext/Win32API/File/typemap
+#	modified:   usr.bin/perl/ext/Win32CORE/Makefile.PL
+#	modified:   usr.bin/perl/ext/Win32CORE/Win32CORE.c
+#	modified:   usr.bin/perl/ext/Win32CORE/t/win32core.t
+#	deleted:    usr.bin/perl/ext/XS/APItest/APItest.pm
+#	deleted:    usr.bin/perl/ext/XS/APItest/APItest.xs
+#	deleted:    usr.bin/perl/ext/XS/APItest/MANIFEST
+#	deleted:    usr.bin/perl/ext/XS/APItest/Makefile.PL
+#	deleted:    usr.bin/perl/ext/XS/APItest/README
+#	deleted:    usr.bin/perl/ext/XS/APItest/core.c
+#	deleted:    usr.bin/perl/ext/XS/APItest/core_or_not.inc
+#	deleted:    usr.bin/perl/ext/XS/APItest/exception.c
+#	deleted:    usr.bin/perl/ext/XS/APItest/notcore.c
+#	deleted:    usr.bin/perl/ext/XS/APItest/t/call.t
+#	deleted:    usr.bin/perl/ext/XS/APItest/t/exception.t
+#	deleted:    usr.bin/perl/ext/XS/APItest/t/hash.t
+#	deleted:    usr.bin/perl/ext/XS/APItest/t/my_cxt.t
+#	deleted:    usr.bin/perl/ext/XS/APItest/t/op.t
+#	deleted:    usr.bin/perl/ext/XS/APItest/t/printf.t
+#	deleted:    usr.bin/perl/ext/XS/APItest/t/push.t
+#	deleted:    usr.bin/perl/ext/XS/APItest/t/svsetsv.t
+#	deleted:    usr.bin/perl/ext/XS/APItest/t/xs_special_subs.t
+#	deleted:    usr.bin/perl/ext/XS/APItest/t/xs_special_subs_require.t
+#	deleted:    usr.bin/perl/ext/XS/Typemap/Makefile.PL
+#	deleted:    usr.bin/perl/ext/XS/Typemap/README
+#	deleted:    usr.bin/perl/ext/XS/Typemap/Typemap.pm
+#	deleted:    usr.bin/perl/ext/XS/Typemap/Typemap.xs
+#	deleted:    usr.bin/perl/ext/XS/Typemap/stdio.c
+#	deleted:    usr.bin/perl/ext/XS/Typemap/t/Typemap.t
+#	deleted:    usr.bin/perl/ext/XS/Typemap/typemap
+#	modified:   usr.bin/perl/ext/attrs/Makefile.PL
+#	modified:   usr.bin/perl/ext/attrs/attrs.pm
+#	modified:   usr.bin/perl/ext/attrs/attrs.xs
+#	modified:   usr.bin/perl/ext/re/Makefile.PL
+#	modified:   usr.bin/perl/ext/re/re.pm
+#	modified:   usr.bin/perl/ext/re/re.xs
+#	modified:   usr.bin/perl/ext/re/t/re_funcs.t
+#	modified:   usr.bin/perl/ext/threads/Makefile.PL
+#	deleted:    usr.bin/perl/ext/threads/shared/Makefile.PL
+#	deleted:    usr.bin/perl/ext/threads/shared/hints/linux.pl
+#	deleted:    usr.bin/perl/ext/threads/shared/shared.pm
+#	deleted:    usr.bin/perl/ext/threads/shared/shared.xs
+#	deleted:    usr.bin/perl/ext/threads/shared/t/0nothread.t
+#	deleted:    usr.bin/perl/ext/threads/shared/t/av_refs.t
+#	deleted:    usr.bin/perl/ext/threads/shared/t/av_simple.t
+#	deleted:    usr.bin/perl/ext/threads/shared/t/blessed.t
+#	deleted:    usr.bin/perl/ext/threads/shared/t/cond.t
+#	deleted:    usr.bin/perl/ext/threads/shared/t/disabled.t
+#	deleted:    usr.bin/perl/ext/threads/shared/t/hv_refs.t
+#	deleted:    usr.bin/perl/ext/threads/shared/t/hv_simple.t
+#	deleted:    usr.bin/perl/ext/threads/shared/t/no_share.t
+#	deleted:    usr.bin/perl/ext/threads/shared/t/shared_attr.t
+#	deleted:    usr.bin/perl/ext/threads/shared/t/stress.t
+#	deleted:    usr.bin/perl/ext/threads/shared/t/sv_refs.t
+#	deleted:    usr.bin/perl/ext/threads/shared/t/sv_simple.t
+#	deleted:    usr.bin/perl/ext/threads/shared/t/wait.t
+#	deleted:    usr.bin/perl/ext/threads/shared/t/waithires.t
+#	modified:   usr.bin/perl/ext/threads/t/basic.t
+#	modified:   usr.bin/perl/ext/threads/t/blocks.t
+#	modified:   usr.bin/perl/ext/threads/t/context.t
+#	modified:   usr.bin/perl/ext/threads/t/end.t
+#	modified:   usr.bin/perl/ext/threads/t/err.t
+#	modified:   usr.bin/perl/ext/threads/t/exit.t
+#	modified:   usr.bin/perl/ext/threads/t/free.t
+#	modified:   usr.bin/perl/ext/threads/t/free2.t
+#	modified:   usr.bin/perl/ext/threads/t/join.t
+#	modified:   usr.bin/perl/ext/threads/t/kill.t
+#	modified:   usr.bin/perl/ext/threads/t/libc.t
+#	modified:   usr.bin/perl/ext/threads/t/list.t
+#	modified:   usr.bin/perl/ext/threads/t/problems.t
+#	modified:   usr.bin/perl/ext/threads/t/stack.t
+#	modified:   usr.bin/perl/ext/threads/t/stack_env.t
+#	modified:   usr.bin/perl/ext/threads/t/state.t
+#	modified:   usr.bin/perl/ext/threads/t/stress_cv.t
+#	modified:   usr.bin/perl/ext/threads/t/stress_re.t
+#	modified:   usr.bin/perl/ext/threads/t/stress_string.t
+#	modified:   usr.bin/perl/ext/threads/t/thread.t
+#	modified:   usr.bin/perl/ext/threads/threads.pm
+#	modified:   usr.bin/perl/ext/threads/threads.xs
+#	deleted:    usr.bin/perl/ext/util/make_ext
+#	deleted:    usr.bin/perl/ext/util/make_ext_cross
+#	modified:   usr.bin/perl/fakesdio.h
+#	modified:   usr.bin/perl/fakethr.h
+#	modified:   usr.bin/perl/generate_uudmap.c
+#	modified:   usr.bin/perl/global.sym
+#	modified:   usr.bin/perl/globals.c
+#	modified:   usr.bin/perl/globvar.sym
+#	modified:   usr.bin/perl/gv.c
+#	modified:   usr.bin/perl/gv.h
+#	modified:   usr.bin/perl/handy.h
+#	modified:   usr.bin/perl/hints/aix.sh
+#	modified:   usr.bin/perl/hints/aix_3.sh
+#	modified:   usr.bin/perl/hints/aix_4.sh
+#	modified:   usr.bin/perl/hints/beos.sh
+#	modified:   usr.bin/perl/hints/bsdos.sh
+#	modified:   usr.bin/perl/hints/catamount.sh
+#	modified:   usr.bin/perl/hints/cygwin.sh
+#	modified:   usr.bin/perl/hints/darwin.sh
+#	modified:   usr.bin/perl/hints/dec_osf.sh
+#	modified:   usr.bin/perl/hints/dgux.sh
+#	modified:   usr.bin/perl/hints/freebsd.sh
+#	modified:   usr.bin/perl/hints/hpux.sh
+#	modified:   usr.bin/perl/hints/irix_6.sh
+#	modified:   usr.bin/perl/hints/linux.sh
+#	modified:   usr.bin/perl/hints/netbsd.sh
+#	modified:   usr.bin/perl/hints/qnx.sh
+#	modified:   usr.bin/perl/hints/solaris_2.sh
+#	modified:   usr.bin/perl/hints/vos.sh
+#	modified:   usr.bin/perl/hv.c
+#	modified:   usr.bin/perl/hv.h
+#	modified:   usr.bin/perl/installman
+#	modified:   usr.bin/perl/installperl
+#	modified:   usr.bin/perl/intrpvar.h
+#	modified:   usr.bin/perl/iperlsys.h
+#	modified:   usr.bin/perl/keywords.pl
+#	modified:   usr.bin/perl/lib/Archive/Extract.pm
+#	modified:   usr.bin/perl/lib/Archive/Extract/t/01_Archive-Extract.t
+#	modified:   usr.bin/perl/lib/Archive/Extract/t/src/double_dir.zip.packed
+#	modified:   usr.bin/perl/lib/Archive/Extract/t/src/x.Z.packed
+#	modified:   usr.bin/perl/lib/Archive/Extract/t/src/x.bz2.packed
+#	modified:   usr.bin/perl/lib/Archive/Extract/t/src/x.gz.packed
+#	modified:   usr.bin/perl/lib/Archive/Extract/t/src/x.jar.packed
+#	modified:   usr.bin/perl/lib/Archive/Extract/t/src/x.par.packed
+#	modified:   usr.bin/perl/lib/Archive/Extract/t/src/x.tar.gz.packed
+#	modified:   usr.bin/perl/lib/Archive/Extract/t/src/x.tar.packed
+#	modified:   usr.bin/perl/lib/Archive/Extract/t/src/x.tgz.packed
+#	modified:   usr.bin/perl/lib/Archive/Extract/t/src/x.zip.packed
+#	modified:   usr.bin/perl/lib/Archive/Extract/t/src/y.jar.packed
+#	modified:   usr.bin/perl/lib/Archive/Extract/t/src/y.par.packed
+#	modified:   usr.bin/perl/lib/Archive/Extract/t/src/y.tar.bz2.packed
+#	modified:   usr.bin/perl/lib/Archive/Extract/t/src/y.tar.gz.packed
+#	modified:   usr.bin/perl/lib/Archive/Extract/t/src/y.tar.packed
+#	modified:   usr.bin/perl/lib/Archive/Extract/t/src/y.tbz.packed
+#	modified:   usr.bin/perl/lib/Archive/Extract/t/src/y.tgz.packed
+#	modified:   usr.bin/perl/lib/Archive/Extract/t/src/y.zip.packed
+#	modified:   usr.bin/perl/lib/Archive/Tar.pm
+#	modified:   usr.bin/perl/lib/Archive/Tar/Constant.pm
+#	modified:   usr.bin/perl/lib/Archive/Tar/File.pm
+#	modified:   usr.bin/perl/lib/Archive/Tar/bin/ptar
+#	modified:   usr.bin/perl/lib/Archive/Tar/t/02_methods.t
+#	modified:   usr.bin/perl/lib/Archive/Tar/t/04_resolved_issues.t
+#	modified:   usr.bin/perl/lib/Archive/Tar/t/src/long/bar.tar.packed
+#	modified:   usr.bin/perl/lib/Archive/Tar/t/src/long/foo.tgz.packed
+#	modified:   usr.bin/perl/lib/Archive/Tar/t/src/short/bar.tar.packed
+#	modified:   usr.bin/perl/lib/Archive/Tar/t/src/short/foo.tgz.packed
+#	deleted:    usr.bin/perl/lib/Attribute/Handlers.pm
+#	deleted:    usr.bin/perl/lib/Attribute/Handlers/Changes
+#	deleted:    usr.bin/perl/lib/Attribute/Handlers/README
+#	deleted:    usr.bin/perl/lib/Attribute/Handlers/demo/Demo.pm
+#	deleted:    usr.bin/perl/lib/Attribute/Handlers/demo/Descriptions.pm
+#	deleted:    usr.bin/perl/lib/Attribute/Handlers/demo/MyClass.pm
+#	deleted:    usr.bin/perl/lib/Attribute/Handlers/demo/demo.pl
+#	deleted:    usr.bin/perl/lib/Attribute/Handlers/demo/demo2.pl
+#	deleted:    usr.bin/perl/lib/Attribute/Handlers/demo/demo3.pl
+#	deleted:    usr.bin/perl/lib/Attribute/Handlers/demo/demo4.pl
+#	deleted:    usr.bin/perl/lib/Attribute/Handlers/demo/demo_call.pl
+#	deleted:    usr.bin/perl/lib/Attribute/Handlers/demo/demo_chain.pl
+#	deleted:    usr.bin/perl/lib/Attribute/Handlers/demo/demo_cycle.pl
+#	deleted:    usr.bin/perl/lib/Attribute/Handlers/demo/demo_hashdir.pl
+#	deleted:    usr.bin/perl/lib/Attribute/Handlers/demo/demo_phases.pl
+#	deleted:    usr.bin/perl/lib/Attribute/Handlers/demo/demo_range.pl
+#	deleted:    usr.bin/perl/lib/Attribute/Handlers/demo/demo_rawdata.pl
+#	deleted:    usr.bin/perl/lib/Attribute/Handlers/t/constants.t
+#	deleted:    usr.bin/perl/lib/Attribute/Handlers/t/data_convert.t
+#	deleted:    usr.bin/perl/lib/Attribute/Handlers/t/linerep.t
+#	deleted:    usr.bin/perl/lib/Attribute/Handlers/t/multi.t
+#	modified:   usr.bin/perl/lib/AutoLoader.pm
+#	deleted:    usr.bin/perl/lib/AutoLoader.t
+#	modified:   usr.bin/perl/lib/AutoSplit.pm
+#	deleted:    usr.bin/perl/lib/AutoSplit.t
+#	modified:   usr.bin/perl/lib/Benchmark.pm
+#	modified:   usr.bin/perl/lib/CGI.pm
+#	modified:   usr.bin/perl/lib/CGI/Carp.pm
+#	modified:   usr.bin/perl/lib/CGI/Changes
+#	modified:   usr.bin/perl/lib/CGI/Cookie.pm
+#	modified:   usr.bin/perl/lib/CGI/Fast.pm
+#	modified:   usr.bin/perl/lib/CGI/Pretty.pm
+#	modified:   usr.bin/perl/lib/CGI/Util.pm
+#	modified:   usr.bin/perl/lib/CGI/t/request.t
+#	modified:   usr.bin/perl/lib/CGI/t/util-58.t
+#	modified:   usr.bin/perl/lib/CPAN.pm
+#	deleted:    usr.bin/perl/lib/CPAN/API/HOWTO.pm
+#	modified:   usr.bin/perl/lib/CPAN/Debug.pm
+#	deleted:    usr.bin/perl/lib/CPAN/DeferedCode.pm
+#	modified:   usr.bin/perl/lib/CPAN/FirstTime.pm
+#	modified:   usr.bin/perl/lib/CPAN/HandleConfig.pm
+#	modified:   usr.bin/perl/lib/CPAN/Kwalify.pm
+#	modified:   usr.bin/perl/lib/CPAN/Kwalify/distroprefs.dd
+#	modified:   usr.bin/perl/lib/CPAN/Kwalify/distroprefs.yml
+#	modified:   usr.bin/perl/lib/CPAN/Nox.pm
+#	modified:   usr.bin/perl/lib/CPAN/Queue.pm
+#	modified:   usr.bin/perl/lib/CPAN/SIGNATURE
+#	modified:   usr.bin/perl/lib/CPAN/Tarzip.pm
+#	modified:   usr.bin/perl/lib/CPAN/bin/cpan
+#	modified:   usr.bin/perl/lib/CPAN/t/02nox.t
+#	modified:   usr.bin/perl/lib/CPAN/t/03pkgs.t
+#	modified:   usr.bin/perl/lib/CPAN/t/11mirroredby.t
+#	modified:   usr.bin/perl/lib/CPANPLUS.pm
+#	modified:   usr.bin/perl/lib/CPANPLUS/Backend.pm
+#	modified:   usr.bin/perl/lib/CPANPLUS/Backend/RV.pm
+#	modified:   usr.bin/perl/lib/CPANPLUS/Config.pm
+#	modified:   usr.bin/perl/lib/CPANPLUS/Configure.pm
+#	modified:   usr.bin/perl/lib/CPANPLUS/Configure/Setup.pm
+#	modified:   usr.bin/perl/lib/CPANPLUS/Dist.pm
+#	modified:   usr.bin/perl/lib/CPANPLUS/Dist/Base.pm
+#	modified:   usr.bin/perl/lib/CPANPLUS/Dist/Build.pm
+#	modified:   usr.bin/perl/lib/CPANPLUS/Dist/Build/Constants.pm
+#	modified:   usr.bin/perl/lib/CPANPLUS/Dist/Build/t/02_CPANPLUS-Dist-Build.t
+#	modified:   usr.bin/perl/lib/CPANPLUS/Dist/Build/t/inc/conf.pl
+#	modified:   usr.bin/perl/lib/CPANPLUS/Dist/Build/t/src/noxs/Foo-Bar-0.01.tar.gz.packed
+#	modified:   usr.bin/perl/lib/CPANPLUS/Dist/Build/t/src/xs/Foo-Bar-0.01.tar.gz.packed
+#	modified:   usr.bin/perl/lib/CPANPLUS/Dist/MM.pm
+#	modified:   usr.bin/perl/lib/CPANPLUS/Error.pm
+#	modified:   usr.bin/perl/lib/CPANPLUS/FAQ.pod
+#	modified:   usr.bin/perl/lib/CPANPLUS/Hacking.pod
+#	modified:   usr.bin/perl/lib/CPANPLUS/Internals.pm
+#	modified:   usr.bin/perl/lib/CPANPLUS/Internals/Constants.pm
+#	modified:   usr.bin/perl/lib/CPANPLUS/Internals/Constants/Report.pm
+#	modified:   usr.bin/perl/lib/CPANPLUS/Internals/Extract.pm
+#	modified:   usr.bin/perl/lib/CPANPLUS/Internals/Fetch.pm
+#	modified:   usr.bin/perl/lib/CPANPLUS/Internals/Report.pm
+#	modified:   usr.bin/perl/lib/CPANPLUS/Internals/Search.pm
+#	modified:   usr.bin/perl/lib/CPANPLUS/Internals/Source.pm
+#	modified:   usr.bin/perl/lib/CPANPLUS/Internals/Utils.pm
+#	modified:   usr.bin/perl/lib/CPANPLUS/Module.pm
+#	modified:   usr.bin/perl/lib/CPANPLUS/Module/Author.pm
+#	modified:   usr.bin/perl/lib/CPANPLUS/Module/Checksums.pm
+#	modified:   usr.bin/perl/lib/CPANPLUS/Selfupdate.pm
+#	modified:   usr.bin/perl/lib/CPANPLUS/Shell.pm
+#	modified:   usr.bin/perl/lib/CPANPLUS/Shell/Classic.pm
+#	modified:   usr.bin/perl/lib/CPANPLUS/Shell/Default.pm
+#	modified:   usr.bin/perl/lib/CPANPLUS/Shell/Default/Plugins/CustomSource.pm
+#	modified:   usr.bin/perl/lib/CPANPLUS/Shell/Default/Plugins/HOWTO.pod
+#	modified:   usr.bin/perl/lib/CPANPLUS/Shell/Default/Plugins/Remote.pm
+#	modified:   usr.bin/perl/lib/CPANPLUS/Shell/Default/Plugins/Source.pm
+#	modified:   usr.bin/perl/lib/CPANPLUS/bin/cpan2dist
+#	modified:   usr.bin/perl/lib/CPANPLUS/bin/cpanp
+#	deleted:    usr.bin/perl/lib/CPANPLUS/inc.pm
+#	deleted:    usr.bin/perl/lib/CPANPLUS/t/00_CPANPLUS-Inc.t
+#	modified:   usr.bin/perl/lib/CPANPLUS/t/02_CPANPLUS-Internals.t
+#	modified:   usr.bin/perl/lib/CPANPLUS/t/03_CPANPLUS-Internals-Source.t
+#	modified:   usr.bin/perl/lib/CPANPLUS/t/04_CPANPLUS-Module.t
+#	modified:   usr.bin/perl/lib/CPANPLUS/t/08_CPANPLUS-Backend.t
+#	modified:   usr.bin/perl/lib/CPANPLUS/t/09_CPANPLUS-Internals-Search.t
+#	modified:   usr.bin/perl/lib/CPANPLUS/t/19_CPANPLUS-Dist.t
+#	modified:   usr.bin/perl/lib/CPANPLUS/t/20_CPANPLUS-Dist-MM.t
+#	modified:   usr.bin/perl/lib/CPANPLUS/t/21_CPANPLUS-Dist-No-Build.t
+#	modified:   usr.bin/perl/lib/CPANPLUS/t/40_CPANPLUS-Internals-Report.t
+#	modified:   usr.bin/perl/lib/CPANPLUS/t/dummy-CPAN/authors/01mailrc.txt.gz.packed
+#	modified:   usr.bin/perl/lib/CPANPLUS/t/dummy-CPAN/authors/id/EUNOXS/Bundle-Foo-Bar-0.01.tar.gz.packed
+#	modified:   usr.bin/perl/lib/CPANPLUS/t/dummy-CPAN/authors/id/EUNOXS/CHECKSUMS
+#	modified:   usr.bin/perl/lib/CPANPLUS/t/dummy-CPAN/authors/id/EUNOXS/Foo-Bar-0.01.tar.gz.packed
+#	modified:   usr.bin/perl/lib/CPANPLUS/t/dummy-CPAN/authors/id/EUNOXS/perl5.005_03.tar.gz.packed
+#	modified:   usr.bin/perl/lib/CPANPLUS/t/dummy-CPAN/authors/id/EUXS/Foo-Bar-0.01.tar.gz.packed
+#	modified:   usr.bin/perl/lib/CPANPLUS/t/dummy-CPAN/authors/id/MBNOXS/Foo-Bar-0.01.tar.gz.packed
+#	modified:   usr.bin/perl/lib/CPANPLUS/t/dummy-CPAN/authors/id/MBXS/Foo-Bar-0.01.tar.gz.packed
+#	modified:   usr.bin/perl/lib/CPANPLUS/t/dummy-CPAN/modules/02packages.details.txt.gz.packed
+#	modified:   usr.bin/perl/lib/CPANPLUS/t/dummy-CPAN/modules/03modlist.data.gz.packed
+#	modified:   usr.bin/perl/lib/CPANPLUS/t/inc/conf.pl
+#	modified:   usr.bin/perl/lib/Carp.pm
+#	modified:   usr.bin/perl/lib/Cwd.pm
+#	modified:   usr.bin/perl/lib/DB.pm
+#	modified:   usr.bin/perl/lib/DB.t
+#	modified:   usr.bin/perl/lib/DBM_Filter/compress.pm
+#	modified:   usr.bin/perl/lib/DBM_Filter/encode.pm
+#	modified:   usr.bin/perl/lib/DBM_Filter/int32.pm
+#	modified:   usr.bin/perl/lib/DBM_Filter/null.pm
+#	modified:   usr.bin/perl/lib/DBM_Filter/utf8.pm
+#	deleted:    usr.bin/perl/lib/Devel/InnerPackage.pm
+#	modified:   usr.bin/perl/lib/Devel/SelfStubber.t
+#	modified:   usr.bin/perl/lib/Digest.pm
+#	modified:   usr.bin/perl/lib/Digest/Changes
+#	modified:   usr.bin/perl/lib/Digest/base.pm
+#	modified:   usr.bin/perl/lib/Digest/file.pm
+#	modified:   usr.bin/perl/lib/DirHandle.pm
+#	modified:   usr.bin/perl/lib/DirHandle.t
+#	modified:   usr.bin/perl/lib/Dumpvalue.pm
+#	modified:   usr.bin/perl/lib/English.t
+#	modified:   usr.bin/perl/lib/Exporter.pm
+#	modified:   usr.bin/perl/lib/Exporter.t
+#	modified:   usr.bin/perl/lib/Exporter/Heavy.pm
+#	modified:   usr.bin/perl/lib/ExtUtils/CBuilder.pm
+#	modified:   usr.bin/perl/lib/ExtUtils/CBuilder/Base.pm
+#	modified:   usr.bin/perl/lib/ExtUtils/CBuilder/Changes
+#	modified:   usr.bin/perl/lib/ExtUtils/CBuilder/Platform/Unix.pm
+#	modified:   usr.bin/perl/lib/ExtUtils/CBuilder/Platform/VMS.pm
+#	modified:   usr.bin/perl/lib/ExtUtils/CBuilder/Platform/Windows.pm
+#	modified:   usr.bin/perl/lib/ExtUtils/CBuilder/Platform/aix.pm
+#	modified:   usr.bin/perl/lib/ExtUtils/CBuilder/Platform/cygwin.pm
+#	modified:   usr.bin/perl/lib/ExtUtils/CBuilder/Platform/darwin.pm
+#	modified:   usr.bin/perl/lib/ExtUtils/CBuilder/Platform/dec_osf.pm
+#	modified:   usr.bin/perl/lib/ExtUtils/CBuilder/Platform/os2.pm
+#	modified:   usr.bin/perl/lib/ExtUtils/CBuilder/t/01-basic.t
+#	modified:   usr.bin/perl/lib/ExtUtils/CBuilder/t/02-link.t
+#	modified:   usr.bin/perl/lib/ExtUtils/Changes
+#	modified:   usr.bin/perl/lib/ExtUtils/Command.pm
+#	modified:   usr.bin/perl/lib/ExtUtils/Command/MM.pm
+#	modified:   usr.bin/perl/lib/ExtUtils/Constant.pm
+#	modified:   usr.bin/perl/lib/ExtUtils/Constant/ProxySubs.pm
+#	modified:   usr.bin/perl/lib/ExtUtils/Constant/Utils.pm
+#	modified:   usr.bin/perl/lib/ExtUtils/Constant/XS.pm
+#	modified:   usr.bin/perl/lib/ExtUtils/Embed.pm
+#	modified:   usr.bin/perl/lib/ExtUtils/Install.pm
+#	modified:   usr.bin/perl/lib/ExtUtils/Installed.pm
+#	modified:   usr.bin/perl/lib/ExtUtils/Liblist.pm
+#	modified:   usr.bin/perl/lib/ExtUtils/Liblist/Kid.pm
+#	modified:   usr.bin/perl/lib/ExtUtils/MANIFEST.SKIP
+#	modified:   usr.bin/perl/lib/ExtUtils/MM.pm
+#	modified:   usr.bin/perl/lib/ExtUtils/MM_AIX.pm
+#	modified:   usr.bin/perl/lib/ExtUtils/MM_Any.pm
+#	modified:   usr.bin/perl/lib/ExtUtils/MM_BeOS.pm
+#	modified:   usr.bin/perl/lib/ExtUtils/MM_Cygwin.pm
+#	modified:   usr.bin/perl/lib/ExtUtils/MM_DOS.pm
+#	modified:   usr.bin/perl/lib/ExtUtils/MM_MacOS.pm
+#	modified:   usr.bin/perl/lib/ExtUtils/MM_NW5.pm
+#	modified:   usr.bin/perl/lib/ExtUtils/MM_OS2.pm
+#	modified:   usr.bin/perl/lib/ExtUtils/MM_QNX.pm
+#	modified:   usr.bin/perl/lib/ExtUtils/MM_UWIN.pm
+#	modified:   usr.bin/perl/lib/ExtUtils/MM_Unix.pm
+#	modified:   usr.bin/perl/lib/ExtUtils/MM_VMS.pm
+#	modified:   usr.bin/perl/lib/ExtUtils/MM_VOS.pm
+#	modified:   usr.bin/perl/lib/ExtUtils/MM_Win32.pm
+#	modified:   usr.bin/perl/lib/ExtUtils/MM_Win95.pm
+#	modified:   usr.bin/perl/lib/ExtUtils/MY.pm
+#	modified:   usr.bin/perl/lib/ExtUtils/MakeMaker.pm
+#	modified:   usr.bin/perl/lib/ExtUtils/MakeMaker/Config.pm
+#	modified:   usr.bin/perl/lib/ExtUtils/MakeMaker/FAQ.pod
+#	modified:   usr.bin/perl/lib/ExtUtils/MakeMaker/Tutorial.pod
+#	deleted:    usr.bin/perl/lib/ExtUtils/MakeMaker/bytes.pm
+#	deleted:    usr.bin/perl/lib/ExtUtils/MakeMaker/vmsish.pm
+#	modified:   usr.bin/perl/lib/ExtUtils/Manifest.pm
+#	modified:   usr.bin/perl/lib/ExtUtils/Mkbootstrap.pm
+#	modified:   usr.bin/perl/lib/ExtUtils/Mksymlists.pm
+#	modified:   usr.bin/perl/lib/ExtUtils/ParseXS.pm
+#	modified:   usr.bin/perl/lib/ExtUtils/ParseXS/t/basic.t
+#	modified:   usr.bin/perl/lib/ExtUtils/TODO
+#	modified:   usr.bin/perl/lib/ExtUtils/t/00compile.t
+#	modified:   usr.bin/perl/lib/ExtUtils/t/Constant.t
+#	modified:   usr.bin/perl/lib/ExtUtils/t/Embed.t
+#	modified:   usr.bin/perl/lib/ExtUtils/t/INSTALL_BASE.t
+#	modified:   usr.bin/perl/lib/ExtUtils/t/Install.t
+#	modified:   usr.bin/perl/lib/ExtUtils/t/Installed.t
+#	modified:   usr.bin/perl/lib/ExtUtils/t/MM_BeOS.t
+#	modified:   usr.bin/perl/lib/ExtUtils/t/MM_Cygwin.t
+#	modified:   usr.bin/perl/lib/ExtUtils/t/MM_Unix.t
+#	modified:   usr.bin/perl/lib/ExtUtils/t/MM_Win32.t
+#	modified:   usr.bin/perl/lib/ExtUtils/t/Manifest.t
+#	modified:   usr.bin/perl/lib/ExtUtils/t/basic.t
+#	modified:   usr.bin/perl/lib/ExtUtils/t/build_man.t
+#	deleted:    usr.bin/perl/lib/ExtUtils/t/bytes.t
+#	modified:   usr.bin/perl/lib/ExtUtils/t/cd.t
+#	modified:   usr.bin/perl/lib/ExtUtils/t/eu_command.t
+#	modified:   usr.bin/perl/lib/ExtUtils/t/fixin.t
+#	modified:   usr.bin/perl/lib/ExtUtils/t/parse_version.t
+#	modified:   usr.bin/perl/lib/ExtUtils/t/prefixify.t
+#	modified:   usr.bin/perl/lib/ExtUtils/t/prereq.t
+#	deleted:    usr.bin/perl/lib/ExtUtils/t/vmsish.t
+#	modified:   usr.bin/perl/lib/ExtUtils/t/writemakefile_args.t
+#	modified:   usr.bin/perl/lib/ExtUtils/t/xs.t
+#	modified:   usr.bin/perl/lib/ExtUtils/testlib.pm
+#	modified:   usr.bin/perl/lib/Fatal.pm
+#	deleted:    usr.bin/perl/lib/Fatal.t
+#	modified:   usr.bin/perl/lib/File/Basename.pm
+#	modified:   usr.bin/perl/lib/File/CheckTree.pm
+#	modified:   usr.bin/perl/lib/File/CheckTree.t
+#	modified:   usr.bin/perl/lib/File/Compare.pm
+#	modified:   usr.bin/perl/lib/File/Compare.t
+#	modified:   usr.bin/perl/lib/File/Copy.pm
+#	modified:   usr.bin/perl/lib/File/Copy.t
+#	modified:   usr.bin/perl/lib/File/DosGlob.pm
+#	modified:   usr.bin/perl/lib/File/Fetch.pm
+#	modified:   usr.bin/perl/lib/File/Fetch/t/01_File-Fetch.t
+#	modified:   usr.bin/perl/lib/File/Find.pm
+#	modified:   usr.bin/perl/lib/File/Find/t/find.t
+#	modified:   usr.bin/perl/lib/File/Path.pm
+#	modified:   usr.bin/perl/lib/File/Path.t
+#	modified:   usr.bin/perl/lib/File/Spec.pm
+#	modified:   usr.bin/perl/lib/File/Spec/Cygwin.pm
+#	modified:   usr.bin/perl/lib/File/Spec/Epoc.pm
+#	modified:   usr.bin/perl/lib/File/Spec/Functions.pm
+#	modified:   usr.bin/perl/lib/File/Spec/Mac.pm
+#	modified:   usr.bin/perl/lib/File/Spec/OS2.pm
+#	modified:   usr.bin/perl/lib/File/Spec/Unix.pm
+#	modified:   usr.bin/perl/lib/File/Spec/VMS.pm
+#	modified:   usr.bin/perl/lib/File/Spec/Win32.pm
+#	modified:   usr.bin/perl/lib/File/Spec/t/Spec.t
+#	modified:   usr.bin/perl/lib/File/Spec/t/crossplatform.t
+#	modified:   usr.bin/perl/lib/File/Spec/t/tmpdir.t
+#	modified:   usr.bin/perl/lib/File/Temp.pm
+#	modified:   usr.bin/perl/lib/File/Temp/t/object.t
+#	modified:   usr.bin/perl/lib/File/Temp/t/seekable.t
+#	modified:   usr.bin/perl/lib/File/stat.pm
+#	modified:   usr.bin/perl/lib/FileCache.pm
+#	modified:   usr.bin/perl/lib/FileHandle.pm
+#	modified:   usr.bin/perl/lib/Filter/Simple.pm
+#	modified:   usr.bin/perl/lib/Filter/Simple/Changes
+#	deleted:    usr.bin/perl/lib/Filter/Simple/README
+#	modified:   usr.bin/perl/lib/FindBin.pm
+#	modified:   usr.bin/perl/lib/Getopt/Long.pm
+#	modified:   usr.bin/perl/lib/Getopt/Long/CHANGES
+#	modified:   usr.bin/perl/lib/Getopt/Long/README
+#	modified:   usr.bin/perl/lib/Getopt/Std.pm
+#	modified:   usr.bin/perl/lib/I18N/Collate.pm
+#	modified:   usr.bin/perl/lib/IO/Zlib.pm
+#	modified:   usr.bin/perl/lib/IO/Zlib/t/uncomp1.t
+#	modified:   usr.bin/perl/lib/IO/Zlib/t/uncomp2.t
+#	modified:   usr.bin/perl/lib/IPC/Cmd.pm
+#	modified:   usr.bin/perl/lib/IPC/Cmd/t/01_IPC-Cmd.t
+#	modified:   usr.bin/perl/lib/IPC/Cmd/t/02_Interactive.t
+#	modified:   usr.bin/perl/lib/IPC/Open2.pm
+#	modified:   usr.bin/perl/lib/IPC/Open3.pm
+#	modified:   usr.bin/perl/lib/Internals.t
+#	modified:   usr.bin/perl/lib/Locale/Maketext.pm
+#	modified:   usr.bin/perl/lib/Locale/Maketext/ChangeLog
+#	modified:   usr.bin/perl/lib/Locale/Maketext/Guts.pm
+#	modified:   usr.bin/perl/lib/Locale/Maketext/GutsLoader.pm
+#	modified:   usr.bin/perl/lib/Log/Message.pm
+#	modified:   usr.bin/perl/lib/Log/Message/Simple.pm
+#	modified:   usr.bin/perl/lib/Log/Message/t/02_Log-Message.t
+#	modified:   usr.bin/perl/lib/Math/BigFloat.pm
+#	modified:   usr.bin/perl/lib/Math/BigInt.pm
+#	modified:   usr.bin/perl/lib/Math/BigInt/t/bare_mbf.t
+#	modified:   usr.bin/perl/lib/Math/BigInt/t/bare_mbi.t
+#	modified:   usr.bin/perl/lib/Math/BigInt/t/bigfltpm.inc
+#	modified:   usr.bin/perl/lib/Math/BigInt/t/bigfltpm.t
+#	modified:   usr.bin/perl/lib/Math/BigInt/t/bigintpm.inc
+#	modified:   usr.bin/perl/lib/Math/BigInt/t/bigintpm.t
+#	modified:   usr.bin/perl/lib/Math/BigInt/t/calling.t
+#	modified:   usr.bin/perl/lib/Math/BigInt/t/const_mbf.t
+#	modified:   usr.bin/perl/lib/Math/BigInt/t/constant.t
+#	modified:   usr.bin/perl/lib/Math/BigInt/t/mbimbf.t
+#	modified:   usr.bin/perl/lib/Math/BigInt/t/sub_mbf.t
+#	modified:   usr.bin/perl/lib/Math/BigInt/t/sub_mbi.t
+#	modified:   usr.bin/perl/lib/Math/BigInt/t/with_sub.t
+#	modified:   usr.bin/perl/lib/Math/BigRat.pm
+#	modified:   usr.bin/perl/lib/Math/BigRat/t/biglog.t
+#	modified:   usr.bin/perl/lib/Math/BigRat/t/bigrat.t
+#	modified:   usr.bin/perl/lib/Math/BigRat/t/bigroot.t
+#	modified:   usr.bin/perl/lib/Math/Complex.pm
+#	modified:   usr.bin/perl/lib/Math/Complex.t
+#	modified:   usr.bin/perl/lib/Math/Trig.pm
+#	modified:   usr.bin/perl/lib/Math/Trig.t
+#	modified:   usr.bin/perl/lib/Memoize.pm
+#	modified:   usr.bin/perl/lib/Module/Build.pm
+#	modified:   usr.bin/perl/lib/Module/Build/API.pod
+#	modified:   usr.bin/perl/lib/Module/Build/Authoring.pod
+#	modified:   usr.bin/perl/lib/Module/Build/Base.pm
+#	modified:   usr.bin/perl/lib/Module/Build/Changes
+#	modified:   usr.bin/perl/lib/Module/Build/Compat.pm
+#	modified:   usr.bin/perl/lib/Module/Build/Config.pm
+#	modified:   usr.bin/perl/lib/Module/Build/ConfigData.pm
+#	modified:   usr.bin/perl/lib/Module/Build/Cookbook.pm
+#	modified:   usr.bin/perl/lib/Module/Build/Dumper.pm
+#	modified:   usr.bin/perl/lib/Module/Build/ModuleInfo.pm
+#	modified:   usr.bin/perl/lib/Module/Build/Notes.pm
+#	modified:   usr.bin/perl/lib/Module/Build/PPMMaker.pm
+#	modified:   usr.bin/perl/lib/Module/Build/Platform/Amiga.pm
+#	modified:   usr.bin/perl/lib/Module/Build/Platform/Default.pm
+#	modified:   usr.bin/perl/lib/Module/Build/Platform/EBCDIC.pm
+#	modified:   usr.bin/perl/lib/Module/Build/Platform/MPEiX.pm
+#	modified:   usr.bin/perl/lib/Module/Build/Platform/MacOS.pm
+#	modified:   usr.bin/perl/lib/Module/Build/Platform/RiscOS.pm
+#	modified:   usr.bin/perl/lib/Module/Build/Platform/Unix.pm
+#	modified:   usr.bin/perl/lib/Module/Build/Platform/VMS.pm
+#	modified:   usr.bin/perl/lib/Module/Build/Platform/VOS.pm
+#	modified:   usr.bin/perl/lib/Module/Build/Platform/Windows.pm
+#	modified:   usr.bin/perl/lib/Module/Build/Platform/aix.pm
+#	modified:   usr.bin/perl/lib/Module/Build/Platform/cygwin.pm
+#	modified:   usr.bin/perl/lib/Module/Build/Platform/darwin.pm
+#	modified:   usr.bin/perl/lib/Module/Build/Platform/os2.pm
+#	modified:   usr.bin/perl/lib/Module/Build/PodParser.pm
+#	modified:   usr.bin/perl/lib/Module/Build/Version.pm
+#	modified:   usr.bin/perl/lib/Module/Build/YAML.pm
+#	modified:   usr.bin/perl/lib/Module/Build/t/basic.t
+#	modified:   usr.bin/perl/lib/Module/Build/t/bundled/Tie/CPHash.pm
+#	modified:   usr.bin/perl/lib/Module/Build/t/compat.t
+#	modified:   usr.bin/perl/lib/Module/Build/t/destinations.t
+#	modified:   usr.bin/perl/lib/Module/Build/t/ext.t
+#	modified:   usr.bin/perl/lib/Module/Build/t/extend.t
+#	modified:   usr.bin/perl/lib/Module/Build/t/files.t
+#	modified:   usr.bin/perl/lib/Module/Build/t/help.t
+#	modified:   usr.bin/perl/lib/Module/Build/t/install.t
+#	modified:   usr.bin/perl/lib/Module/Build/t/lib/DistGen.pm
+#	modified:   usr.bin/perl/lib/Module/Build/t/lib/MBTest.pm
+#	modified:   usr.bin/perl/lib/Module/Build/t/manifypods.t
+#	modified:   usr.bin/perl/lib/Module/Build/t/mbyaml.t
+#	modified:   usr.bin/perl/lib/Module/Build/t/metadata.t
+#	modified:   usr.bin/perl/lib/Module/Build/t/metadata2.t
+#	modified:   usr.bin/perl/lib/Module/Build/t/moduleinfo.t
+#	modified:   usr.bin/perl/lib/Module/Build/t/new_from_context.t
+#	modified:   usr.bin/perl/lib/Module/Build/t/notes.t
+#	modified:   usr.bin/perl/lib/Module/Build/t/parents.t
+#	modified:   usr.bin/perl/lib/Module/Build/t/pod_parser.t
+#	modified:   usr.bin/perl/lib/Module/Build/t/ppm.t
+#	modified:   usr.bin/perl/lib/Module/Build/t/runthrough.t
+#	modified:   usr.bin/perl/lib/Module/Build/t/test_type.t
+#	modified:   usr.bin/perl/lib/Module/Build/t/test_types.t
+#	modified:   usr.bin/perl/lib/Module/Build/t/tilde.t
+#	modified:   usr.bin/perl/lib/Module/Build/t/versions.t
+#	modified:   usr.bin/perl/lib/Module/Build/t/xs.t
+#	modified:   usr.bin/perl/lib/Module/CoreList.pm
+#	modified:   usr.bin/perl/lib/Module/CoreList/bin/corelist
+#	modified:   usr.bin/perl/lib/Module/Load.pm
+#	modified:   usr.bin/perl/lib/Module/Load/Conditional.pm
+#	modified:   usr.bin/perl/lib/Module/Load/Conditional/t/01_Module_Load_Conditional.t
+#	modified:   usr.bin/perl/lib/Module/Load/t/01_Module-Load.t
+#	modified:   usr.bin/perl/lib/Module/Load/t/to_load/TestModule.pm
+#	modified:   usr.bin/perl/lib/Module/Loaded.pm
+#	deleted:    usr.bin/perl/lib/Module/Pluggable.pm
+#	deleted:    usr.bin/perl/lib/Module/Pluggable/Object.pm
+#	modified:   usr.bin/perl/lib/NEXT.pm
+#	modified:   usr.bin/perl/lib/NEXT/Changes
+#	modified:   usr.bin/perl/lib/NEXT/README
+#	modified:   usr.bin/perl/lib/Net/Ping.pm
+#	modified:   usr.bin/perl/lib/Net/Ping/Changes
+#	modified:   usr.bin/perl/lib/Net/Ping/t/190_alarm.t
+#	modified:   usr.bin/perl/lib/Net/hostent.t
+#	modified:   usr.bin/perl/lib/Object/Accessor.pm
+#	modified:   usr.bin/perl/lib/Package/Constants.pm
+#	modified:   usr.bin/perl/lib/PerlIO.pm
+#	modified:   usr.bin/perl/lib/Pod/Checker.pm
+#	modified:   usr.bin/perl/lib/Pod/Find.pm
+#	modified:   usr.bin/perl/lib/Pod/Html.pm
+#	modified:   usr.bin/perl/lib/Pod/InputObjects.pm
+#	modified:   usr.bin/perl/lib/Pod/LaTeX.pm
+#	modified:   usr.bin/perl/lib/Pod/Man.pm
+#	modified:   usr.bin/perl/lib/Pod/ParseLink.pm
+#	modified:   usr.bin/perl/lib/Pod/ParseUtils.pm
+#	modified:   usr.bin/perl/lib/Pod/Parser.pm
+#	modified:   usr.bin/perl/lib/Pod/Perldoc.pm
+#	modified:   usr.bin/perl/lib/Pod/PlainText.pm
+#	modified:   usr.bin/perl/lib/Pod/Select.pm
+#	modified:   usr.bin/perl/lib/Pod/Simple.pm
+#	modified:   usr.bin/perl/lib/Pod/Simple.pod
+#	modified:   usr.bin/perl/lib/Pod/Simple/BlackBox.pm
+#	modified:   usr.bin/perl/lib/Pod/Simple/ChangeLog
+#	modified:   usr.bin/perl/lib/Pod/Simple/HTML.pm
+#	modified:   usr.bin/perl/lib/Pod/Simple/HTMLBatch.pm
+#	modified:   usr.bin/perl/lib/Pod/Simple/t/begin.t
+#	modified:   usr.bin/perl/lib/Pod/Simple/t/fcodes_l.t
+#	modified:   usr.bin/perl/lib/Pod/Simple/t/fcodes_s.t
+#	modified:   usr.bin/perl/lib/Pod/Text.pm
+#	modified:   usr.bin/perl/lib/Pod/Text/Color.pm
+#	modified:   usr.bin/perl/lib/Pod/Text/Overstrike.pm
+#	modified:   usr.bin/perl/lib/Pod/Text/Termcap.pm
+#	modified:   usr.bin/perl/lib/Pod/Usage.pm
+#	modified:   usr.bin/perl/lib/Pod/t/basic.man
+#	modified:   usr.bin/perl/lib/Pod/t/basic.t
+#	modified:   usr.bin/perl/lib/Pod/t/color.t
+#	modified:   usr.bin/perl/lib/Pod/t/contains_pod.t
+#	modified:   usr.bin/perl/lib/Pod/t/filehandle.t
+#	modified:   usr.bin/perl/lib/Pod/t/htmllink.t
+#	modified:   usr.bin/perl/lib/Pod/t/htmlview.pod
+#	modified:   usr.bin/perl/lib/Pod/t/htmlview.t
+#	modified:   usr.bin/perl/lib/Pod/t/man.t
+#	modified:   usr.bin/perl/lib/Pod/t/parselink.t
+#	modified:   usr.bin/perl/lib/Pod/t/pod-parser.t
+#	modified:   usr.bin/perl/lib/Pod/t/termcap.t
+#	modified:   usr.bin/perl/lib/Pod/t/text-options.t
+#	modified:   usr.bin/perl/lib/Pod/t/text.t
+#	modified:   usr.bin/perl/lib/SelectSaver.pm
+#	deleted:    usr.bin/perl/lib/SelfLoader-buggy.t
+#	modified:   usr.bin/perl/lib/SelfLoader.pm
+#	deleted:    usr.bin/perl/lib/SelfLoader.t
+#	modified:   usr.bin/perl/lib/Shell.t
+#	modified:   usr.bin/perl/lib/Switch.pm
+#	modified:   usr.bin/perl/lib/Symbol.pm
+#	modified:   usr.bin/perl/lib/Term/ANSIColor.pm
+#	modified:   usr.bin/perl/lib/Term/ANSIColor/ChangeLog
+#	modified:   usr.bin/perl/lib/Term/ANSIColor/README
+#	modified:   usr.bin/perl/lib/Term/ANSIColor/t/basic.t
+#	modified:   usr.bin/perl/lib/Term/ReadLine.pm
+#	modified:   usr.bin/perl/lib/Term/UI.pm
+#	modified:   usr.bin/perl/lib/Test.pm
+#	modified:   usr.bin/perl/lib/Test/Builder.pm
+#	modified:   usr.bin/perl/lib/Test/Builder/Module.pm
+#	modified:   usr.bin/perl/lib/Test/Builder/Tester/Color.pm
+#	deleted:    usr.bin/perl/lib/Test/Harness.pm
+#	deleted:    usr.bin/perl/lib/Test/Harness/Assert.pm
+#	deleted:    usr.bin/perl/lib/Test/Harness/Changes
+#	deleted:    usr.bin/perl/lib/Test/Harness/Iterator.pm
+#	deleted:    usr.bin/perl/lib/Test/Harness/Point.pm
+#	deleted:    usr.bin/perl/lib/Test/Harness/Results.pm
+#	deleted:    usr.bin/perl/lib/Test/Harness/Straps.pm
+#	deleted:    usr.bin/perl/lib/Test/Harness/TAP.pod
+#	deleted:    usr.bin/perl/lib/Test/Harness/Util.pm
+#	deleted:    usr.bin/perl/lib/Test/Harness/bin/prove
+#	deleted:    usr.bin/perl/lib/Test/Harness/t/00compile.t
+#	deleted:    usr.bin/perl/lib/Test/Harness/t/assert.t
+#	deleted:    usr.bin/perl/lib/Test/Harness/t/base.t
+#	deleted:    usr.bin/perl/lib/Test/Harness/t/callback.t
+#	deleted:    usr.bin/perl/lib/Test/Harness/t/failure.t
+#	deleted:    usr.bin/perl/lib/Test/Harness/t/from_line.t
+#	deleted:    usr.bin/perl/lib/Test/Harness/t/harness.t
+#	deleted:    usr.bin/perl/lib/Test/Harness/t/inc_taint.t
+#	deleted:    usr.bin/perl/lib/Test/Harness/t/nonumbers.t
+#	deleted:    usr.bin/perl/lib/Test/Harness/t/ok.t
+#	deleted:    usr.bin/perl/lib/Test/Harness/t/point-parse.t
+#	deleted:    usr.bin/perl/lib/Test/Harness/t/point.t
+#	deleted:    usr.bin/perl/lib/Test/Harness/t/prove-globbing.t
+#	deleted:    usr.bin/perl/lib/Test/Harness/t/prove-switches.t
+#	deleted:    usr.bin/perl/lib/Test/Harness/t/strap-analyze.t
+#	deleted:    usr.bin/perl/lib/Test/Harness/t/strap.t
+#	deleted:    usr.bin/perl/lib/Test/Harness/t/test-harness.t
+#	deleted:    usr.bin/perl/lib/Test/Harness/t/version.t
+#	modified:   usr.bin/perl/lib/Test/More.pm
+#	modified:   usr.bin/perl/lib/Test/Simple.pm
+#	modified:   usr.bin/perl/lib/Test/Simple/Changes
+#	modified:   usr.bin/perl/lib/Test/Simple/README
+#	modified:   usr.bin/perl/lib/Test/Simple/t/00test_harness_check.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/BEGIN_require_ok.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/BEGIN_use_ok.t
+#	deleted:    usr.bin/perl/lib/Test/Simple/t/Builder.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/Builder/Builder.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/Builder/carp.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/Builder/create.t
+#	deleted:    usr.bin/perl/lib/Test/Simple/t/Builder/curr_test.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/Builder/details.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/Builder/has_plan.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/Builder/has_plan2.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/Builder/is_fh.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/Builder/maybe_regex.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/Builder/no_diag.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/Builder/no_ending.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/Builder/no_header.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/Builder/ok_obj.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/Builder/output.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/Builder/reset.t
+#	deleted:    usr.bin/perl/lib/Test/Simple/t/Builder/reset_outputs.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/Builder/try.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/More.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/Tester/tbt_01basic.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/Tester/tbt_02fhrestore.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/Tester/tbt_03die.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/Tester/tbt_04line_num.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/Tester/tbt_05faildiag.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/Tester/tbt_06errormess.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/Tester/tbt_07args.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/bad_plan.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/bail_out.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/buffer.t
+#	deleted:    usr.bin/perl/lib/Test/Simple/t/carp.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/circular_data.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/cmp_ok.t
+#	deleted:    usr.bin/perl/lib/Test/Simple/t/create.t
+#	deleted:    usr.bin/perl/lib/Test/Simple/t/curr_test.t
+#	deleted:    usr.bin/perl/lib/Test/Simple/t/details.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/diag.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/died.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/dont_overwrite_die_handler.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/eq_set.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/exit.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/explain.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/extra.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/extra_one.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/fail-like.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/fail-more.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/fail.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/fail_one.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/filehandles.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/fork.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/harness_active.t
+#	deleted:    usr.bin/perl/lib/Test/Simple/t/has_plan.t
+#	deleted:    usr.bin/perl/lib/Test/Simple/t/has_plan2.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/import.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/is_deeply_dne_bug.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/is_deeply_fail.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/is_deeply_with_threads.t
+#	deleted:    usr.bin/perl/lib/Test/Simple/t/is_fh.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/lib/Dummy.pm
+#	modified:   usr.bin/perl/lib/Test/Simple/t/lib/MyOverload.pm
+#	modified:   usr.bin/perl/lib/Test/Simple/t/lib/NoExporter.pm
+#	modified:   usr.bin/perl/lib/Test/Simple/t/lib/SigDie.pm
+#	deleted:    usr.bin/perl/lib/Test/Simple/t/lib/TieOut.pm
+#	deleted:    usr.bin/perl/lib/Test/Simple/t/maybe_regex.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/missing.t
+#	deleted:    usr.bin/perl/lib/Test/Simple/t/no_diag.t
+#	deleted:    usr.bin/perl/lib/Test/Simple/t/no_ending.t
+#	deleted:    usr.bin/perl/lib/Test/Simple/t/no_header.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/no_plan.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/no_tests.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/note.t
+#	deleted:    usr.bin/perl/lib/Test/Simple/t/ok_obj.t
+#	deleted:    usr.bin/perl/lib/Test/Simple/t/output.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/overload.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/overload_threads.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/plan.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/plan_bad.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/plan_is_noplan.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/plan_no_plan.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/plan_shouldnt_import.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/plan_skip_all.t
+#	deleted:    usr.bin/perl/lib/Test/Simple/t/pod-coverage.t
+#	deleted:    usr.bin/perl/lib/Test/Simple/t/pod.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/require_ok.t
+#	deleted:    usr.bin/perl/lib/Test/Simple/t/reset.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/simple.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/skip.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/skipall.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/tbm_doesnt_set_exported_to.t
+#	deleted:    usr.bin/perl/lib/Test/Simple/t/tbt_01basic.t
+#	deleted:    usr.bin/perl/lib/Test/Simple/t/tbt_02fhrestore.t
+#	deleted:    usr.bin/perl/lib/Test/Simple/t/tbt_03die.t
+#	deleted:    usr.bin/perl/lib/Test/Simple/t/tbt_04line_num.t
+#	deleted:    usr.bin/perl/lib/Test/Simple/t/tbt_05faildiag.t
+#	deleted:    usr.bin/perl/lib/Test/Simple/t/tbt_06errormess.t
+#	deleted:    usr.bin/perl/lib/Test/Simple/t/tbt_07args.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/thread_taint.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/threads.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/todo.t
+#	deleted:    usr.bin/perl/lib/Test/Simple/t/try.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/undef.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/use_ok.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/useing.t
+#	modified:   usr.bin/perl/lib/Test/Simple/t/utf8.t
+#	modified:   usr.bin/perl/lib/Test/t/fail.t
+#	modified:   usr.bin/perl/lib/Test/t/skip.t
+#	modified:   usr.bin/perl/lib/Test/t/todo.t
+#	modified:   usr.bin/perl/lib/Text/ParseWords.pm
+#	modified:   usr.bin/perl/lib/Text/ParseWords.t
+#	modified:   usr.bin/perl/lib/Text/ParseWords/taint.t
+#	modified:   usr.bin/perl/lib/Text/Tabs.pm
+#	modified:   usr.bin/perl/lib/Text/TabsWrap/CHANGELOG
+#	modified:   usr.bin/perl/lib/Text/TabsWrap/t/Jacobson.t
+#	modified:   usr.bin/perl/lib/Text/TabsWrap/t/Jacobson2.t
+#	modified:   usr.bin/perl/lib/Text/TabsWrap/t/fill.t
+#	modified:   usr.bin/perl/lib/Text/TabsWrap/t/tabs.t
+#	modified:   usr.bin/perl/lib/Text/TabsWrap/t/wrap.t
+#	modified:   usr.bin/perl/lib/Text/Wrap.pm
+#	modified:   usr.bin/perl/lib/Thread/Queue.pm
+#	deleted:    usr.bin/perl/lib/Thread/Queue.t
+#	modified:   usr.bin/perl/lib/Thread/Semaphore.pm
+#	deleted:    usr.bin/perl/lib/Thread/Semaphore.t
+#	modified:   usr.bin/perl/lib/Tie/Handle.pm
+#	modified:   usr.bin/perl/lib/Tie/Hash.pm
+#	modified:   usr.bin/perl/lib/Tie/RefHash.pm
+#	modified:   usr.bin/perl/lib/Tie/RefHash/threaded.t
+#	modified:   usr.bin/perl/lib/Tie/Scalar.pm
+#	modified:   usr.bin/perl/lib/Tie/StdHandle.pm
+#	modified:   usr.bin/perl/lib/Time/Local.pm
+#	modified:   usr.bin/perl/lib/Time/Local.t
+#	modified:   usr.bin/perl/lib/UNIVERSAL.pm
+#	modified:   usr.bin/perl/lib/Unicode/UCD.pm
+#	modified:   usr.bin/perl/lib/Unicode/UCD.t
+#	modified:   usr.bin/perl/lib/attributes.pm
+#	modified:   usr.bin/perl/lib/base.pm
+#	modified:   usr.bin/perl/lib/base/Changes
+#	modified:   usr.bin/perl/lib/base/t/fields-base.t
+#	modified:   usr.bin/perl/lib/base/t/sigdie.t
+#	modified:   usr.bin/perl/lib/base/t/version.t
+#	modified:   usr.bin/perl/lib/bigint.pm
+#	modified:   usr.bin/perl/lib/bignum.pm
+#	modified:   usr.bin/perl/lib/bigrat.pm
+#	modified:   usr.bin/perl/lib/blib.pm
+#	modified:   usr.bin/perl/lib/blib.t
+#	modified:   usr.bin/perl/lib/charnames.pm
+#	modified:   usr.bin/perl/lib/charnames.t
+#	modified:   usr.bin/perl/lib/constant.pm
+#	modified:   usr.bin/perl/lib/constant.t
+#	modified:   usr.bin/perl/lib/ctime.pl
+#	modified:   usr.bin/perl/lib/feature.pm
+#	modified:   usr.bin/perl/lib/fields.pm
+#	modified:   usr.bin/perl/lib/getopt.pl
+#	modified:   usr.bin/perl/lib/h2ph.t
+#	modified:   usr.bin/perl/lib/h2xs.t
+#	modified:   usr.bin/perl/lib/lib.t
+#	modified:   usr.bin/perl/lib/lib_pm.PL
+#	deleted:    usr.bin/perl/lib/mro.pm
+#	modified:   usr.bin/perl/lib/newgetopt.pl
+#	modified:   usr.bin/perl/lib/open.pm
+#	modified:   usr.bin/perl/lib/open.t
+#	modified:   usr.bin/perl/lib/overload.pm
+#	modified:   usr.bin/perl/lib/overload.t
+#	modified:   usr.bin/perl/lib/perl5db.pl
+#	modified:   usr.bin/perl/lib/perl5db.t
+#	modified:   usr.bin/perl/lib/pwd.pl
+#	modified:   usr.bin/perl/lib/strict.t
+#	modified:   usr.bin/perl/lib/subs.t
+#	modified:   usr.bin/perl/lib/syslog.pl
+#	modified:   usr.bin/perl/lib/termcap.pl
+#	modified:   usr.bin/perl/lib/unicore/ArabicShaping.txt
+#	modified:   usr.bin/perl/lib/unicore/BidiMirroring.txt
+#	modified:   usr.bin/perl/lib/unicore/Blocks.txt
+#	modified:   usr.bin/perl/lib/unicore/CaseFolding.txt
+#	modified:   usr.bin/perl/lib/unicore/CompositionExclusions.txt
+#	modified:   usr.bin/perl/lib/unicore/EastAsianWidth.txt
+#	modified:   usr.bin/perl/lib/unicore/HangulSyllableType.txt
+#	modified:   usr.bin/perl/lib/unicore/Index.txt
+#	modified:   usr.bin/perl/lib/unicore/Jamo.txt
+#	modified:   usr.bin/perl/lib/unicore/LineBreak.txt
+#	modified:   usr.bin/perl/lib/unicore/Makefile
+#	modified:   usr.bin/perl/lib/unicore/NamedSequences.txt
+#	modified:   usr.bin/perl/lib/unicore/NamedSqProv.txt
+#	modified:   usr.bin/perl/lib/unicore/NamesList.txt
+#	modified:   usr.bin/perl/lib/unicore/NormalizationCorrections.txt
+#	modified:   usr.bin/perl/lib/unicore/PropList.txt
+#	modified:   usr.bin/perl/lib/unicore/PropValueAliases.txt
+#	modified:   usr.bin/perl/lib/unicore/PropertyAliases.txt
+#	modified:   usr.bin/perl/lib/unicore/README.perl
+#	modified:   usr.bin/perl/lib/unicore/ReadMe.txt
+#	modified:   usr.bin/perl/lib/unicore/Scripts.txt
+#	modified:   usr.bin/perl/lib/unicore/SpecialCasing.txt
+#	modified:   usr.bin/perl/lib/unicore/StandardizedVariants.txt
+#	modified:   usr.bin/perl/lib/unicore/UnicodeData.txt
+#	modified:   usr.bin/perl/lib/unicore/mktables
+#	modified:   usr.bin/perl/lib/unicore/mktables.lst
+#	modified:   usr.bin/perl/lib/unicore/version
+#	modified:   usr.bin/perl/lib/version.pm
+#	modified:   usr.bin/perl/lib/version.pod
+#	modified:   usr.bin/perl/lib/version.t
+#	modified:   usr.bin/perl/locale.c
+#	modified:   usr.bin/perl/mad/t/p55.t
+#	modified:   usr.bin/perl/makedef.pl
+#	modified:   usr.bin/perl/makedepend.SH
+#	modified:   usr.bin/perl/malloc.c
+#	modified:   usr.bin/perl/mathoms.c
+#	modified:   usr.bin/perl/mg.c
+#	modified:   usr.bin/perl/mg.h
+#	modified:   usr.bin/perl/minimod.pl
+#	modified:   usr.bin/perl/miniperlmain.c
+#	modified:   usr.bin/perl/mint/README
+#	modified:   usr.bin/perl/mkppport
+#	modified:   usr.bin/perl/mkppport.lst
+#	modified:   usr.bin/perl/mro.c
+#	modified:   usr.bin/perl/myconfig.SH
+#	modified:   usr.bin/perl/nostdio.h
+#	modified:   usr.bin/perl/numeric.c
+#	modified:   usr.bin/perl/op.c
+#	modified:   usr.bin/perl/op.h
+#	modified:   usr.bin/perl/opcode.h
+#	modified:   usr.bin/perl/opcode.pl
+#	modified:   usr.bin/perl/opnames.h
+#	modified:   usr.bin/perl/os2/OS2/Process/Process.pm
+#	modified:   usr.bin/perl/os2/OS2/REXX/REXX.pm
+#	modified:   usr.bin/perl/os2/OS2/REXX/REXX.xs
+#	modified:   usr.bin/perl/os2/OS2/typemap
+#	modified:   usr.bin/perl/os2/os2.c
+#	modified:   usr.bin/perl/os2/perlrexx.c
+#	modified:   usr.bin/perl/overload.c
+#	modified:   usr.bin/perl/overload.pl
+#	modified:   usr.bin/perl/pad.c
+#	modified:   usr.bin/perl/pad.h
+#	modified:   usr.bin/perl/parser.h
+#	modified:   usr.bin/perl/patchlevel.h
+#	modified:   usr.bin/perl/perl.c
+#	modified:   usr.bin/perl/perl.h
+#	modified:   usr.bin/perl/perlapi.c
+#	modified:   usr.bin/perl/perlapi.h
+#	modified:   usr.bin/perl/perlio.c
+#	modified:   usr.bin/perl/perlio.h
+#	modified:   usr.bin/perl/perliol.h
+#	modified:   usr.bin/perl/perlsdio.h
+#	modified:   usr.bin/perl/perlsfio.h
+#	modified:   usr.bin/perl/perly.act
+#	modified:   usr.bin/perl/perly.c
+#	modified:   usr.bin/perl/perly.tab
+#	modified:   usr.bin/perl/perly.y
+#	modified:   usr.bin/perl/plan9/config.plan9
+#	modified:   usr.bin/perl/plan9/config_h.sample
+#	modified:   usr.bin/perl/plan9/config_sh.sample
+#	modified:   usr.bin/perl/pod.lst
+#	modified:   usr.bin/perl/pod/Makefile.SH
+#	modified:   usr.bin/perl/pod/buildtoc
+#	deleted:    usr.bin/perl/pod/checkpods.PL
+#	modified:   usr.bin/perl/pod/perl.pod
+#	modified:   usr.bin/perl/pod/perl5005delta.pod
+#	modified:   usr.bin/perl/pod/perl5100delta.pod
+#	modified:   usr.bin/perl/pod/perl590delta.pod
+#	modified:   usr.bin/perl/pod/perl593delta.pod
+#	modified:   usr.bin/perl/pod/perl595delta.pod
+#	deleted:    usr.bin/perl/pod/perlapi.pod
+#	modified:   usr.bin/perl/pod/perlapio.pod
+#	modified:   usr.bin/perl/pod/perlboot.pod
+#	modified:   usr.bin/perl/pod/perlcall.pod
+#	modified:   usr.bin/perl/pod/perlclib.pod
+#	modified:   usr.bin/perl/pod/perlcommunity.pod
+#	modified:   usr.bin/perl/pod/perlcompile.pod
+#	modified:   usr.bin/perl/pod/perldata.pod
+#	modified:   usr.bin/perl/pod/perldebguts.pod
+#	modified:   usr.bin/perl/pod/perldebtut.pod
+#	modified:   usr.bin/perl/pod/perldebug.pod
+#	modified:   usr.bin/perl/pod/perldiag.pod
+#	modified:   usr.bin/perl/pod/perldoc.pod
+#	modified:   usr.bin/perl/pod/perldsc.pod
+#	modified:   usr.bin/perl/pod/perlebcdic.pod
+#	modified:   usr.bin/perl/pod/perlembed.pod
+#	modified:   usr.bin/perl/pod/perlfaq.pod
+#	modified:   usr.bin/perl/pod/perlfaq1.pod
+#	modified:   usr.bin/perl/pod/perlfaq2.pod
+#	modified:   usr.bin/perl/pod/perlfaq3.pod
+#	modified:   usr.bin/perl/pod/perlfaq4.pod
+#	modified:   usr.bin/perl/pod/perlfaq5.pod
+#	modified:   usr.bin/perl/pod/perlfaq6.pod
+#	modified:   usr.bin/perl/pod/perlfaq7.pod
+#	modified:   usr.bin/perl/pod/perlfaq8.pod
+#	modified:   usr.bin/perl/pod/perlfaq9.pod
+#	modified:   usr.bin/perl/pod/perlfilter.pod
+#	modified:   usr.bin/perl/pod/perlform.pod
+#	modified:   usr.bin/perl/pod/perlfunc.pod
+#	modified:   usr.bin/perl/pod/perlglossary.pod
+#	modified:   usr.bin/perl/pod/perlguts.pod
+#	modified:   usr.bin/perl/pod/perlhack.pod
+#	modified:   usr.bin/perl/pod/perlhist.pod
+#	deleted:    usr.bin/perl/pod/perlintern.pod
+#	modified:   usr.bin/perl/pod/perlintro.pod
+#	modified:   usr.bin/perl/pod/perliol.pod
+#	modified:   usr.bin/perl/pod/perlipc.pod
+#	modified:   usr.bin/perl/pod/perllol.pod
+#	modified:   usr.bin/perl/pod/perlmod.pod
+#	modified:   usr.bin/perl/pod/perlmodlib.PL
+#	deleted:    usr.bin/perl/pod/perlmodlib.pod
+#	modified:   usr.bin/perl/pod/perlobj.pod
+#	modified:   usr.bin/perl/pod/perlop.pod
+#	modified:   usr.bin/perl/pod/perlopentut.pod
+#	modified:   usr.bin/perl/pod/perlothrtut.pod
+#	modified:   usr.bin/perl/pod/perlpacktut.pod
+#	modified:   usr.bin/perl/pod/perlpod.pod
+#	modified:   usr.bin/perl/pod/perlpodspec.pod
+#	modified:   usr.bin/perl/pod/perlport.pod
+#	modified:   usr.bin/perl/pod/perlre.pod
+#	modified:   usr.bin/perl/pod/perlreapi.pod
+#	modified:   usr.bin/perl/pod/perlrecharclass.pod
+#	modified:   usr.bin/perl/pod/perlreftut.pod
+#	modified:   usr.bin/perl/pod/perlreguts.pod
+#	modified:   usr.bin/perl/pod/perlretut.pod
+#	modified:   usr.bin/perl/pod/perlrun.pod
+#	modified:   usr.bin/perl/pod/perlsec.pod
+#	modified:   usr.bin/perl/pod/perlsub.pod
+#	modified:   usr.bin/perl/pod/perlsyn.pod
+#	modified:   usr.bin/perl/pod/perlthrtut.pod
+#	modified:   usr.bin/perl/pod/perltie.pod
+#	deleted:    usr.bin/perl/pod/perltoc.pod
+#	modified:   usr.bin/perl/pod/perltodo.pod
+#	modified:   usr.bin/perl/pod/perltrap.pod
+#	modified:   usr.bin/perl/pod/perlunicode.pod
+#	modified:   usr.bin/perl/pod/perlunifaq.pod
+#	modified:   usr.bin/perl/pod/perluniintro.pod
+#	modified:   usr.bin/perl/pod/perlutil.pod
+#	modified:   usr.bin/perl/pod/perlvar.pod
+#	modified:   usr.bin/perl/pod/perlxs.pod
+#	modified:   usr.bin/perl/pod/perlxstut.pod
+#	modified:   usr.bin/perl/pod/pod2man.PL
+#	modified:   usr.bin/perl/pod/pod2text.PL
+#	modified:   usr.bin/perl/pod/pod2usage.PL
+#	modified:   usr.bin/perl/pod/podchecker.PL
+#	modified:   usr.bin/perl/pod/podselect.PL
+#	modified:   usr.bin/perl/pp.c
+#	modified:   usr.bin/perl/pp.h
+#	modified:   usr.bin/perl/pp_ctl.c
+#	modified:   usr.bin/perl/pp_hot.c
+#	modified:   usr.bin/perl/pp_pack.c
+#	modified:   usr.bin/perl/pp_sort.c
+#	modified:   usr.bin/perl/pp_sys.c
+#	modified:   usr.bin/perl/proto.h
+#	modified:   usr.bin/perl/reentr.c
+#	modified:   usr.bin/perl/reentr.h
+#	modified:   usr.bin/perl/reentr.pl
+#	modified:   usr.bin/perl/regcomp.c
+#	modified:   usr.bin/perl/regcomp.h
+#	modified:   usr.bin/perl/regcomp.pl
+#	modified:   usr.bin/perl/regen.pl
+#	modified:   usr.bin/perl/regen_lib.pl
+#	modified:   usr.bin/perl/regen_perly.pl
+#	modified:   usr.bin/perl/regexec.c
+#	modified:   usr.bin/perl/regexp.h
+#	modified:   usr.bin/perl/run.c
+#	modified:   usr.bin/perl/scope.c
+#	modified:   usr.bin/perl/scope.h
+#	modified:   usr.bin/perl/shlib_version
+#	modified:   usr.bin/perl/sv.c
+#	modified:   usr.bin/perl/sv.h
+#	modified:   usr.bin/perl/symbian/PerlBase.cpp
+#	modified:   usr.bin/perl/symbian/PerlBase.h
+#	modified:   usr.bin/perl/symbian/config.pl
+#	modified:   usr.bin/perl/symbian/config.sh
+#	modified:   usr.bin/perl/symbian/makesis.pl
+#	modified:   usr.bin/perl/symbian/sdk.pl
+#	modified:   usr.bin/perl/symbian/symbian_dll.cpp
+#	modified:   usr.bin/perl/symbian/symbian_utils.cpp
+#	deleted:    usr.bin/perl/t/Module_Pluggable/01use.t
+#	deleted:    usr.bin/perl/t/Module_Pluggable/02alsoworks.t
+#	deleted:    usr.bin/perl/t/Module_Pluggable/02works.t
+#	deleted:    usr.bin/perl/t/Module_Pluggable/02works_taint.t
+#	deleted:    usr.bin/perl/t/Module_Pluggable/03diffname.t
+#	deleted:    usr.bin/perl/t/Module_Pluggable/04acmedir.t
+#	deleted:    usr.bin/perl/t/Module_Pluggable/04acmedir_single.t
+#	deleted:    usr.bin/perl/t/Module_Pluggable/04acmepath.t
+#	deleted:    usr.bin/perl/t/Module_Pluggable/04acmepath_single.t
+#	deleted:    usr.bin/perl/t/Module_Pluggable/05postpath.t
+#	deleted:    usr.bin/perl/t/Module_Pluggable/06multipath.t
+#	deleted:    usr.bin/perl/t/Module_Pluggable/07instantiate.t
+#	deleted:    usr.bin/perl/t/Module_Pluggable/08nothing.t
+#	deleted:    usr.bin/perl/t/Module_Pluggable/09require.t
+#	deleted:    usr.bin/perl/t/Module_Pluggable/10innerpack.t
+#	deleted:    usr.bin/perl/t/Module_Pluggable/10innerpack_inner.t
+#	deleted:    usr.bin/perl/t/Module_Pluggable/10innerpack_noinner.t
+#	deleted:    usr.bin/perl/t/Module_Pluggable/10innerpack_override.t
+#	deleted:    usr.bin/perl/t/Module_Pluggable/11usetwice.t
+#	deleted:    usr.bin/perl/t/Module_Pluggable/12only.t
+#	deleted:    usr.bin/perl/t/Module_Pluggable/12onlyarray.t
+#	deleted:    usr.bin/perl/t/Module_Pluggable/12onlyregex.t
+#	deleted:    usr.bin/perl/t/Module_Pluggable/13except.t
+#	deleted:    usr.bin/perl/t/Module_Pluggable/13exceptarray.t
+#	deleted:    usr.bin/perl/t/Module_Pluggable/13exceptregex.t
+#	deleted:    usr.bin/perl/t/Module_Pluggable/14package.t
+#	deleted:    usr.bin/perl/t/Module_Pluggable/15topicsafe.t
+#	deleted:    usr.bin/perl/t/Module_Pluggable/16different_extension.t
+#	deleted:    usr.bin/perl/t/Module_Pluggable/17devel_inner_package.t
+#	deleted:    usr.bin/perl/t/Module_Pluggable/18skipped_package.t
+#	deleted:    usr.bin/perl/t/Module_Pluggable/19can_ok_clobber.t
+#	deleted:    usr.bin/perl/t/Module_Pluggable/20dodgy_files.t
+#	deleted:    usr.bin/perl/t/Module_Pluggable/acme/Acme/MyTest/Plugin/Foo.pm
+#	deleted:    usr.bin/perl/t/Module_Pluggable/lib/Acme/MyTest/Plugin/Foo.pm
+#	deleted:    usr.bin/perl/t/Module_Pluggable/lib/ExtTest/Plugin/Bar.plugin
+#	deleted:    usr.bin/perl/t/Module_Pluggable/lib/ExtTest/Plugin/Foo.plugin
+#	deleted:    usr.bin/perl/t/Module_Pluggable/lib/ExtTest/Plugin/Quux/Foo.plugin
+#	deleted:    usr.bin/perl/t/Module_Pluggable/lib/InnerTest/Plugin/Foo.pm
+#	deleted:    usr.bin/perl/t/Module_Pluggable/lib/MyOtherTest/Plugin/Bar.pm
+#	deleted:    usr.bin/perl/t/Module_Pluggable/lib/MyOtherTest/Plugin/Foo.pm
+#	deleted:    usr.bin/perl/t/Module_Pluggable/lib/MyOtherTest/Plugin/Quux.pm
+#	deleted:    usr.bin/perl/t/Module_Pluggable/lib/MyOtherTest/Plugin/Quux/Foo.pm
+#	deleted:    usr.bin/perl/t/Module_Pluggable/lib/MyTest/Extend/Plugin/Bar.pm
+#	deleted:    usr.bin/perl/t/Module_Pluggable/lib/MyTest/Plugin/Bar.pm
+#	deleted:    usr.bin/perl/t/Module_Pluggable/lib/MyTest/Plugin/Foo.pm
+#	deleted:    usr.bin/perl/t/Module_Pluggable/lib/MyTest/Plugin/Quux/Foo.pm
+#	deleted:    usr.bin/perl/t/Module_Pluggable/lib/No/Middle.pm
+#	deleted:    usr.bin/perl/t/Module_Pluggable/lib/OddTest/Plugin/-Dodgy.pm
+#	deleted:    usr.bin/perl/t/Module_Pluggable/lib/OddTest/Plugin/Foo.pm
+#	deleted:    usr.bin/perl/t/Module_Pluggable/lib/TA/C/A/I.pm
+#	modified:   usr.bin/perl/t/TEST
+#	modified:   usr.bin/perl/t/base/lex.t
+#	modified:   usr.bin/perl/t/base/rs.t
+#	modified:   usr.bin/perl/t/cmd/for.t
+#	modified:   usr.bin/perl/t/comp/multiline.t
+#	modified:   usr.bin/perl/t/comp/script.t
+#	modified:   usr.bin/perl/t/comp/use.t
+#	modified:   usr.bin/perl/t/comp/utf.t
+#	modified:   usr.bin/perl/t/harness
+#	modified:   usr.bin/perl/t/io/crlf.t
+#	modified:   usr.bin/perl/t/io/dup.t
+#	modified:   usr.bin/perl/t/io/fflush.t
+#	modified:   usr.bin/perl/t/io/fs.t
+#	modified:   usr.bin/perl/t/io/inplace.t
+#	modified:   usr.bin/perl/t/io/iprefix.t
+#	modified:   usr.bin/perl/t/io/layers.t
+#	modified:   usr.bin/perl/t/io/nargv.t
+#	modified:   usr.bin/perl/t/io/open.t
+#	modified:   usr.bin/perl/t/io/read.t
+#	modified:   usr.bin/perl/t/io/tell.t
+#	modified:   usr.bin/perl/t/io/through.t
+#	modified:   usr.bin/perl/t/io/utf8.t
+#	modified:   usr.bin/perl/t/japh/abigail.t
+#	modified:   usr.bin/perl/t/lib/Dev/Null.pm
+#	deleted:    usr.bin/perl/t/lib/Dummy.pm
+#	deleted:    usr.bin/perl/t/lib/HasSigDie.pm
+#	modified:   usr.bin/perl/t/lib/MakeMaker/Test/Setup/BFD.pm
+#	modified:   usr.bin/perl/t/lib/MakeMaker/Test/Setup/PL_FILES.pm
+#	modified:   usr.bin/perl/t/lib/MakeMaker/Test/Setup/Problem.pm
+#	modified:   usr.bin/perl/t/lib/MakeMaker/Test/Setup/Recurs.pm
+#	modified:   usr.bin/perl/t/lib/MakeMaker/Test/Utils.pm
+#	deleted:    usr.bin/perl/t/lib/NoExporter.pm
+#	modified:   usr.bin/perl/t/lib/Test/Simple/Catch.pm
+#	modified:   usr.bin/perl/t/lib/Test/Simple/sample_tests/death.plx
+#	modified:   usr.bin/perl/t/lib/Test/Simple/sample_tests/death_in_eval.plx
+#	modified:   usr.bin/perl/t/lib/Test/Simple/sample_tests/death_with_handler.plx
+#	modified:   usr.bin/perl/t/lib/Test/Simple/sample_tests/exit.plx
+#	modified:   usr.bin/perl/t/lib/Test/Simple/sample_tests/extras.plx
+#	modified:   usr.bin/perl/t/lib/Test/Simple/sample_tests/five_fail.plx
+#	modified:   usr.bin/perl/t/lib/Test/Simple/sample_tests/last_minute_death.plx
+#	modified:   usr.bin/perl/t/lib/Test/Simple/sample_tests/one_fail.plx
+#	modified:   usr.bin/perl/t/lib/Test/Simple/sample_tests/pre_plan_death.plx
+#	modified:   usr.bin/perl/t/lib/Test/Simple/sample_tests/require.plx
+#	modified:   usr.bin/perl/t/lib/Test/Simple/sample_tests/success.plx
+#	modified:   usr.bin/perl/t/lib/Test/Simple/sample_tests/too_few.plx
+#	modified:   usr.bin/perl/t/lib/Test/Simple/sample_tests/too_few_fail.plx
+#	modified:   usr.bin/perl/t/lib/Test/Simple/sample_tests/two_fail.plx
+#	modified:   usr.bin/perl/t/lib/common.pl
+#	modified:   usr.bin/perl/t/lib/compress/CompTestUtils.pm
+#	modified:   usr.bin/perl/t/lib/compress/destroy.pl
+#	modified:   usr.bin/perl/t/lib/compress/generic.pl
+#	modified:   usr.bin/perl/t/lib/compress/merge.pl
+#	modified:   usr.bin/perl/t/lib/compress/multi.pl
+#	modified:   usr.bin/perl/t/lib/compress/oneshot.pl
+#	modified:   usr.bin/perl/t/lib/cygwin.t
+#	modified:   usr.bin/perl/t/lib/h2ph.h
+#	modified:   usr.bin/perl/t/lib/h2ph.pht
+#	modified:   usr.bin/perl/t/lib/mypragma.t
+#	modified:   usr.bin/perl/t/lib/proxy_constant_subs.t
+#	deleted:    usr.bin/perl/t/lib/sample-tests/bailout
+#	deleted:    usr.bin/perl/t/lib/sample-tests/bignum
+#	deleted:    usr.bin/perl/t/lib/sample-tests/bignum_many
+#	deleted:    usr.bin/perl/t/lib/sample-tests/combined
+#	deleted:    usr.bin/perl/t/lib/sample-tests/descriptive
+#	deleted:    usr.bin/perl/t/lib/sample-tests/die
+#	deleted:    usr.bin/perl/t/lib/sample-tests/die_head_end
+#	deleted:    usr.bin/perl/t/lib/sample-tests/die_last_minute
+#	deleted:    usr.bin/perl/t/lib/sample-tests/duplicates
+#	deleted:    usr.bin/perl/t/lib/sample-tests/head_end
+#	deleted:    usr.bin/perl/t/lib/sample-tests/head_fail
+#	deleted:    usr.bin/perl/t/lib/sample-tests/inc_taint
+#	deleted:    usr.bin/perl/t/lib/sample-tests/lone_not_bug
+#	deleted:    usr.bin/perl/t/lib/sample-tests/no_nums
+#	deleted:    usr.bin/perl/t/lib/sample-tests/no_output
+#	deleted:    usr.bin/perl/t/lib/sample-tests/out_of_order
+#	deleted:    usr.bin/perl/t/lib/sample-tests/segfault
+#	deleted:    usr.bin/perl/t/lib/sample-tests/shbang_misparse
+#	deleted:    usr.bin/perl/t/lib/sample-tests/simple
+#	deleted:    usr.bin/perl/t/lib/sample-tests/simple_fail
+#	deleted:    usr.bin/perl/t/lib/sample-tests/skip
+#	deleted:    usr.bin/perl/t/lib/sample-tests/skip_nomsg
+#	deleted:    usr.bin/perl/t/lib/sample-tests/skipall
+#	deleted:    usr.bin/perl/t/lib/sample-tests/skipall_nomsg
+#	deleted:    usr.bin/perl/t/lib/sample-tests/switches
+#	deleted:    usr.bin/perl/t/lib/sample-tests/taint
+#	deleted:    usr.bin/perl/t/lib/sample-tests/taint_warn
+#	deleted:    usr.bin/perl/t/lib/sample-tests/todo
+#	deleted:    usr.bin/perl/t/lib/sample-tests/todo_inline
+#	deleted:    usr.bin/perl/t/lib/sample-tests/too_many
+#	deleted:    usr.bin/perl/t/lib/sample-tests/vms_nit
+#	deleted:    usr.bin/perl/t/lib/sample-tests/with_comments
+#	modified:   usr.bin/perl/t/lib/warnings/7fatal
+#	modified:   usr.bin/perl/t/lib/warnings/9enabled
+#	modified:   usr.bin/perl/t/lib/warnings/9uninit
+#	modified:   usr.bin/perl/t/lib/warnings/op
+#	modified:   usr.bin/perl/t/lib/warnings/pp_ctl
+#	modified:   usr.bin/perl/t/mro/basic.t
+#	modified:   usr.bin/perl/t/mro/inconsistent_c3.t
+#	modified:   usr.bin/perl/t/mro/next_edgecases.t
+#	modified:   usr.bin/perl/t/mro/pkg_gen.t
+#	modified:   usr.bin/perl/t/mro/recursion_c3.t
+#	modified:   usr.bin/perl/t/op/attrhand.t
+#	modified:   usr.bin/perl/t/op/attrs.t
+#	modified:   usr.bin/perl/t/op/bop.t
+#	modified:   usr.bin/perl/t/op/caller.pl
+#	modified:   usr.bin/perl/t/op/caller.t
+#	modified:   usr.bin/perl/t/op/chdir.t
+#	modified:   usr.bin/perl/t/op/closure.t
+#	modified:   usr.bin/perl/t/op/defins.t
+#	modified:   usr.bin/perl/t/op/die_exit.t
+#	modified:   usr.bin/perl/t/op/eval.t
+#	modified:   usr.bin/perl/t/op/exec.t
+#	modified:   usr.bin/perl/t/op/filetest.t
+#	modified:   usr.bin/perl/t/op/fork.t
+#	modified:   usr.bin/perl/t/op/gmagic.t
+#	modified:   usr.bin/perl/t/op/goto.t
+#	modified:   usr.bin/perl/t/op/groups.t
+#	modified:   usr.bin/perl/t/op/gv.t
+#	modified:   usr.bin/perl/t/op/inc.t
+#	modified:   usr.bin/perl/t/op/inccode.t
+#	modified:   usr.bin/perl/t/op/index.t
+#	modified:   usr.bin/perl/t/op/lc.t
+#	modified:   usr.bin/perl/t/op/length.t
+#	modified:   usr.bin/perl/t/op/lfs.t
+#	modified:   usr.bin/perl/t/op/local.t
+#	modified:   usr.bin/perl/t/op/magic.t
+#	modified:   usr.bin/perl/t/op/method.t
+#	modified:   usr.bin/perl/t/op/my_stash.t
+#	modified:   usr.bin/perl/t/op/mydef.t
+#	modified:   usr.bin/perl/t/op/pack.t
+#	modified:   usr.bin/perl/t/op/pat.t
+#	modified:   usr.bin/perl/t/op/pwent.t
+#	modified:   usr.bin/perl/t/op/range.t
+#	modified:   usr.bin/perl/t/op/re_tests
+#	modified:   usr.bin/perl/t/op/read.t
+#	modified:   usr.bin/perl/t/op/readdir.t
+#	modified:   usr.bin/perl/t/op/readline.t
+#	modified:   usr.bin/perl/t/op/ref.t
+#	modified:   usr.bin/perl/t/op/reg_email.t
+#	modified:   usr.bin/perl/t/op/reg_namedcapture.t
+#	modified:   usr.bin/perl/t/op/regexp.t
+#	modified:   usr.bin/perl/t/op/runlevel.t
+#	modified:   usr.bin/perl/t/op/smartmatch.t
+#	modified:   usr.bin/perl/t/op/sort.t
+#	modified:   usr.bin/perl/t/op/split.t
+#	modified:   usr.bin/perl/t/op/sprintf.t
+#	modified:   usr.bin/perl/t/op/sprintf2.t
+#	modified:   usr.bin/perl/t/op/stat.t
+#	modified:   usr.bin/perl/t/op/state.t
+#	modified:   usr.bin/perl/t/op/subst.t
+#	modified:   usr.bin/perl/t/op/substr.t
+#	modified:   usr.bin/perl/t/op/switch.t
+#	modified:   usr.bin/perl/t/op/sysio.t
+#	modified:   usr.bin/perl/t/op/taint.t
+#	modified:   usr.bin/perl/t/op/threads.t
+#	modified:   usr.bin/perl/t/op/tiehandle.t
+#	modified:   usr.bin/perl/t/op/tr.t
+#	modified:   usr.bin/perl/t/op/undef.t
+#	modified:   usr.bin/perl/t/op/universal.t
+#	modified:   usr.bin/perl/t/op/wantarray.t
+#	modified:   usr.bin/perl/t/op/write.t
+#	modified:   usr.bin/perl/t/pod/find.t
+#	modified:   usr.bin/perl/t/pod/multiline_items.xr
+#	modified:   usr.bin/perl/t/pod/pod2usage.xr
+#	modified:   usr.bin/perl/t/pod/pod2usage2.t
+#	modified:   usr.bin/perl/t/run/cloexec.t
+#	modified:   usr.bin/perl/t/run/exit.t
+#	modified:   usr.bin/perl/t/run/fresh_perl.t
+#	modified:   usr.bin/perl/t/run/runenv.t
+#	modified:   usr.bin/perl/t/run/switchC.t
+#	modified:   usr.bin/perl/t/run/switchF1.t
+#	modified:   usr.bin/perl/t/run/switchd.t
+#	modified:   usr.bin/perl/t/run/switches.t
+#	modified:   usr.bin/perl/t/run/switcht.t
+#	modified:   usr.bin/perl/t/test.pl
+#	modified:   usr.bin/perl/t/uni/class.t
+#	modified:   usr.bin/perl/t/uni/fold.t
+#	modified:   usr.bin/perl/t/uni/tr_7jis.t
+#	modified:   usr.bin/perl/t/uni/tr_eucjp.t
+#	modified:   usr.bin/perl/t/uni/tr_sjis.t
+#	modified:   usr.bin/perl/t/uni/tr_utf8.t
+#	modified:   usr.bin/perl/t/win32/system.t
+#	modified:   usr.bin/perl/t/x2p/s2p.t
+#	modified:   usr.bin/perl/taint.c
+#	modified:   usr.bin/perl/thread.h
+#	modified:   usr.bin/perl/toke.c
+#	modified:   usr.bin/perl/uconfig.h
+#	modified:   usr.bin/perl/uconfig.sh
+#	modified:   usr.bin/perl/universal.c
+#	modified:   usr.bin/perl/unixish.h
+#	modified:   usr.bin/perl/utf8.c
+#	modified:   usr.bin/perl/utf8.h
+#	modified:   usr.bin/perl/utfebcdic.h
+#	modified:   usr.bin/perl/util.c
+#	modified:   usr.bin/perl/util.h
+#	modified:   usr.bin/perl/utils/c2ph.PL
+#	modified:   usr.bin/perl/utils/dprofpp.PL
+#	modified:   usr.bin/perl/utils/h2ph.PL
+#	modified:   usr.bin/perl/utils/h2xs.PL
+#	modified:   usr.bin/perl/utils/perlbug.PL
+#	modified:   usr.bin/perl/utils/perlivp.PL
+#	modified:   usr.bin/perl/utils/prove.PL
+#	modified:   usr.bin/perl/utils/shasum.PL
+#	modified:   usr.bin/perl/vmesa/vmesa.c
+#	modified:   usr.bin/perl/vms/descrip_mms.template
+#	modified:   usr.bin/perl/vms/ext/Stdio/Stdio.pm
+#	modified:   usr.bin/perl/vms/ext/Stdio/Stdio.xs
+#	deleted:    usr.bin/perl/vms/ext/XSSymSet.pm
+#	modified:   usr.bin/perl/vms/ext/filespec.t
+#	deleted:    usr.bin/perl/vms/perlvms.pod
+#	modified:   usr.bin/perl/vms/vms.c
+#	modified:   usr.bin/perl/vms/vmsish.h
+#	modified:   usr.bin/perl/vos/Changes
+#	modified:   usr.bin/perl/vos/vos.c
+#	modified:   usr.bin/perl/vos/vosish.h
+#	modified:   usr.bin/perl/warnings.pl
+#	modified:   usr.bin/perl/win32/FindExt.pm
+#	modified:   usr.bin/perl/win32/Makefile
+#	modified:   usr.bin/perl/win32/Makefile.ce
+#	deleted:    usr.bin/perl/win32/buildext.pl
+#	modified:   usr.bin/perl/win32/config.bc
+#	modified:   usr.bin/perl/win32/config.ce
+#	modified:   usr.bin/perl/win32/config.gc
+#	modified:   usr.bin/perl/win32/config.vc
+#	modified:   usr.bin/perl/win32/config.vc64
+#	modified:   usr.bin/perl/win32/config_H.bc
+#	modified:   usr.bin/perl/win32/config_H.ce
+#	modified:   usr.bin/perl/win32/config_H.gc
+#	modified:   usr.bin/perl/win32/config_H.vc
+#	modified:   usr.bin/perl/win32/config_H.vc64
+#	modified:   usr.bin/perl/win32/config_sh.PL
+#	modified:   usr.bin/perl/win32/distclean.bat
+#	modified:   usr.bin/perl/win32/dl_win32.xs
+#	modified:   usr.bin/perl/win32/makefile.mk
+#	modified:   usr.bin/perl/win32/perlhost.h
+#	modified:   usr.bin/perl/win32/perllib.c
+#	modified:   usr.bin/perl/win32/pod.mak
+#	modified:   usr.bin/perl/win32/vdir.h
+#	modified:   usr.bin/perl/win32/win32.c
+#	modified:   usr.bin/perl/win32/win32io.c
+#	modified:   usr.bin/perl/win32/win32iop-o.h
+#	modified:   usr.bin/perl/win32/win32sck.c
+#	modified:   usr.bin/perl/win32/wince.c
+#	modified:   usr.bin/perl/x2p/Makefile.SH
+#	modified:   usr.bin/perl/x2p/a2p.c
+#	modified:   usr.bin/perl/x2p/a2p.h
+#	modified:   usr.bin/perl/x2p/a2p.y
+#	modified:   usr.bin/perl/x2p/a2py.c
+#	modified:   usr.bin/perl/x2p/find2perl.PL
+#	modified:   usr.bin/perl/x2p/hash.c
+#	modified:   usr.bin/perl/x2p/str.c
+#	modified:   usr.bin/perl/x2p/str.h
+#	modified:   usr.bin/perl/x2p/util.c
+#	modified:   usr.bin/perl/x2p/util.h
+#	modified:   usr.bin/perl/x2p/walk.c
+#	modified:   usr.bin/perl/xsutils.c
 #
+# Untracked files:
+#   (use "git add <file>..." to include in what will be committed)
+#
+#	gcc/
+#	lib/libiberty/include/pex-common.h
+#	lib/libiberty/src/pex-common.c
+#	lib/libiberty/src/pex-unix.c
+#	usr.bin/perl/Porting/GitUtils.pm
+#	usr.bin/perl/Porting/README.y2038
+#	usr.bin/perl/Porting/bump-perl-version
+#	usr.bin/perl/Porting/checkARGS_ASSERT.pl
+#	usr.bin/perl/Porting/checkansi.pl
+#	usr.bin/perl/Porting/core-cpan-diff
+#	usr.bin/perl/Porting/expand-macro.pl
+#	usr.bin/perl/Porting/git-find-p4-change
+#	usr.bin/perl/Porting/git-make-p4-refs
+#	usr.bin/perl/Porting/how_to_write_a_perldelta.pod
+#	usr.bin/perl/Porting/make_dot_patch.pl
+#	usr.bin/perl/Porting/make_snapshot.pl
+#	usr.bin/perl/Porting/manisort
+#	usr.bin/perl/Porting/mergelog
+#	usr.bin/perl/Porting/mergelog-tool
+#	usr.bin/perl/Porting/podtidy
+#	usr.bin/perl/Porting/release_managers_guide.pod
+#	usr.bin/perl/Porting/timecheck.c
+#	usr.bin/perl/Porting/timecheck2.c
+#	usr.bin/perl/README.haiku
+#	usr.bin/perl/ext/Attribute-Handlers/
+#	usr.bin/perl/ext/B/B/Lint/
+#	usr.bin/perl/ext/Compress-Raw-Bzip2/
+#	usr.bin/perl/ext/Compress-Raw-Zlib/
+#	usr.bin/perl/ext/DB_File/config.in
+#	usr.bin/perl/ext/Data-Dumper/
+#	usr.bin/perl/ext/Devel-DProf/
+#	usr.bin/perl/ext/Devel-PPPort/
+#	usr.bin/perl/ext/Devel-Peek/
+#	usr.bin/perl/ext/Digest-MD5/
+#	usr.bin/perl/ext/Digest-SHA/
+#	usr.bin/perl/ext/Encode/t/jis7-fallback.t
+#	usr.bin/perl/ext/Encode/t/piconv.t
+#	usr.bin/perl/ext/Encode/ucm/cp858.ucm
+#	usr.bin/perl/ext/File-Glob/
+#	usr.bin/perl/ext/Filter-Util-Call/
+#	usr.bin/perl/ext/Hash-Util-FieldHash/
+#	usr.bin/perl/ext/Hash-Util/
+#	usr.bin/perl/ext/I18N-Langinfo/
+#	usr.bin/perl/ext/IO-Compress/
+#	usr.bin/perl/ext/IPC-SysV/
+#	usr.bin/perl/ext/List-Util/
+#	usr.bin/perl/ext/MIME-Base64/
+#	usr.bin/perl/ext/Math-BigInt-FastCalc/
+#	usr.bin/perl/ext/Module-Pluggable/
+#	usr.bin/perl/ext/PerlIO-encoding/
+#	usr.bin/perl/ext/PerlIO-scalar/
+#	usr.bin/perl/ext/PerlIO-via/
+#	usr.bin/perl/ext/Safe/Safe.pm
+#	usr.bin/perl/ext/Safe/t/safeload.t
+#	usr.bin/perl/ext/Storable/hints/hpux.pl
+#	usr.bin/perl/ext/Sys-Hostname/
+#	usr.bin/perl/ext/Sys-Syslog/
+#	usr.bin/perl/ext/Test-Harness/
+#	usr.bin/perl/ext/Text-Soundex/
+#	usr.bin/perl/ext/Time-HiRes/
+#	usr.bin/perl/ext/Time-Piece/
+#	usr.bin/perl/ext/Unicode-Normalize/
+#	usr.bin/perl/ext/Win32/t/GetOSName.t
+#	usr.bin/perl/ext/Win32API-File/
+#	usr.bin/perl/ext/XS-APItest/
+#	usr.bin/perl/ext/XS-Typemap/
+#	usr.bin/perl/ext/mro/
+#	usr.bin/perl/ext/threads-shared/
+#	usr.bin/perl/git_version.h
+#	usr.bin/perl/haiku/
+#	usr.bin/perl/hints/haiku.sh
+#	usr.bin/perl/hints/mirbsd.sh
+#	usr.bin/perl/install_lib.pl
+#	usr.bin/perl/lib/Archive/Extract/t/src/x.lzma.packed
+#	usr.bin/perl/lib/Archive/Tar/t/05_iter.t
+#	usr.bin/perl/lib/Archive/Tar/t/90_symlink.t
+#	usr.bin/perl/lib/Archive/Tar/t/99_pod.t
+#	usr.bin/perl/lib/Archive/Tar/t/src/header/
+#	usr.bin/perl/lib/Archive/Tar/t/src/linktest/
+#	usr.bin/perl/lib/Archive/Tar/t/src/long/foo.tbz.packed
+#	usr.bin/perl/lib/Archive/Tar/t/src/short/foo.tbz.packed
+#	usr.bin/perl/lib/AutoLoader/
+#	usr.bin/perl/lib/CGI/t/upload.t
+#	usr.bin/perl/lib/CGI/t/uploadInfo.t
+#	usr.bin/perl/lib/CGI/t/upload_post_text.txt.packed
+#	usr.bin/perl/lib/CPAN/API/HOWTO.pod
+#	usr.bin/perl/lib/CPAN/Author.pm
+#	usr.bin/perl/lib/CPAN/Bundle.pm
+#	usr.bin/perl/lib/CPAN/CacheMgr.pm
+#	usr.bin/perl/lib/CPAN/Complete.pm
+#	usr.bin/perl/lib/CPAN/DeferredCode.pm
+#	usr.bin/perl/lib/CPAN/Distribution.pm
+#	usr.bin/perl/lib/CPAN/Distroprefs.pm
+#	usr.bin/perl/lib/CPAN/Distrostatus.pm
+#	usr.bin/perl/lib/CPAN/Exception/
+#	usr.bin/perl/lib/CPAN/FTP.pm
+#	usr.bin/perl/lib/CPAN/FTP/
+#	usr.bin/perl/lib/CPAN/Index.pm
+#	usr.bin/perl/lib/CPAN/InfoObj.pm
+#	usr.bin/perl/lib/CPAN/LWP/
+#	usr.bin/perl/lib/CPAN/Module.pm
+#	usr.bin/perl/lib/CPAN/PAUSE2009.pub
+#	usr.bin/perl/lib/CPAN/Prompt.pm
+#	usr.bin/perl/lib/CPAN/Shell.pm
+#	usr.bin/perl/lib/CPAN/URL.pm
+#	usr.bin/perl/lib/CPANPLUS/Dist/Autobundle.pm
+#	usr.bin/perl/lib/CPANPLUS/Dist/Build/t/dummy-CPAN/
+#	usr.bin/perl/lib/CPANPLUS/Dist/Build/t/dummy-perl/
+#	usr.bin/perl/lib/CPANPLUS/Internals/Source/
+#	usr.bin/perl/lib/CPANPLUS/t/25_CPANPLUS.t
+#	usr.bin/perl/lib/CPANPLUS/t/dummy-CPAN/authors/id/EUNOXS/Foo-Bar-0.01.meta
+#	usr.bin/perl/lib/CPANPLUS/t/dummy-CPAN/autobundle/
+#	usr.bin/perl/lib/ExtUtils/CBuilder/t/00-have-compiler.t
+#	usr.bin/perl/lib/ExtUtils/Changes_EU-Install
+#	usr.bin/perl/lib/ExtUtils/MM_Darwin.pm
+#	usr.bin/perl/lib/ExtUtils/ParseXS/Changes
+#	usr.bin/perl/lib/ExtUtils/ParseXS/t/XSUsage.pm
+#	usr.bin/perl/lib/ExtUtils/ParseXS/t/XSUsage.xs
+#	usr.bin/perl/lib/ExtUtils/ParseXS/t/usage.t
+#	usr.bin/perl/lib/ExtUtils/XSSymSet.pm
+#	usr.bin/perl/lib/ExtUtils/t/InstallWithMM.t
+#	usr.bin/perl/lib/ExtUtils/t/Installapi2.t
+#	usr.bin/perl/lib/ExtUtils/t/MakeMaker_Parameters.t
+#	usr.bin/perl/lib/ExtUtils/t/arch_check.t
+#	usr.bin/perl/lib/ExtUtils/t/can_write_dir.t
+#	usr.bin/perl/lib/ExtUtils/t/cp.t
+#	usr.bin/perl/lib/ExtUtils/t/fix_libs.t
+#	usr.bin/perl/lib/ExtUtils/t/installed_file.t
+#	usr.bin/perl/lib/ExtUtils/t/is_of_type.t
+#	usr.bin/perl/lib/ExtUtils/t/metafile_data.t
+#	usr.bin/perl/lib/ExtUtils/t/metafile_file.t
+#	usr.bin/perl/lib/ExtUtils/t/min_perl_version.t
+#	usr.bin/perl/lib/ExtUtils/t/miniperl.t
+#	usr.bin/perl/lib/ExtUtils/t/pm_to_blib.t
+#	usr.bin/perl/lib/ExtUtils/t/pod2man.t
+#	usr.bin/perl/lib/ExtUtils/t/test_boilerplate.t
+#	usr.bin/perl/lib/ExtUtils/t/testdata/
+#	usr.bin/perl/lib/File/Temp/t/fork.t
+#	usr.bin/perl/lib/File/Temp/t/lock.t
+#	usr.bin/perl/lib/IPC/Cmd/t/src/output.pl
+#	usr.bin/perl/lib/IPC/Cmd/t/src/x.tgz.packed
+#	usr.bin/perl/lib/Math/BigRat/t/hang.t
+#	usr.bin/perl/lib/Math/underbar.t
+#	usr.bin/perl/lib/Module/Build/t/PL_files.t
+#	usr.bin/perl/lib/Module/Build/t/add_property.t
+#	usr.bin/perl/lib/Module/Build/t/compat/
+#	usr.bin/perl/lib/Module/Build/t/debug.t
+#	usr.bin/perl/lib/Module/Build/t/script_dist.t
+#	usr.bin/perl/lib/Module/Build/t/test_file_exts.t
+#	usr.bin/perl/lib/Module/Build/t/use_tap_harness.t
+#	usr.bin/perl/lib/Module/Build/t/write_default_maniskip.t
+#	usr.bin/perl/lib/NEXT/t/dynamically_scoped_regex_vars.t
+#	usr.bin/perl/lib/NEXT/t/stringify.t
+#	usr.bin/perl/lib/Object/Accessor/t/06_Object-Accessor-alias.t
+#	usr.bin/perl/lib/Parse/
+#	usr.bin/perl/lib/Pod/Simple/XHTML.pm
+#	usr.bin/perl/lib/Pod/Simple/t/xhtml01.t
+#	usr.bin/perl/lib/Pod/Simple/t/xhtml05.t
+#	usr.bin/perl/lib/Pod/t/man-options.t
+#	usr.bin/perl/lib/Pod/t/man-utf8.t
+#	usr.bin/perl/lib/Pod/t/pod-spelling.t
+#	usr.bin/perl/lib/Pod/t/pod.t
+#	usr.bin/perl/lib/Pod/t/text-encoding.t
+#	usr.bin/perl/lib/Pod/t/text-utf8.t
+#	usr.bin/perl/lib/SelfLoader/
+#	usr.bin/perl/lib/Test/Simple/t/Builder/current_test.t
+#	usr.bin/perl/lib/Test/Simple/t/Builder/current_test_without_plan.t
+#	usr.bin/perl/lib/Test/Simple/t/Builder/done_testing.t
+#	usr.bin/perl/lib/Test/Simple/t/Builder/done_testing_double.t
+#	usr.bin/perl/lib/Test/Simple/t/Builder/done_testing_plan_mismatch.t
+#	usr.bin/perl/lib/Test/Simple/t/Builder/done_testing_with_no_plan.t
+#	usr.bin/perl/lib/Test/Simple/t/Builder/done_testing_with_number.t
+#	usr.bin/perl/lib/Test/Simple/t/Builder/done_testing_with_plan.t
+#	usr.bin/perl/lib/Test/Simple/t/Builder/fork_with_new_stdout.t
+#	usr.bin/perl/lib/Test/Simple/t/Builder/no_plan_at_all.t
+#	usr.bin/perl/lib/Test/Simple/t/versions.t
+#	usr.bin/perl/lib/Text/TabsWrap/t/dandv.t
+#	usr.bin/perl/lib/Text/TabsWrap/t/wrap_separator2.t
+#	usr.bin/perl/lib/Thread/Queue/
+#	usr.bin/perl/lib/Thread/Semaphore/
+#	usr.bin/perl/lib/autodie.pm
+#	usr.bin/perl/lib/autodie/
+#	usr.bin/perl/lib/base/t/compile-time.t
+#	usr.bin/perl/lib/base/t/fields-5.6.0.t
+#	usr.bin/perl/lib/base/t/fields-5.8.0.t
+#	usr.bin/perl/lib/base/t/lib/
+#	usr.bin/perl/lib/overload/
+#	usr.bin/perl/lib/overloading.pm
+#	usr.bin/perl/lib/overloading.t
+#	usr.bin/perl/lib/parent.pm
+#	usr.bin/perl/lib/parent/
+#	usr.bin/perl/lib/perl5db/t/lvalue-bug
+#	usr.bin/perl/lib/unicore/NameAliases.txt
+#	usr.bin/perl/lib/version/
+#	usr.bin/perl/make_ext.pl
+#	usr.bin/perl/make_patchnum.pl
+#	usr.bin/perl/mydtrace.h
+#	usr.bin/perl/perldtrace.d
+#	usr.bin/perl/pod/perl5101delta.pod
+#	usr.bin/perl/pod/perl589delta.pod
+#	usr.bin/perl/pod/perlmroapi.pod
+#	usr.bin/perl/pod/perlperf.pod
+#	usr.bin/perl/pod/perlrepository.pod
+#	usr.bin/perl/pod/perlvms.pod
+#	usr.bin/perl/t/comp/retainedlines.t
+#	usr.bin/perl/t/io/perlio.t
+#	usr.bin/perl/t/io/perlio_fail.t
+#	usr.bin/perl/t/io/perlio_leaks.t
+#	usr.bin/perl/t/io/perlio_open.t
+#	usr.bin/perl/t/io/pvbm.t
+#	usr.bin/perl/t/lib/MakeMaker/Test/NoXS.pm
+#	usr.bin/perl/t/lib/MakeMaker/Test/Setup/MPV.pm
+#	usr.bin/perl/t/lib/Parse/
+#	usr.bin/perl/t/lib/Sans_mypragma.pm
+#	usr.bin/perl/t/lib/Test/Builder/
+#	usr.bin/perl/t/lib/contains_bad_pod.xr
+#	usr.bin/perl/t/lib/feature/bundle
+#	usr.bin/perl/t/lib/manifest.t
+#	usr.bin/perl/t/mro/package_aliases.t
+#	usr.bin/perl/t/op/dbm.t
+#	usr.bin/perl/t/op/index_thr.t
+#	usr.bin/perl/t/op/pat_thr.t
+#	usr.bin/perl/t/op/qr_gc.t
+#	usr.bin/perl/t/op/re.t
+#	usr.bin/perl/t/op/reg_email_thr.t
+#	usr.bin/perl/t/op/reg_posixcc.t
+#	usr.bin/perl/t/op/regexp_qr_embed_thr.t
+#	usr.bin/perl/t/op/regexp_unicode_prop.t
+#	usr.bin/perl/t/op/regexp_unicode_prop_thr.t
+#	usr.bin/perl/t/op/setpgrpstack.t
+#	usr.bin/perl/t/op/substr_thr.t
+#	usr.bin/perl/t/op/upgrade.t
+#	usr.bin/perl/t/pod/podchkenc.t
+#	usr.bin/perl/t/pod/podchkenc.xr
+#	usr.bin/perl/t/pod/usage.pod
+#	usr.bin/perl/t/pod/usage2.pod
+#	usr.bin/perl/t/thread_it.pl
+#	usr.bin/perl/t/uni/lex_utf8.t
+#	usr.bin/perl/t/uni/tie.t
+#	usr.bin/perl/win32/FindExt.t
+#	usr.bin/perl/win32/create_perllibst_h.pl
+#	usr.bin/perl/win32/list_static_libs.pl
 no changes added to commit (use "git add" and/or "git commit -a")

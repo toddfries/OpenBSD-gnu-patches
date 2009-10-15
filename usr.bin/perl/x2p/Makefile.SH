@@ -27,11 +27,11 @@ esac
 echo "Extracting x2p/Makefile (with variable substitutions)"
 rm -f Makefile
 cat >Makefile <<!GROK!THIS!
-# $RCSfile: Makefile.SH,v $$Revision: 1.11 $$Date: 2008/09/29 17:36:23 $
+# $RCSfile: Makefile.SH,v $$Revision: 1.12 $$Date: 2009/10/12 18:30:28 $
 #
 # $Log: Makefile.SH,v $
-# Revision 1.11  2008/09/29 17:36:23  millert
-# fix conflicts and merge in local changes to perl 5.10.0
+# Revision 1.12  2009/10/12 18:30:28  millert
+# Merge in perl 5.10.1; part two
 #
 
 CC = $cc
@@ -127,6 +127,9 @@ run_byacc:	FORCE
 	    -e 's/^yynewerror://' \
 	    -e 's/^    goto yynewerror;//' \
 	    -e 's|^static char yysccsid\(.*\)|/* static char yysccsid\1 */|' \
+	    -e 's/^\(char \*yyname\[\]\)/const \1/' \
+	    -e 's/^\(char \*yyrule\[\]\)/const \1/' \
+	    -e 's/^\(    register\) \(char \*yys;\)/\1 const \2/' \
 	    < y.tab.c > a2p.c
 
 FORCE:

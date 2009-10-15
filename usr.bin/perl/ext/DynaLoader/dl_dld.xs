@@ -7,14 +7,14 @@
  *    You may distribute under the terms of either the GNU General Public
  *    License or the Artistic License, as specified in the README file.
  *
- * $Date: 2008/09/29 17:36:04 $
+ * $Date: 2009/10/12 18:24:27 $
  * $Source: /cvs/src/gnu/usr.bin/perl/ext/DynaLoader/dl_dld.xs,v $
- * $Revision: 1.8 $
+ * $Revision: 1.9 $
  * $State: Exp $
  *
  * $Log: dl_dld.xs,v $
- * Revision 1.8  2008/09/29 17:36:04  millert
- * fix conflicts and merge in local changes to perl 5.10.0
+ * Revision 1.9  2009/10/12 18:24:27  millert
+ * Merge in perl 5.10.1
  *
  * Removed implicit link against libc.  1994/09/14 William Setzer.
  *
@@ -172,7 +172,7 @@ void
 dl_install_xsub(perl_name, symref, filename="$Package")
     char *	perl_name
     void *	symref 
-    char *	filename
+    const char *	filename
     CODE:
     DLDEBUG(2,PerlIO_printf(Perl_debug_log, "dl_install_xsub(name=%s, symref=%x)\n",
 	    perl_name, symref));
@@ -189,5 +189,22 @@ dl_error()
     RETVAL = dl_last_error ;
     OUTPUT:
     RETVAL
+
+#if defined(USE_ITHREADS)
+
+void
+CLONE(...)
+    CODE:
+    MY_CXT_CLONE;
+
+    /* MY_CXT_CLONE just does a memcpy on the whole structure, so to avoid
+     * using Perl variables that belong to another thread, we create our 
+     * own for this thread.
+     */
+    MY_CXT.x_dl_last_error = newSVpvn("", 0);
+    dl_resolve_using   = get_av("DynaLoader::dl_resolve_using", GV_ADDMULTI);
+    dl_require_symbols = get_av("DynaLoader::dl_require_symbols", GV_ADDMULTI);
+
+#endif
 
 # end.

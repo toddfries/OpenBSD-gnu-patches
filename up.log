@@ -2,4 +2,3 @@
 ? .gitignore
 ? status.log
 ? up.log
-P usr.bin/perl/ext/Encode/Encode.pm

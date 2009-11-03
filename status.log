@@ -5,10 +5,8 @@
 #
 #	modified:   status.log
 #	modified:   up.log
-#	modified:   usr.bin/cc/cc_tools/Makefile
-#	modified:   usr.bin/cc/cc_tools/auto-host.h
-#	modified:   usr.bin/cc/cc_tools/size-host.h
-#	modified:   usr.bin/cc/libcpp/config.h
-#	modified:   usr.bin/cc/libdecnumber/config.h
+#	modified:   usr.bin/perl/ext/re/t/regop.t
+#	modified:   usr.bin/perl/regcomp.c
+#	modified:   usr.bin/perl/regexec.c
 #
 no changes added to commit (use "git add" and/or "git commit -a")

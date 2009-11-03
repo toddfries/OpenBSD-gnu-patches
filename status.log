@@ -1,11 +1,14 @@
 # On branch master
-# Your branch is ahead of 'origin/master' by 1 commit.
-#
 # Changed but not updated:
 #   (use "git add <file>..." to update what will be committed)
 #   (use "git checkout -- <file>..." to discard changes in working directory)
 #
 #	modified:   status.log
 #	modified:   up.log
+#	modified:   usr.bin/cc/cc_tools/Makefile
+#	modified:   usr.bin/cc/cc_tools/auto-host.h
+#	modified:   usr.bin/cc/cc_tools/size-host.h
+#	modified:   usr.bin/cc/libcpp/config.h
+#	modified:   usr.bin/cc/libdecnumber/config.h
 #
 no changes added to commit (use "git add" and/or "git commit -a")

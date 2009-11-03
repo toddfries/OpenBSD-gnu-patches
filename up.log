@@ -2,3 +2,8 @@
 ? .gitignore
 ? status.log
 ? up.log
+P usr.bin/cc/cc_tools/Makefile
+P usr.bin/cc/cc_tools/auto-host.h
+P usr.bin/cc/cc_tools/size-host.h
+P usr.bin/cc/libcpp/config.h
+P usr.bin/cc/libdecnumber/config.h

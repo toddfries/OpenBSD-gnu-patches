@@ -2,6 +2,3 @@
 ? .gitignore
 ? status.log
 ? up.log
-P usr.bin/perl/regcomp.c
-P usr.bin/perl/regexec.c
-U usr.bin/perl/ext/re/t/regop.t

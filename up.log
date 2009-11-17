@@ -2,5 +2,4 @@
 ? .gitignore
 ? status.log
 ? up.log
-P usr.sbin/sendmail/libsmdb/smdb1.c
-P usr.sbin/sendmail/libsmdb/smdb2.c
+P usr.bin/perl/lib/Pod/Man.pm

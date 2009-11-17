@@ -5,7 +5,6 @@
 #
 #	modified:   status.log
 #	modified:   up.log
-#	modified:   usr.sbin/sendmail/libsmdb/smdb1.c
-#	modified:   usr.sbin/sendmail/libsmdb/smdb2.c
+#	modified:   usr.bin/perl/lib/Pod/Man.pm
 #
 no changes added to commit (use "git add" and/or "git commit -a")

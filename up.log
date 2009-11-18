@@ -2,4 +2,6 @@
 ? .gitignore
 ? status.log
 ? up.log
-P usr.bin/perl/lib/Pod/Man.pm
+P usr.bin/cc/cc_tools/Makefile
+P usr.bin/cc/include/Makefile
+P usr.bin/cc/libgcc/Makefile

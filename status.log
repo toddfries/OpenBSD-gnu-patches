@@ -5,6 +5,8 @@
 #
 #	modified:   status.log
 #	modified:   up.log
-#	modified:   usr.bin/perl/lib/Pod/Man.pm
+#	modified:   usr.bin/cc/cc_tools/Makefile
+#	modified:   usr.bin/cc/include/Makefile
+#	modified:   usr.bin/cc/libgcc/Makefile
 #
 no changes added to commit (use "git add" and/or "git commit -a")

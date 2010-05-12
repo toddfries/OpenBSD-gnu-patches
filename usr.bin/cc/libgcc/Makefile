@@ -1,10 +1,20 @@
 # $FreeBSD: src/gnu/lib/libgcc/Makefile,v 1.58.8.1 2009/04/15 03:14:26 kensmith Exp $
-# $OpenBSD: Makefile,v 1.5 2010/04/29 14:26:46 drahn Exp $
+# $OpenBSD: Makefile,v 1.11 2010/05/07 18:47:29 kettenis Exp $
 
 .include <bsd.own.mk>
 
 GCCLIB= ${.CURDIR}/../../../gcc
 GCCDIR= ${GCCLIB}/gcc
+
+.include "../Makefile.tgt"
+
+.if defined(CROSS_TARGET)
+#Building cc for target, CC should already be the cross compiler
+.elif exists(${.CURDIR}/../cc/obj)
+CC=${.OBJDIR}/../cc/cc -B ${.OBJDIR}/../cc1
+.else
+CC=${.CURDIR}/../cc/cc -B ${.CURDIR}/../cc1
+.endif
 
 .include "${.CURDIR}/../Makefile.ver"
 
@@ -59,7 +69,7 @@ LIB2ADD_ST = $(LIB2FUNCS_STATIC_EXTRA)
 
 # Additional sources to handle exceptions; overridden by targets as needed.
 LIB2ADDEH = unwind-dw2.c unwind-sjlj.c gthr-gnat.c \
-	unwind-c.c
+	unwind-c.c unwind-dw2-fde-openbsd.c
 LIB2ADDEHSTATIC = $(LIB2ADDEH)
 LIB2ADDEHSHARED = $(LIB2ADDEH)
 
@@ -100,6 +110,11 @@ LIB2_DIVMOD_FUNCS = _divdi3 _moddi3 _udivdi3 _umoddi3 _udiv_w_sdiv _udivmoddi4
 #	Platform specific bits.
 #	When upgrading GCC, get the following definitions from config/<cpu>/t-*
 #
+.if ${TARGET_ARCH} == "alpha"
+CFLAGS+=	-mieee
+LIB2FUNCS_EXTRA = qrnnd.asm
+.endif
+
 .if ${TARGET_ARCH} == "arm"
 #	from config/arm/t-strongarm-elf
 CFLAGS+=	-Dinhibit_libc -fno-inline
@@ -117,7 +132,7 @@ LIB2FUNCS_EXTRA = floatunsidf.c floatunsisf.c
 .endif
 
 .if ${TARGET_ARCH} == "hppa"
-CFLAGS+=	-DELF=1 -DLINUX=1
+CFLAGS+=	-fPIC -DELF=1 -DLINUX=1
 LIB1ASMFUNCS =	_divI _divU _remI _remU _div_const _mulI _dyncall
 LIB1ASMSRC =	pa/milli64.S
 LIB2FUNCS_EXTRA = fptr.c
@@ -261,8 +276,9 @@ CLEANFILES += ${ASM_V} ${ASM_V:R:S/$/.vo/}
 EH_OBJS_T = ${LIB2ADDEHSTATIC:R:S/$/.o/}
 EH_OBJS_P = ${LIB2ADDEHSTATIC:R:S/$/.po/}
 EH_OBJS_S = ${LIB2ADDEHSHARED:R:S/$/.So/}
-EH_CFLAGS = -fexceptions -D__GLIBC__=3 -DElfW=__ElfN
-SOBJS    += ${EH_OBJS_S}
+EH_CFLAGS = -fexceptions
+SOBJS   += ${EH_OBJS_S}
+OBJS    += ${EH_OBJS_T}
 
 .for _src in ${LIB2ADDEHSTATIC}
 ${_src:R:S/$/.o/}: ${_src} ${COMMONHDRS}
@@ -290,7 +306,7 @@ beforeinstall:
 
 .SUFFIXES: .vis .vo .asm
 
-.if ${TARGET_ARCH} == "powerpc"
+.if ${TARGET_ARCH} == "alpha" || ${TARGET_ARCH} == "powerpc"
 .asm.o:
-	${CC_T} ${${T}_CFLAGS} -xassembler-with-cpp -o ${.TARGET}  ${.ALLSRC:M*.asm}
+	${CC_T} ${CFLAGS} -xassembler-with-cpp -o ${.TARGET} ${.IMPSRC}
 .endif

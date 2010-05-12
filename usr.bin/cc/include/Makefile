@@ -1,5 +1,5 @@
 # $FreeBSD: src/gnu/usr.bin/cc/include/Makefile,v 1.9.8.1 2009/04/15 03:14:26 kensmith Exp $
-# $OpenBSD: Makefile,v 1.3 2010/04/25 21:04:27 kettenis Exp $
+# $OpenBSD: Makefile,v 1.7 2010/05/10 18:20:31 drahn Exp $
 
 .include <bsd.own.mk>
 
@@ -8,6 +8,7 @@
 
 .PATH: ${GCCDIR}/config/${GCC_CPU}
 
+INCS?=
 .if ${TARGET_ARCH} == "i386" || ${TARGET_ARCH} == "amd64"
 INCS=	emmintrin.h mmintrin.h pmmintrin.h xmmintrin.h mm_malloc.h
 .elif ${TARGET_ARCH} == "arm"
@@ -26,16 +27,21 @@ all:	${INCS}
 clean: _SUBDIRUSE
 	rm -f ${CLEANFILES}
 
+cleandir: _SUBDIRUSE clean
+
 depend:
 	# Nothing here so far...
 
-.if ${TARGET_ARCH} != "hppa" && ${TARGET_ARCH} != "sparc64"
-install: ${INCS}
+.if !empty(INCS)
+install includes: ${INCS}
 	${INSTALL} -C -o ${BINOWN} -g ${LOCALEGRP} -m ${NONBINMODE} ${.ALLSRC} \
 		${DESTDIR}/usr/include
 .else
 install:
 	# Nothing here so far...
 .endif
+
+tags:
+	# Nothing here so far...
 
 .include <bsd.obj.mk>

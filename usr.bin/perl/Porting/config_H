@@ -4154,4 +4154,414 @@
 /*#define	I_PROT		/ **/
 
 /* I_SHADOW:
- *	This sym
+ *	This symbol, if defined, indicates that <shadow.h> exists and
+ *	should be included.
+ */
+#define	I_SHADOW		/**/
+
+/* I_SOCKS:
+ *	This symbol, if defined, indicates that <socks.h> exists and
+ *	should be included.
+ */
+/*#define	I_SOCKS		/ **/
+
+/* I_SUNMATH:
+ *	This symbol, if defined, indicates that <sunmath.h> exists and
+ *	should be included.
+ */
+/*#define	I_SUNMATH		/ **/
+
+/* I_SYSLOG:
+ *	This symbol, if defined, indicates that <syslog.h> exists and
+ *	should be included.
+ */
+#define	I_SYSLOG		/**/
+
+/* I_SYSMODE:
+ *	This symbol, if defined, indicates that <sys/mode.h> exists and
+ *	should be included.
+ */
+/*#define	I_SYSMODE		/ **/
+
+/* I_SYS_MOUNT:
+ *	This symbol, if defined, indicates that <sys/mount.h> exists and
+ *	should be included.
+ */
+#define	I_SYS_MOUNT		/**/
+
+/* I_SYS_STATFS:
+ *	This symbol, if defined, indicates that <sys/statfs.h> exists.
+ */
+#define	I_SYS_STATFS		/**/
+
+/* I_SYS_STATVFS:
+ *	This symbol, if defined, indicates that <sys/statvfs.h> exists and
+ *	should be included.
+ */
+#define	I_SYS_STATVFS		/**/
+
+/* I_SYSUTSNAME:
+ *	This symbol, if defined, indicates that <sys/utsname.h> exists and
+ *	should be included.
+ */
+#define	I_SYSUTSNAME		/**/
+
+/* I_SYS_VFS:
+ *	This symbol, if defined, indicates that <sys/vfs.h> exists and
+ *	should be included.
+ */
+#define	I_SYS_VFS		/**/
+
+/* I_USTAT:
+ *	This symbol, if defined, indicates that <ustat.h> exists and
+ *	should be included.
+ */
+#define	I_USTAT		/**/
+
+/* PERL_PRIfldbl:
+ *	This symbol, if defined, contains the string used by stdio to
+ *	format long doubles (format 'f') for output.
+ */
+/* PERL_PRIgldbl:
+ *	This symbol, if defined, contains the string used by stdio to
+ *	format long doubles (format 'g') for output.
+ */
+/* PERL_PRIeldbl:
+ *	This symbol, if defined, contains the string used by stdio to
+ *	format long doubles (format 'e') for output.
+ */
+/* PERL_SCNfldbl:
+ *	This symbol, if defined, contains the string used by stdio to
+ *	format long doubles (format 'f') for input.
+ */
+#define PERL_PRIfldbl	"Lf"	/**/
+#define PERL_PRIgldbl	"Lg"	/**/
+#define PERL_PRIeldbl	"Le"	/**/
+#define PERL_SCNfldbl	"Lf"	/**/
+
+/* PERL_MAD:
+ *	This symbol, if defined, indicates that the Misc Attribution
+ *	Declaration code should be conditionally compiled.
+ */
+/*#define	PERL_MAD		/ **/
+
+/* NEED_VA_COPY:
+ *	This symbol, if defined, indicates that the system stores
+ *	the variable argument list datatype, va_list, in a format
+ *	that cannot be copied by simple assignment, so that some
+ *	other means must be used when copying is required.
+ *	As such systems vary in their provision (or non-provision)
+ *	of copying mechanisms, handy.h defines a platform-
+ *	independent macro, Perl_va_copy(src, dst), to do the job.
+ */
+/*#define	NEED_VA_COPY		/ **/
+
+/* IVTYPE:
+ *	This symbol defines the C type used for Perl's IV.
+ */
+/* UVTYPE:
+ *	This symbol defines the C type used for Perl's UV.
+ */
+/* I8TYPE:
+ *	This symbol defines the C type used for Perl's I8.
+ */
+/* U8TYPE:
+ *	This symbol defines the C type used for Perl's U8.
+ */
+/* I16TYPE:
+ *	This symbol defines the C type used for Perl's I16.
+ */
+/* U16TYPE:
+ *	This symbol defines the C type used for Perl's U16.
+ */
+/* I32TYPE:
+ *	This symbol defines the C type used for Perl's I32.
+ */
+/* U32TYPE:
+ *	This symbol defines the C type used for Perl's U32.
+ */
+/* I64TYPE:
+ *	This symbol defines the C type used for Perl's I64.
+ */
+/* U64TYPE:
+ *	This symbol defines the C type used for Perl's U64.
+ */
+/* NVTYPE:
+ *	This symbol defines the C type used for Perl's NV.
+ */
+/* IVSIZE:
+ *	This symbol contains the sizeof(IV).
+ */
+/* UVSIZE:
+ *	This symbol contains the sizeof(UV).
+ */
+/* I8SIZE:
+ *	This symbol contains the sizeof(I8).
+ */
+/* U8SIZE:
+ *	This symbol contains the sizeof(U8).
+ */
+/* I16SIZE:
+ *	This symbol contains the sizeof(I16).
+ */
+/* U16SIZE:
+ *	This symbol contains the sizeof(U16).
+ */
+/* I32SIZE:
+ *	This symbol contains the sizeof(I32).
+ */
+/* U32SIZE:
+ *	This symbol contains the sizeof(U32).
+ */
+/* I64SIZE:
+ *	This symbol contains the sizeof(I64).
+ */
+/* U64SIZE:
+ *	This symbol contains the sizeof(U64).
+ */
+/* NVSIZE:
+ *	This symbol contains the sizeof(NV).
+ */
+/* NV_PRESERVES_UV:
+ *	This symbol, if defined, indicates that a variable of type NVTYPE
+ *	can preserve all the bits of a variable of type UVTYPE.
+ */
+/* NV_PRESERVES_UV_BITS:
+ *	This symbol contains the number of bits a variable of type NVTYPE
+ *	can preserve of a variable of type UVTYPE.
+ */
+/* NV_OVERFLOWS_INTEGERS_AT:
+ *	This symbol gives the largest integer value that NVs can hold. This
+ *	value + 1.0 cannot be stored accurately. It is expressed as constant
+ *	floating point expression to reduce the chance of decimale/binary
+ *	conversion issues. If it can not be determined, the value 0 is given.
+ */
+/* NV_ZERO_IS_ALLBITS_ZERO:
+ *	This symbol, if defined, indicates that a variable of type NVTYPE
+ *	stores 0.0 in memory as all bits zero.
+ */
+#define	IVTYPE		long long		/**/
+#define	UVTYPE		unsigned long long		/**/
+#define	I8TYPE		signed char		/**/
+#define	U8TYPE		unsigned char		/**/
+#define	I16TYPE		short	/**/
+#define	U16TYPE		unsigned short	/**/
+#define	I32TYPE		long	/**/
+#define	U32TYPE		unsigned long	/**/
+#ifdef HAS_QUAD
+#define	I64TYPE		long long	/**/
+#define	U64TYPE		unsigned long long	/**/
+#endif
+#define	NVTYPE		double		/**/
+#define	IVSIZE		8		/**/
+#define	UVSIZE		8		/**/
+#define	I8SIZE		1		/**/
+#define	U8SIZE		1		/**/
+#define	I16SIZE		2	/**/
+#define	U16SIZE		2	/**/
+#define	I32SIZE		4	/**/
+#define	U32SIZE		4	/**/
+#ifdef HAS_QUAD
+#define	I64SIZE		8	/**/
+#define	U64SIZE		8	/**/
+#endif
+#define	NVSIZE		8		/**/
+#undef	NV_PRESERVES_UV
+#define	NV_PRESERVES_UV_BITS	53
+#define	NV_OVERFLOWS_INTEGERS_AT	256.0*256.0*256.0*256.0*256.0*256.0*2.0*2.0*2.0*2.0*2.0
+#define	NV_ZERO_IS_ALLBITS_ZERO
+#if UVSIZE == 8
+#   ifdef BYTEORDER
+#       if BYTEORDER == 0x1234
+#           undef BYTEORDER
+#           define BYTEORDER 0x12345678
+#       else
+#           if BYTEORDER == 0x4321
+#               undef BYTEORDER
+#               define BYTEORDER 0x87654321
+#           endif
+#       endif
+#   endif
+#endif
+
+/* IVdf:
+ *	This symbol defines the format string used for printing a Perl IV
+ *	as a signed decimal integer.
+ */
+/* UVuf:
+ *	This symbol defines the format string used for printing a Perl UV
+ *	as an unsigned decimal integer.
+ */
+/* UVof:
+ *	This symbol defines the format string used for printing a Perl UV
+ *	as an unsigned octal integer.
+ */
+/* UVxf:
+ *	This symbol defines the format string used for printing a Perl UV
+ *	as an unsigned hexadecimal integer in lowercase abcdef.
+ */
+/* UVXf:
+ *	This symbol defines the format string used for printing a Perl UV
+ *	as an unsigned hexadecimal integer in uppercase ABCDEF.
+ */
+/* NVef:
+ *	This symbol defines the format string used for printing a Perl NV
+ *	using %e-ish floating point format.
+ */
+/* NVff:
+ *	This symbol defines the format string used for printing a Perl NV
+ *	using %f-ish floating point format.
+ */
+/* NVgf:
+ *	This symbol defines the format string used for printing a Perl NV
+ *	using %g-ish floating point format.
+ */
+#define	IVdf		"Ld"		/**/
+#define	UVuf		"Lu"		/**/
+#define	UVof		"Lo"		/**/
+#define	UVxf		"Lx"		/**/
+#define	UVXf		"LX"		/**/
+#define	NVef		"e"		/**/
+#define	NVff		"f"		/**/
+#define	NVgf		"g"		/**/
+
+/* SELECT_MIN_BITS:
+ *	This symbol holds the minimum number of bits operated by select.
+ *	That is, if you do select(n, ...), how many bits at least will be
+ *	cleared in the masks if some activity is detected.  Usually this
+ *	is either n or 32*ceil(n/32), especially many little-endians do
+ *	the latter.  This is only useful if you have select(), naturally.
+ */
+#define SELECT_MIN_BITS 	32	/**/
+
+/* STARTPERL:
+ *	This variable contains the string to put in front of a perl
+ *	script to make sure (one hopes) that it runs with perl and not
+ *	some shell.
+ */
+#define STARTPERL "#!/pro/bin/perl5.12.2"		/**/
+
+/* HAS_STDIO_STREAM_ARRAY:
+ *	This symbol, if defined, tells that there is an array
+ *	holding the stdio streams.
+ */
+/* STDIO_STREAM_ARRAY:
+ *	This symbol tells the name of the array holding the stdio streams.
+ *	Usual values include _iob, __iob, and __sF.
+ */
+/*#define	HAS_STDIO_STREAM_ARRAY	/ **/
+#ifdef HAS_STDIO_STREAM_ARRAY
+#define STDIO_STREAM_ARRAY	
+#endif
+
+/* GMTIME_MAX:
+ *	This symbol contains the maximum value for the time_t offset that
+ *	the system function gmtime () accepts, and defaults to 0
+ */
+/* GMTIME_MIN:
+ *	This symbol contains the minimum value for the time_t offset that
+ *	the system function gmtime () accepts, and defaults to 0
+ */
+/* LOCALTIME_MAX:
+ *	This symbol contains the maximum value for the time_t offset that
+ *	the system function localtime () accepts, and defaults to 0
+ */
+/* LOCALTIME_MIN:
+ *	This symbol contains the minimum value for the time_t offset that
+ *	the system function localtime () accepts, and defaults to 0
+ */
+#define GMTIME_MAX		2147483647	/**/
+#define GMTIME_MIN		-2147483648	/**/
+#define LOCALTIME_MAX	2147483647	/**/
+#define LOCALTIME_MIN	-2147483648	/**/
+
+/* USE_64_BIT_INT:
+ *	This symbol, if defined, indicates that 64-bit integers should
+ *	be used when available.  If not defined, the native integers
+ *	will be employed (be they 32 or 64 bits).  The minimal possible
+ *	64-bitness is used, just enough to get 64-bit integers into Perl.
+ *	This may mean using for example "long longs", while your memory
+ *	may still be limited to 2 gigabytes.
+ */
+/* USE_64_BIT_ALL:
+ *	This symbol, if defined, indicates that 64-bit integers should
+ *	be used when available.  If not defined, the native integers
+ *	will be used (be they 32 or 64 bits).  The maximal possible
+ *	64-bitness is employed: LP64 or ILP64, meaning that you will
+ *	be able to use more than 2 gigabytes of memory.  This mode is
+ *	even more binary incompatible than USE_64_BIT_INT. You may not
+ *	be able to run the resulting executable in a 32-bit CPU at all or
+ *	you may need at least to reboot your OS to 64-bit mode.
+ */
+#ifndef USE_64_BIT_INT
+#define	USE_64_BIT_INT		/**/
+#endif
+#ifndef USE_64_BIT_ALL
+/*#define	USE_64_BIT_ALL		/ **/
+#endif
+
+/* USE_DTRACE:
+ *	This symbol, if defined, indicates that Perl should
+ *	be built with support for DTrace.
+ */
+/*#define USE_DTRACE		/ **/
+
+/* USE_FAST_STDIO:
+ *	This symbol, if defined, indicates that Perl should
+ *	be built to use 'fast stdio'.
+ *	Defaults to define in Perls 5.8 and earlier, to undef later.
+ */
+#ifndef USE_FAST_STDIO
+/*#define	USE_FAST_STDIO		/ **/
+#endif
+
+/* USE_LARGE_FILES:
+ *	This symbol, if defined, indicates that large file support
+ *	should be used when available.
+ */
+#ifndef USE_LARGE_FILES
+#define	USE_LARGE_FILES		/**/
+#endif
+
+/* USE_LONG_DOUBLE:
+ *	This symbol, if defined, indicates that long doubles should
+ *	be used when available.
+ */
+#ifndef USE_LONG_DOUBLE
+/*#define	USE_LONG_DOUBLE		/ **/
+#endif
+
+/* USE_MORE_BITS:
+ *	This symbol, if defined, indicates that 64-bit interfaces and
+ *	long doubles should be used when available.
+ */
+#ifndef USE_MORE_BITS
+/*#define	USE_MORE_BITS		/ **/
+#endif
+
+/* MULTIPLICITY:
+ *	This symbol, if defined, indicates that Perl should
+ *	be built to use multiplicity.
+ */
+#ifndef MULTIPLICITY
+/*#define	MULTIPLICITY		/ **/
+#endif
+
+/* USE_PERLIO:
+ *	This symbol, if defined, indicates that the PerlIO abstraction should
+ *	be used throughout.  If not defined, stdio should be
+ *	used in a fully backward compatible manner.
+ */
+#ifndef USE_PERLIO
+#define	USE_PERLIO		/**/
+#endif
+
+/* USE_SOCKS:
+ *	This symbol, if defined, indicates that Perl should
+ *	be built to use socks.
+ */
+#ifndef USE_SOCKS
+/*#define	USE_SOCKS		/ **/
+#endif
+
+#endif

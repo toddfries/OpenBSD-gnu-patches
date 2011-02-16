@@ -6002,4 +6002,288 @@ S_reginclass(pTHX_ const regexp *prog, register const regnode *n, register const
 	if (!match && do_utf8 && (flags & ANYOF_UNICODE_ALL) && c >= 256)
 	    match = TRUE;
 	if (!match) {
-	 
+	    AV *av;
+	    SV * const sw = regclass_swash(prog, n, TRUE, 0, (SV**)&av);
+	
+	    if (sw) {
+		U8 * utf8_p;
+		if (do_utf8) {
+		    utf8_p = (U8 *) p;
+		} else {
+		    STRLEN len = 1;
+		    utf8_p = bytes_to_utf8(p, &len);
+		}
+		if (swash_fetch(sw, utf8_p, 1))
+		    match = TRUE;
+		else if (flags & ANYOF_FOLD) {
+		    if (!match && lenp && av) {
+		        I32 i;
+			for (i = 0; i <= av_len(av); i++) {
+			    SV* const sv = *av_fetch(av, i, FALSE);
+			    STRLEN len;
+			    const char * const s = SvPV_const(sv, len);
+			    if (len <= plen && memEQ(s, (char*)utf8_p, len)) {
+			        *lenp = len;
+				match = TRUE;
+				break;
+			    }
+			}
+		    }
+		    if (!match) {
+		        U8 tmpbuf[UTF8_MAXBYTES_CASE+1];
+
+			STRLEN tmplen;
+			to_utf8_fold(utf8_p, tmpbuf, &tmplen);
+			if (swash_fetch(sw, tmpbuf, 1))
+			    match = TRUE;
+		    }
+		}
+
+		/* If we allocated a string above, free it */
+		if (! do_utf8) Safefree(utf8_p);
+	    }
+	}
+	if (match && lenp && *lenp == 0)
+	    *lenp = UNISKIP(NATIVE_TO_UNI(c));
+    }
+    if (!match && c < 256) {
+	if (ANYOF_BITMAP_TEST(n, c))
+	    match = TRUE;
+	else if (flags & ANYOF_FOLD) {
+	    U8 f;
+
+	    if (flags & ANYOF_LOCALE) {
+		PL_reg_flags |= RF_tainted;
+		f = PL_fold_locale[c];
+	    }
+	    else
+		f = PL_fold[c];
+	    if (f != c && ANYOF_BITMAP_TEST(n, f))
+		match = TRUE;
+	}
+	
+	if (!match && (flags & ANYOF_CLASS)) {
+	    PL_reg_flags |= RF_tainted;
+	    if (
+		(ANYOF_CLASS_TEST(n, ANYOF_ALNUM)   &&  isALNUM_LC(c))  ||
+		(ANYOF_CLASS_TEST(n, ANYOF_NALNUM)  && !isALNUM_LC(c))  ||
+		(ANYOF_CLASS_TEST(n, ANYOF_SPACE)   &&  isSPACE_LC(c))  ||
+		(ANYOF_CLASS_TEST(n, ANYOF_NSPACE)  && !isSPACE_LC(c))  ||
+		(ANYOF_CLASS_TEST(n, ANYOF_DIGIT)   &&  isDIGIT_LC(c))  ||
+		(ANYOF_CLASS_TEST(n, ANYOF_NDIGIT)  && !isDIGIT_LC(c))  ||
+		(ANYOF_CLASS_TEST(n, ANYOF_ALNUMC)  &&  isALNUMC_LC(c)) ||
+		(ANYOF_CLASS_TEST(n, ANYOF_NALNUMC) && !isALNUMC_LC(c)) ||
+		(ANYOF_CLASS_TEST(n, ANYOF_ALPHA)   &&  isALPHA_LC(c))  ||
+		(ANYOF_CLASS_TEST(n, ANYOF_NALPHA)  && !isALPHA_LC(c))  ||
+		(ANYOF_CLASS_TEST(n, ANYOF_ASCII)   &&  isASCII(c))     ||
+		(ANYOF_CLASS_TEST(n, ANYOF_NASCII)  && !isASCII(c))     ||
+		(ANYOF_CLASS_TEST(n, ANYOF_CNTRL)   &&  isCNTRL_LC(c))  ||
+		(ANYOF_CLASS_TEST(n, ANYOF_NCNTRL)  && !isCNTRL_LC(c))  ||
+		(ANYOF_CLASS_TEST(n, ANYOF_GRAPH)   &&  isGRAPH_LC(c))  ||
+		(ANYOF_CLASS_TEST(n, ANYOF_NGRAPH)  && !isGRAPH_LC(c))  ||
+		(ANYOF_CLASS_TEST(n, ANYOF_LOWER)   &&  isLOWER_LC(c))  ||
+		(ANYOF_CLASS_TEST(n, ANYOF_NLOWER)  && !isLOWER_LC(c))  ||
+		(ANYOF_CLASS_TEST(n, ANYOF_PRINT)   &&  isPRINT_LC(c))  ||
+		(ANYOF_CLASS_TEST(n, ANYOF_NPRINT)  && !isPRINT_LC(c))  ||
+		(ANYOF_CLASS_TEST(n, ANYOF_PUNCT)   &&  isPUNCT_LC(c))  ||
+		(ANYOF_CLASS_TEST(n, ANYOF_NPUNCT)  && !isPUNCT_LC(c))  ||
+		(ANYOF_CLASS_TEST(n, ANYOF_UPPER)   &&  isUPPER_LC(c))  ||
+		(ANYOF_CLASS_TEST(n, ANYOF_NUPPER)  && !isUPPER_LC(c))  ||
+		(ANYOF_CLASS_TEST(n, ANYOF_XDIGIT)  &&  isXDIGIT(c))    ||
+		(ANYOF_CLASS_TEST(n, ANYOF_NXDIGIT) && !isXDIGIT(c))    ||
+		(ANYOF_CLASS_TEST(n, ANYOF_PSXSPC)  &&  isPSXSPC(c))    ||
+		(ANYOF_CLASS_TEST(n, ANYOF_NPSXSPC) && !isPSXSPC(c))    ||
+		(ANYOF_CLASS_TEST(n, ANYOF_BLANK)   &&  isBLANK(c))     ||
+		(ANYOF_CLASS_TEST(n, ANYOF_NBLANK)  && !isBLANK(c))
+		) /* How's that for a conditional? */
+	    {
+		match = TRUE;
+	    }
+	}
+    }
+
+    return (flags & ANYOF_INVERT) ? !match : match;
+}
+
+STATIC U8 *
+S_reghop3(U8 *s, I32 off, const U8* lim)
+{
+    dVAR;
+
+    PERL_ARGS_ASSERT_REGHOP3;
+
+    if (off >= 0) {
+	while (off-- && s < lim) {
+	    /* XXX could check well-formedness here */
+	    s += UTF8SKIP(s);
+	}
+    }
+    else {
+        while (off++ && s > lim) {
+            s--;
+            if (UTF8_IS_CONTINUED(*s)) {
+                while (s > lim && UTF8_IS_CONTINUATION(*s))
+                    s--;
+	    }
+            /* XXX could check well-formedness here */
+	}
+    }
+    return s;
+}
+
+#ifdef XXX_dmq
+/* there are a bunch of places where we use two reghop3's that should
+   be replaced with this routine. but since thats not done yet 
+   we ifdef it out - dmq
+*/
+STATIC U8 *
+S_reghop4(U8 *s, I32 off, const U8* llim, const U8* rlim)
+{
+    dVAR;
+
+    PERL_ARGS_ASSERT_REGHOP4;
+
+    if (off >= 0) {
+        while (off-- && s < rlim) {
+            /* XXX could check well-formedness here */
+            s += UTF8SKIP(s);
+        }
+    }
+    else {
+        while (off++ && s > llim) {
+            s--;
+            if (UTF8_IS_CONTINUED(*s)) {
+                while (s > llim && UTF8_IS_CONTINUATION(*s))
+                    s--;
+            }
+            /* XXX could check well-formedness here */
+        }
+    }
+    return s;
+}
+#endif
+
+STATIC U8 *
+S_reghopmaybe3(U8* s, I32 off, const U8* lim)
+{
+    dVAR;
+
+    PERL_ARGS_ASSERT_REGHOPMAYBE3;
+
+    if (off >= 0) {
+	while (off-- && s < lim) {
+	    /* XXX could check well-formedness here */
+	    s += UTF8SKIP(s);
+	}
+	if (off >= 0)
+	    return NULL;
+    }
+    else {
+        while (off++ && s > lim) {
+            s--;
+            if (UTF8_IS_CONTINUED(*s)) {
+                while (s > lim && UTF8_IS_CONTINUATION(*s))
+                    s--;
+	    }
+            /* XXX could check well-formedness here */
+	}
+	if (off <= 0)
+	    return NULL;
+    }
+    return s;
+}
+
+static void
+restore_pos(pTHX_ void *arg)
+{
+    dVAR;
+    regexp * const rex = (regexp *)arg;
+    if (PL_reg_eval_set) {
+	if (PL_reg_oldsaved) {
+	    rex->subbeg = PL_reg_oldsaved;
+	    rex->sublen = PL_reg_oldsavedlen;
+#ifdef PERL_OLD_COPY_ON_WRITE
+	    rex->saved_copy = PL_nrs;
+#endif
+	    RXp_MATCH_COPIED_on(rex);
+	}
+	PL_reg_magic->mg_len = PL_reg_oldpos;
+	PL_reg_eval_set = 0;
+	PL_curpm = PL_reg_oldcurpm;
+    }	
+}
+
+STATIC void
+S_to_utf8_substr(pTHX_ register regexp *prog)
+{
+    int i = 1;
+
+    PERL_ARGS_ASSERT_TO_UTF8_SUBSTR;
+
+    do {
+	if (prog->substrs->data[i].substr
+	    && !prog->substrs->data[i].utf8_substr) {
+	    SV* const sv = newSVsv(prog->substrs->data[i].substr);
+	    prog->substrs->data[i].utf8_substr = sv;
+	    sv_utf8_upgrade(sv);
+	    if (SvVALID(prog->substrs->data[i].substr)) {
+		const U8 flags = BmFLAGS(prog->substrs->data[i].substr);
+		if (flags & FBMcf_TAIL) {
+		    /* Trim the trailing \n that fbm_compile added last
+		       time.  */
+		    SvCUR_set(sv, SvCUR(sv) - 1);
+		    /* Whilst this makes the SV technically "invalid" (as its
+		       buffer is no longer followed by "\0") when fbm_compile()
+		       adds the "\n" back, a "\0" is restored.  */
+		}
+		fbm_compile(sv, flags);
+	    }
+	    if (prog->substrs->data[i].substr == prog->check_substr)
+		prog->check_utf8 = sv;
+	}
+    } while (i--);
+}
+
+STATIC void
+S_to_byte_substr(pTHX_ register regexp *prog)
+{
+    dVAR;
+    int i = 1;
+
+    PERL_ARGS_ASSERT_TO_BYTE_SUBSTR;
+
+    do {
+	if (prog->substrs->data[i].utf8_substr
+	    && !prog->substrs->data[i].substr) {
+	    SV* sv = newSVsv(prog->substrs->data[i].utf8_substr);
+	    if (sv_utf8_downgrade(sv, TRUE)) {
+		if (SvVALID(prog->substrs->data[i].utf8_substr)) {
+		    const U8 flags
+			= BmFLAGS(prog->substrs->data[i].utf8_substr);
+		    if (flags & FBMcf_TAIL) {
+			/* Trim the trailing \n that fbm_compile added last
+			   time.  */
+			SvCUR_set(sv, SvCUR(sv) - 1);
+		    }
+		    fbm_compile(sv, flags);
+		}	    
+	    } else {
+		SvREFCNT_dec(sv);
+		sv = &PL_sv_undef;
+	    }
+	    prog->substrs->data[i].substr = sv;
+	    if (prog->substrs->data[i].utf8_substr == prog->check_utf8)
+		prog->check_substr = sv;
+	}
+    } while (i--);
+}
+
+/*
+ * Local variables:
+ * c-indentation-style: bsd
+ * c-basic-offset: 4
+ * indent-tabs-mode: t
+ * End:
+ *
+ * ex: set ts=8 sts=4 sw=4 noet:
+ */

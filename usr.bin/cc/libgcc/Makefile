@@ -1,5 +1,5 @@
 # $FreeBSD: src/gnu/lib/libgcc/Makefile,v 1.58.8.1 2009/04/15 03:14:26 kensmith Exp $
-# $OpenBSD: Makefile,v 1.20 2011/09/22 20:57:20 kettenis Exp $
+# $OpenBSD: Makefile,v 1.23 2012/04/17 11:09:16 miod Exp $
 
 .include <bsd.own.mk>
 
@@ -159,12 +159,11 @@ LIB2ADDEH = unwind-ia64.c unwind-sjlj.c unwind-c.c
 .endif
 
 .if ${TARGET_ARCH} == "sh"
-CFLAGS+=	-fpic
+CFLAGS+=	-fpic -DNO_FPSCR_VALUES
 LIB1ASMSRC = sh/lib1funcs.asm
 LIB1ASMFUNCS = _ashiftrt _ashiftrt_n _ashiftlt _lshiftrt _movmem \
   _movmem_i4 _mulsi3 _sdivsi3 _sdivsi3_i4 _udivsi3 _udivsi3_i4 _set_fpscr \
-  _div_table _udiv_qrnnd_16 \
-  _ic_invalidate
+  _udiv_qrnnd_16 _ic_invalidate
 .endif
 
 .if ${TARGET_ARCH} == "powerpc"
@@ -358,6 +357,9 @@ EH_OBJS_T = ${LIB2ADDEHSTATIC:R:S/$/.o/}
 EH_OBJS_P = ${LIB2ADDEHSTATIC:R:S/$/.po/}
 EH_OBJS_S = ${LIB2ADDEHSHARED:R:S/$/.So/}
 EH_CFLAGS = -fexceptions
+.if ${TARGET_ARCH} == "sh"
+EH_CFLAGS+= -fno-stack-protector	# necessary for unwind-dw2.c
+.endif
 SOBJS   += ${EH_OBJS_S}
 OBJS    += ${EH_OBJS_T}
 

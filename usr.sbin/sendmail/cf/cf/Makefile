@@ -1,4 +1,4 @@
-#	$OpenBSD: Makefile,v 1.24 2008/10/03 16:29:05 millert Exp $
+#	$OpenBSD: Makefile,v 1.26 2012/04/12 12:13:18 kurt Exp $
 #
 #  Makefile for configuration files.
 #

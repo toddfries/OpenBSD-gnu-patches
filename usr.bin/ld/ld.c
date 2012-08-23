@@ -1,4 +1,4 @@
-/*	$OpenBSD: ld.c,v 1.33 2008/02/12 21:17:53 miod Exp $	*/
+/*	$OpenBSD: ld.c,v 1.35 2012/08/11 17:41:56 miod Exp $	*/
 /*	$NetBSD: ld.c,v 1.52 1998/02/20 03:12:51 jonathan Exp $	*/
 
 /*-
@@ -472,8 +472,11 @@ classify_arg(char *arg)
 
 	/* GNU binutils 2.x  forward-compatible flags. */
 	case 'r':
-		/* Ignore "-rpath" and hope ld.so.conf will cover our sins. */
+		/* Ignore "-rpath" and "-rpath-link" and hope ld.so.conf
+		   will cover our sins. */
 		if (!strcmp(&arg[1], "rpath"))
+			return 2;
+		if (!strcmp(&arg[1], "rpath-link"))
 			return 2;
 		return 1;
 
@@ -689,7 +692,8 @@ decode_option(char *swt, char *arg)
 			warnx("-soname %s ignored", arg);
 		return;
 	}
-	if (strcmp(swt + 1, "rpath") == 0) {
+	if (strcmp(swt + 1, "rpath") == 0 ||
+	    strcmp(swt + 1, "rpath-link") == 0) {
 		if (warn_forwards_compatible_inexact)
 			warnx("%s %s ignored", swt, arg);
 		goto do_rpath;

@@ -43,8 +43,6 @@ Boston, MA 02111-1307, USA.  */
 #include "target.h"
 #include "target-def.h"
 
-extern FILE *asm_out_file;
-
 const char *m88k_pound_sign = ""; /* Either # for SVR4 or empty for SVR3 */
 const char *m88k_short_data;
 const char *m88k_version;
@@ -76,6 +74,7 @@ static int m88k_adjust_cost PARAMS ((rtx, rtx, rtx, int));
 static void m88k_encode_section_info PARAMS ((tree, int));
 
 /* Initialize the GCC target structure.  */
+#if !defined(OBJECT_FORMAT_ELF)
 #undef TARGET_ASM_BYTE_OP
 #define TARGET_ASM_BYTE_OP "\tbyte\t"
 #undef TARGET_ASM_ALIGNED_HI_OP
@@ -86,6 +85,7 @@ static void m88k_encode_section_info PARAMS ((tree, int));
 #define TARGET_ASM_UNALIGNED_HI_OP "\tuahalf\t"
 #undef TARGET_ASM_UNALIGNED_SI_OP
 #define TARGET_ASM_UNALIGNED_SI_OP "\tuaword\t"
+#endif
 
 #undef TARGET_ASM_FUNCTION_PROLOGUE
 #define TARGET_ASM_FUNCTION_PROLOGUE m88k_output_function_prologue
@@ -516,8 +516,10 @@ static const int best_from_align[3][9] = {
    0, 0, 0, MOVSTR_DI_LIMIT_88000}
 };
 
+#if 0
 static void block_move_loop PARAMS ((rtx, rtx, rtx, rtx, int, int));
 static void block_move_no_loop PARAMS ((rtx, rtx, rtx, rtx, int, int));
+#endif
 static void block_move_sequence PARAMS ((rtx, rtx, rtx, rtx, int, int, int));
 static void output_short_branch_defs PARAMS ((FILE *));
 static int output_option PARAMS ((FILE *, const char *, const char *,
@@ -539,7 +541,9 @@ expand_block_move (dest_mem, src_mem, operands)
   int align = INTVAL (operands[3]);
   int constp = (GET_CODE (operands[2]) == CONST_INT);
   int bytes = (constp ? INTVAL (operands[2]) : 0);
+#if 0
   int target = (int) m88k_cpu;
+#endif
 
   if (! (PROCESSOR_M88100 == 0
 	 && PROCESSOR_M88110 == 1
@@ -559,13 +563,15 @@ expand_block_move (dest_mem, src_mem, operands)
     block_move_sequence (operands[0], dest_mem, operands[1], src_mem,
 			 bytes, align, 0);
 
-  else if (constp && bytes <= best_from_align[target][align])
+#if 0
+  else if (constp && bytes <= best_from_align[target][align] && !TARGET_MEMCPY)
     block_move_no_loop (operands[0], dest_mem, operands[1], src_mem,
 			bytes, align);
 
-  else if (constp && align == 4 && TARGET_88100)
+  else if (constp && align == 4 && TARGET_88100 && !TARGET_MEMCPY)
     block_move_loop (operands[0], dest_mem, operands[1], src_mem,
 		     bytes, align);
+#endif
 
   else
     {
@@ -590,6 +596,7 @@ expand_block_move (dest_mem, src_mem, operands)
     }
 }
 
+#if 0
 /* Emit code to perform a block move by calling a looping movstr library
    function.  SIZE and ALIGN are known constants.  DEST and SRC are
    registers.  */
@@ -702,18 +709,29 @@ block_move_no_loop (dest, dest_mem, src, src_mem, size, align)
   MEM_COPY_ATTRIBUTES (value_rtx, src_mem);
 
   value_reg = ((((most - (size - remainder)) / align) & 1) == 0
-	       ? (align == 8 ? 6 : 5) : 4);
+	       ? (mode == DImode ? 6 : 5) : 4);
 
-  emit_insn (gen_call_block_move
-	     (gen_rtx_SYMBOL_REF (Pmode, IDENTIFIER_POINTER (entry_name)),
-	      dest, src, offset_rtx, value_rtx,
-	      gen_rtx_REG (mode, value_reg)));
+  if (mode == DImode)
+    {
+      emit_insn (gen_call_block_move_DI
+		 (gen_rtx_SYMBOL_REF (Pmode, IDENTIFIER_POINTER (entry_name)),
+		  dest, src, offset_rtx, value_rtx,
+		  gen_rtx_REG (mode, value_reg)));
+    }
+  else
+    {
+      emit_insn (gen_call_block_move
+		 (gen_rtx_SYMBOL_REF (Pmode, IDENTIFIER_POINTER (entry_name)),
+		  dest, src, offset_rtx, value_rtx,
+		  gen_rtx_REG (mode, value_reg)));
+    }
 
   if (remainder)
     block_move_sequence (gen_rtx_REG (Pmode, 2), dest_mem,
 			 gen_rtx_REG (Pmode, 3), src_mem,
 			 remainder, align, most);
 }
+#endif
 
 /* Emit code to perform a block move with an offset sequence of ld/st
    instructions (..., ld 0, st 1, ld 1, st 0, ...).  SIZE and ALIGN are
@@ -892,7 +910,9 @@ output_call (operands, addr)
       jump = XVECEXP (final_sequence, 0, 1);
       if (GET_CODE (jump) == JUMP_INSN)
 	{
+#ifndef USE_GAS
 	  rtx low, high;
+#endif
 	  const char *last;
 	  rtx dest = XEXP (SET_SRC (PATTERN (jump)), 0);
 	  int delta = 4 * (INSN_ADDRESSES (INSN_UID (dest))
@@ -1762,8 +1782,6 @@ output_label (label_number)
         |                caller's frame                |
         |==============================================|
         |     [caller's outgoing memory arguments]     |
-        |==============================================|
-        |  caller's outgoing argument area (32 bytes)  |
   sp -> |==============================================| <- ap
         |            [local variable space]            |
         |----------------------------------------------|
@@ -1778,8 +1796,6 @@ output_label (label_number)
         |    [dynamically allocated space (alloca)]    |
         |==============================================|
         |     [callee's outgoing memory arguments]     |
-        |==============================================|
-        | [callee's outgoing argument area (32 bytes)] |
         |==============================================| <- sp
 
   Notes:
@@ -1790,18 +1806,16 @@ output_label (label_number)
   variable space.
   */
 
-static void emit_add PARAMS ((rtx, rtx, int));
+static rtx emit_add PARAMS ((rtx, rtx, int));
 static void preserve_registers PARAMS ((int, int));
 static void emit_ldst PARAMS ((int, int, enum machine_mode, int));
 static void output_tdesc PARAMS ((FILE *, int));
-static int uses_arg_area_p PARAMS ((void));
 
 static int  nregs;
 static int  nxregs;
 static char save_regs[FIRST_PSEUDO_REGISTER];
 static int  frame_laid_out;
 static int  frame_size;
-static int  variable_args_p;
 static int  epilogue_marked;
 static int  prologue_marked;
 
@@ -1824,15 +1838,15 @@ m88k_layout_frame ()
 {
   int regno, sp_size;
 
-  frame_laid_out++;
+  frame_laid_out = 1;
 
   memset ((char *) &save_regs[0], 0, sizeof (save_regs));
   sp_size = nregs = nxregs = 0;
   frame_size = get_frame_size ();
 
-  /* Since profiling requires a call, make sure r1 is saved.  */
+  /* Profiling requires a stack frame.  */
   if (current_function_profile)
-    save_regs[1] = 1;
+    frame_pointer_needed = 1;
 
   /* If we are producing debug information, store r1 and r30 where the
      debugger wants to find them (r30 at r30+0, r1 at r30+4).  Space has
@@ -1840,15 +1854,11 @@ m88k_layout_frame ()
   if (write_symbols != NO_DEBUG && !TARGET_OCS_FRAME_POSITION)
     save_regs[1] = 1;
 
-  /* If there is a call, alloca is used, __builtin_alloca is used, or
-     a dynamic-sized object is defined, add the 8 additional words
-     for the callee's argument area.  The common denominator is that the
-     FP is required.  may_call_alloca only gets calls to alloca;
-     current_function_calls_alloca gets alloca and __builtin_alloca.  */
+  /* If there is a call, or we need a debug frame, r1 needs to be
+     saved as well.  */
   if (regs_ever_live[1] || frame_pointer_needed)
     {
       save_regs[1] = 1;
-      sp_size += REG_PARM_STACK_SPACE (0);
     }
 
   /* If we are producing PIC, save the addressing base register and r1.  */
@@ -1935,35 +1945,6 @@ null_prologue ()
 	  && nxregs == 0
 	  && m88k_stack_size == 0);
 }
-
-/* Determine if the current function has any references to the arg pointer.
-   This is done indirectly by examining the DECL_ARGUMENTS' DECL_RTL.
-   It is OK to return TRUE if there are no references, but FALSE must be
-   correct.  */
-
-static int
-uses_arg_area_p ()
-{
-  register tree parm;
-
-  if (current_function_decl == 0
-      || variable_args_p)
-    return 1;
-
-  for (parm = DECL_ARGUMENTS (current_function_decl);
-       parm;
-       parm = TREE_CHAIN (parm))
-    {
-      if (DECL_RTL (parm) == 0
-	  || GET_CODE (DECL_RTL (parm)) == MEM)
-	return 1;
-
-      if (DECL_INCOMING_RTL (parm) == 0
-	  || GET_CODE (DECL_INCOMING_RTL (parm)) == MEM)
-	return 1;
-    }
-  return 0;
-}
 
 static void
 m88k_output_function_prologue (stream, size)
@@ -2002,26 +1983,30 @@ m88k_output_function_end_prologue (stream)
 void
 m88k_expand_prologue ()
 {
+  rtx insn;
+
+  start_sequence ();
+  emit_note (0, NOTE_INSN_DELETED);
+
   m88k_layout_frame ();
 
-  if (TARGET_OPTIMIZE_ARG_AREA
-      && m88k_stack_size
-      && ! uses_arg_area_p ())
-    {
-      /* The incoming argument area is used for stack space if it is not
-	 used (or if -mno-optimize-arg-area is given).  */
-      if ((m88k_stack_size -= REG_PARM_STACK_SPACE (0)) < 0)
-	m88k_stack_size = 0;
-    }
+  if (warn_stack_larger_than && m88k_stack_size > stack_larger_than_size)
+    warning ("stack usage is %d bytes", m88k_stack_size);
 
   if (m88k_stack_size)
-    emit_add (stack_pointer_rtx, stack_pointer_rtx, -m88k_stack_size);
+    {
+      insn = emit_add (stack_pointer_rtx, stack_pointer_rtx, -m88k_stack_size);
+      RTX_FRAME_RELATED_P (insn) = 1;
+    }
 
   if (nregs || nxregs)
     preserve_registers (m88k_fp_offset + 4, 1);
 
   if (frame_pointer_needed)
-    emit_add (frame_pointer_rtx, stack_pointer_rtx, m88k_fp_offset);
+    {
+      insn = emit_add (frame_pointer_rtx, stack_pointer_rtx, m88k_fp_offset);
+      RTX_FRAME_RELATED_P (insn) = 1;
+    }
 
   if (flag_pic && save_regs[PIC_OFFSET_TABLE_REGNUM])
     {
@@ -2043,6 +2028,9 @@ m88k_expand_prologue ()
     }
   if (current_function_profile)
     emit_insn (gen_blockage ());
+
+  emit_note (0, NOTE_INSN_DELETED);
+  end_sequence ();
 }
 
 /* This function generates the assembly code for function exit,
@@ -2101,7 +2089,6 @@ m88k_output_function_epilogue (stream, size)
 
   m88k_function_number++;
   m88k_prologue_done	= 0;		/* don't put out ln directives */
-  variable_args_p	= 0;		/* has variable args */
   frame_laid_out	= 0;
   epilogue_marked	= 0;
   prologue_marked	= 0;
@@ -2110,25 +2097,36 @@ m88k_output_function_epilogue (stream, size)
 void
 m88k_expand_epilogue ()
 {
+  rtx insn;
+
 #if (MONITOR_GCC & 0x4) /* What are interesting prologue/epilogue values?  */
   fprintf (stream, "; size = %d, m88k_fp_offset = %d, m88k_stack_size = %d\n",
 	   size, m88k_fp_offset, m88k_stack_size);
 #endif
 
+  start_sequence ();
+  emit_note (0, NOTE_INSN_DELETED);
+
   if (frame_pointer_needed)
-    emit_add (stack_pointer_rtx, frame_pointer_rtx, -m88k_fp_offset);
+    {
+      insn = emit_add (stack_pointer_rtx, frame_pointer_rtx, -m88k_fp_offset);
+      RTX_FRAME_RELATED_P (insn) = 1;
+    }
 
   if (nregs || nxregs)
     preserve_registers (m88k_fp_offset + 4, 0);
 
   if (m88k_stack_size)
     emit_add (stack_pointer_rtx, stack_pointer_rtx, m88k_stack_size);
+
+  emit_note (0, NOTE_INSN_DELETED);
+  end_sequence ();
 }
 
 /* Emit insns to set DSTREG to SRCREG + AMOUNT during the prologue or
    epilogue.  */
 
-static void
+static rtx
 emit_add (dstreg, srcreg, amount)
      rtx dstreg;
      rtx srcreg;
@@ -2142,7 +2140,8 @@ emit_add (dstreg, srcreg, amount)
       emit_move_insn (temp, incr);
       incr = temp;
     }
-  emit_insn ((amount < 0 ? gen_subsi3 : gen_addsi3) (dstreg, srcreg, incr));
+  return emit_insn ((amount < 0 ? gen_subsi3 : gen_addsi3) (dstreg, srcreg,
+							    incr));
 }
 
 /* Save/restore the preserve registers.  base is the highest offset from
@@ -2425,11 +2424,11 @@ output_function_profiler (file, labelno, name, savep)
 
   if (savep)
     {
-      fprintf (file, "\tsubu\t %s,%s,64\n", reg_names[31], reg_names[31]);
-      fprintf (file, "\tst.d\t %s,%s,32\n", reg_names[2], reg_names[31]);
-      fprintf (file, "\tst.d\t %s,%s,40\n", reg_names[4], reg_names[31]);
-      fprintf (file, "\tst.d\t %s,%s,48\n", reg_names[6], reg_names[31]);
-      fprintf (file, "\tst.d\t %s,%s,56\n", reg_names[8], reg_names[31]);
+      fprintf (file, "\tsubu\t %s,%s,32\n", reg_names[31], reg_names[31]);
+      fprintf (file, "\tst.d\t %s,%s,0\n", reg_names[2], reg_names[31]);
+      fprintf (file, "\tst.d\t %s,%s,8\n", reg_names[4], reg_names[31]);
+      fprintf (file, "\tst.d\t %s,%s,16\n", reg_names[6], reg_names[31]);
+      fprintf (file, "\tst.d\t %s,%s,24\n", reg_names[8], reg_names[31]);
     }
 
   ASM_GENERATE_INTERNAL_LABEL (label, "LP", labelno);
@@ -2463,11 +2462,11 @@ output_function_profiler (file, labelno, name, savep)
 
   if (savep)
     {
-      fprintf (file, "\tld.d\t %s,%s,32\n", reg_names[2], reg_names[31]);
-      fprintf (file, "\tld.d\t %s,%s,40\n", reg_names[4], reg_names[31]);
-      fprintf (file, "\tld.d\t %s,%s,48\n", reg_names[6], reg_names[31]);
-      fprintf (file, "\tld.d\t %s,%s,56\n", reg_names[8], reg_names[31]);
-      fprintf (file, "\taddu\t %s,%s,64\n", reg_names[31], reg_names[31]);
+      fprintf (file, "\tld.d\t %s,%s,0\n", reg_names[2], reg_names[31]);
+      fprintf (file, "\tld.d\t %s,%s,8\n", reg_names[4], reg_names[31]);
+      fprintf (file, "\tld.d\t %s,%s,16\n", reg_names[6], reg_names[31]);
+      fprintf (file, "\tld.d\t %s,%s,24\n", reg_names[8], reg_names[31]);
+      fprintf (file, "\taddu\t %s,%s,32\n", reg_names[31], reg_names[31]);
     }
 }
 
@@ -2509,16 +2508,12 @@ m88k_function_arg (args_so_far, mode, type, named)
 {
   int bytes, words;
 
-  if (type != 0			/* undo putting struct in register */
-      && (TREE_CODE (type) == RECORD_TYPE || TREE_CODE (type) == UNION_TYPE))
+  if (type != 0 && AGGREGATE_TYPE_P (type)) /* undo putting struct in register */
     mode = BLKmode;
-
-  if (mode == BLKmode && TARGET_WARN_PASS_STRUCT)
-    warning ("argument #%d is a structure", args_so_far + 1);
 
   if ((args_so_far & 1) != 0
       && (mode == DImode || mode == DFmode
-	  || (type != 0 && TYPE_ALIGN (type) > 32)))
+	  || (type != 0 && TYPE_ALIGN (type) > BITS_PER_WORD)))
     args_so_far++;
 
 #ifdef ESKIT
@@ -2530,18 +2525,48 @@ m88k_function_arg (args_so_far, mode, type, named)
     abort ();	/* m88k_function_arg argument `type' is NULL for BLKmode. */
 
   bytes = (mode != BLKmode) ? GET_MODE_SIZE (mode) : int_size_in_bytes (type);
-  words = (bytes + 3) / 4;
+  words = (bytes + UNITS_PER_WORD - 1) / UNITS_PER_WORD;
 
   if (args_so_far + words > 8)
     return (rtx) 0;             /* args have exhausted registers */
 
   else if (mode == BLKmode
-	   && (TYPE_ALIGN (type) != BITS_PER_WORD
-	       || bytes != UNITS_PER_WORD))
+	   && (TYPE_ALIGN (type) != BITS_PER_WORD || bytes != UNITS_PER_WORD))
     return (rtx) 0;
 
   return gen_rtx_REG (((mode == BLKmode) ? TYPE_MODE (type) : mode),
 		      2 + args_so_far);
+}
+
+/* Update the summarizer variable CUM to advance past an argument in
+   the argument list.  The values MODE, TYPE and NAMED describe that
+   argument.  Once this is done, the variable CUM is suitable for
+   analyzing the *following* argument with `FUNCTION_ARG', etc.  (TYPE
+   is null for libcalls where that information may not be available.)  */
+void
+m88k_function_arg_advance (args_so_far, mode, type, named)
+     CUMULATIVE_ARGS *args_so_far;
+     enum machine_mode mode;
+     tree type;
+     int named;
+{
+  int bytes, words;
+
+  if ((type != 0) && AGGREGATE_TYPE_P (type))
+    mode = BLKmode;
+
+  /* Align arguments requiring more than word alignment to a double-word
+     boundary (or an even register number if the argument will get passed
+     in registers).  */
+  if ((*args_so_far & 1) != 0
+      && (mode == DImode || mode == DFmode
+	  || (type != 0 && TYPE_ALIGN (type) > BITS_PER_WORD)))
+    (*args_so_far)++;
+
+  bytes = (mode != BLKmode) ? GET_MODE_SIZE (mode) : int_size_in_bytes (type);
+  words = (bytes + UNITS_PER_WORD - 1) / UNITS_PER_WORD;
+
+  (*args_so_far) += words;
 }
 
 /* Do what is necessary for `va_start'.  We look at the current function
@@ -2558,8 +2583,6 @@ m88k_builtin_saveregs ()
 		       != void_type_node)))
 		? -UNITS_PER_WORD : 0) + UNITS_PER_WORD - 1;
   int fixed;
-
-  variable_args_p = 1;
 
   fixed = 0;
   if (GET_CODE (current_function_arg_offset_rtx) == CONST_INT)

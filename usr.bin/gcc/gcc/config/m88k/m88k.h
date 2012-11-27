@@ -255,61 +255,7 @@ extern int flag_pic;				/* -fpic */
 			 { "version-", &m88k_version } }
 
 /* Do any checking or such that is needed after processing the -m switches.  */
-
-#define OVERRIDE_OPTIONS						     \
-  do {									     \
-    register int i;							     \
-									     \
-    if ((target_flags & MASK_88000) == 0)				     \
-      target_flags |= CPU_DEFAULT;					     \
-									     \
-    if (TARGET_88110)							     \
-      {									     \
-        target_flags |= MASK_USE_DIV;					     \
-        target_flags &= ~MASK_CHECK_ZERO_DIV;				     \
-      }									     \
-      									     \
-    m88k_cpu = (TARGET_88000 ? PROCESSOR_M88000				     \
-		: (TARGET_88100 ? PROCESSOR_M88100 : PROCESSOR_M88110));     \
-									     \
-    if (TARGET_BIG_PIC)							     \
-      flag_pic = 2;							     \
-									     \
-    if ((target_flags & MASK_EITHER_LARGE_SHIFT) == MASK_EITHER_LARGE_SHIFT) \
-      error ("-mtrap-large-shift and -mhandle-large-shift are incompatible");\
-									     \
-    if (TARGET_SVR4)						     	     \
-      {									     \
-	for (i = 0; i < FIRST_PSEUDO_REGISTER; i++)			     \
-	  reg_names[i]--;						     \
-	m88k_pound_sign = "#";						     \
-      }									     \
-    else								     \
-      {									     \
-	target_flags |= MASK_SVR3;					     \
-	target_flags &= ~MASK_SVR4;					     \
-      }									     \
-									     \
-    if (m88k_short_data)						     \
-      {									     \
-	const char *p = m88k_short_data;				     \
-	while (*p)							     \
-	  if (ISDIGIT (*p))						     \
-	    p++;							     \
-	  else								     \
-	    {								     \
-	      error ("invalid option `-mshort-data-%s'", m88k_short_data);   \
-	      break;							     \
-	    }								     \
-	m88k_gp_threshold = atoi (m88k_short_data);			     \
-	if (m88k_gp_threshold > 0x7fffffff)				     \
-	  error ("-mshort-data-%s is too large ", m88k_short_data);          \
-	if (flag_pic)							     \
-	  error ("-mshort-data-%s and PIC are incompatible", m88k_short_data); \
-      }									     \
-    if (TARGET_OMIT_LEAF_FRAME_POINTER)	/* keep nonleaf frame pointers */    \
-      flag_omit_frame_pointer = 1;                                           \
-  } while (0)
+#define OVERRIDE_OPTIONS m88k_override_options ()
 
 /*** Storage Layout ***/
 
@@ -996,6 +942,11 @@ enum reg_class { NO_REGS, AP_REG, XRF_REGS, GENERAL_REGS, AGRF_REGS,
   (((TYPE) ? TYPE_ALIGN (TYPE) : GET_MODE_BITSIZE (MODE)) <= PARM_BOUNDARY \
     ? PARM_BOUNDARY : 2 * PARM_BOUNDARY)
 
+/* Perform any actions needed for a function that is receiving a
+   variable number of arguments.  */
+#define SETUP_INCOMING_VARARGS(CUM,MODE,TYPE,PRETEND_SIZE,NO_RTL) \
+  m88k_setup_incoming_varargs (& (CUM), MODE, TYPE, & (PRETEND_SIZE), NO_RTL)
+
 /* Generate necessary RTL for __builtin_saveregs().
    ARGLIST is the argument list; see expr.c.  */
 #define EXPAND_BUILTIN_SAVEREGS() m88k_builtin_saveregs ()
@@ -1034,6 +985,9 @@ enum reg_class { NO_REGS, AP_REG, XRF_REGS, GENERAL_REGS, AGRF_REGS,
 #define FRAME_POINTER_REQUIRED \
 ((TARGET_OMIT_LEAF_FRAME_POINTER && !leaf_function_p ()) 	\
  || (write_symbols != NO_DEBUG && !TARGET_OCS_FRAME_POSITION))
+
+/* Define registers used by the epilogue and return instruction.  */
+#define EPILOGUE_USES(REGNO)	(reload_completed && (REGNO) == 1)
 
 /* Definitions for register eliminations.
 

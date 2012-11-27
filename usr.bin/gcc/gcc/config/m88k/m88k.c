@@ -1808,7 +1808,7 @@ output_label (label_number)
 
 static rtx emit_add PARAMS ((rtx, rtx, int));
 static void preserve_registers PARAMS ((int, int));
-static void emit_ldst PARAMS ((int, int, enum machine_mode, int));
+static void emit_ldst PARAMS ((int, int, enum machine_mode, int, int));
 static void output_tdesc PARAMS ((FILE *, int));
 
 static int  nregs;
@@ -1985,9 +1985,6 @@ m88k_expand_prologue ()
 {
   rtx insn;
 
-  start_sequence ();
-  emit_note (0, NOTE_INSN_DELETED);
-
   m88k_layout_frame ();
 
   if (warn_stack_larger_than && m88k_stack_size > stack_larger_than_size)
@@ -2028,9 +2025,6 @@ m88k_expand_prologue ()
     }
   if (current_function_profile)
     emit_insn (gen_blockage ());
-
-  emit_note (0, NOTE_INSN_DELETED);
-  end_sequence ();
 }
 
 /* This function generates the assembly code for function exit,
@@ -2104,9 +2098,6 @@ m88k_expand_epilogue ()
 	   size, m88k_fp_offset, m88k_stack_size);
 #endif
 
-  start_sequence ();
-  emit_note (0, NOTE_INSN_DELETED);
-
   if (frame_pointer_needed)
     {
       insn = emit_add (stack_pointer_rtx, frame_pointer_rtx, -m88k_fp_offset);
@@ -2118,9 +2109,6 @@ m88k_expand_epilogue ()
 
   if (m88k_stack_size)
     emit_add (stack_pointer_rtx, stack_pointer_rtx, m88k_stack_size);
-
-  emit_note (0, NOTE_INSN_DELETED);
-  end_sequence ();
 }
 
 /* Emit insns to set DSTREG to SRCREG + AMOUNT during the prologue or
@@ -2172,7 +2160,9 @@ preserve_registers (base, store_p)
 	 memory ops.  */
       if (nregs > 2 && !save_regs[FRAME_POINTER_REGNUM])
 	offset -= 4;
-      emit_ldst (store_p, 1, SImode, offset);
+      /* Do not reload r1 in the epilogue unless really necessary */
+      if (store_p || regs_ever_live[1])
+	emit_ldst (store_p, 1, SImode, offset, 1);
       offset -= 4;
       base = offset;
     }
@@ -2239,19 +2229,23 @@ preserve_registers (base, store_p)
       if (mo_ptr->nregs)
 	emit_ldst (store_p, mo_ptr->regno,
 		   (mo_ptr->nregs > 1 ? DImode : SImode),
-		   mo_ptr->offset);
+		   mo_ptr->offset, 1);
     }
 }
 
 static void
-emit_ldst (store_p, regno, mode, offset)
+emit_ldst (store_p, regno, mode, offset, frame_related)
      int store_p;
      int regno;
      enum machine_mode mode;
      int offset;
+     int frame_related;
 {
   rtx reg = gen_rtx_REG (mode, regno);
   rtx mem;
+
+  if (frame_related)
+    start_sequence ();
 
   if (SMALL_INTVAL (offset))
     {
@@ -2273,6 +2267,30 @@ emit_ldst (store_p, regno, mode, offset)
     emit_move_insn (mem, reg);
   else
     emit_move_insn (reg, mem);
+
+  if (frame_related)
+    {
+      rtx seq = get_insns();
+      rtx insn;
+
+      end_sequence ();
+
+      if (INSN_P (seq))
+	{
+	  insn = seq;
+	  while (insn != NULL_RTX)
+	    {
+	      RTX_FRAME_RELATED_P (insn) = 1;
+	      insn = NEXT_INSN (insn);
+	    }
+	  seq = emit_insn (seq);
+	}
+      else
+	{
+	  seq = emit_insn (seq);
+	  RTX_FRAME_RELATED_P (seq) = 1;
+	}
+    }
 }
 
 /* Convert the address expression REG to a CFA offset.  */
@@ -2511,21 +2529,16 @@ m88k_function_arg (args_so_far, mode, type, named)
   if (type != 0 && AGGREGATE_TYPE_P (type)) /* undo putting struct in register */
     mode = BLKmode;
 
-  if ((args_so_far & 1) != 0
-      && (mode == DImode || mode == DFmode
-	  || (type != 0 && TYPE_ALIGN (type) > BITS_PER_WORD)))
-    args_so_far++;
-
-#ifdef ESKIT
-  if (no_reg_params)
-    return (rtx) 0;             /* don't put args in registers */
-#endif
-
   if (type == 0 && mode == BLKmode)
     abort ();	/* m88k_function_arg argument `type' is NULL for BLKmode. */
 
   bytes = (mode != BLKmode) ? GET_MODE_SIZE (mode) : int_size_in_bytes (type);
   words = (bytes + UNITS_PER_WORD - 1) / UNITS_PER_WORD;
+
+  if ((args_so_far & 1) != 0
+      && (mode == DImode || mode == DFmode
+	  || (type != 0 && TYPE_ALIGN (type) > BITS_PER_WORD)))
+    args_so_far++;
 
   if (args_so_far + words > 8)
     return (rtx) 0;             /* args have exhausted registers */
@@ -2548,25 +2561,83 @@ m88k_function_arg_advance (args_so_far, mode, type, named)
      CUMULATIVE_ARGS *args_so_far;
      enum machine_mode mode;
      tree type;
-     int named;
+     int named ATTRIBUTE_UNUSED;
 {
   int bytes, words;
+  int asf;
 
-  if ((type != 0) && AGGREGATE_TYPE_P (type))
+  if (type != 0 && AGGREGATE_TYPE_P (type))
     mode = BLKmode;
-
-  /* Align arguments requiring more than word alignment to a double-word
-     boundary (or an even register number if the argument will get passed
-     in registers).  */
-  if ((*args_so_far & 1) != 0
-      && (mode == DImode || mode == DFmode
-	  || (type != 0 && TYPE_ALIGN (type) > BITS_PER_WORD)))
-    (*args_so_far)++;
 
   bytes = (mode != BLKmode) ? GET_MODE_SIZE (mode) : int_size_in_bytes (type);
   words = (bytes + UNITS_PER_WORD - 1) / UNITS_PER_WORD;
 
-  (*args_so_far) += words;
+  /* Struct and unions which are not exactly the size of a register are to be
+     passed on stack.  */
+  if (mode == BLKmode
+      && (TYPE_ALIGN (type) != BITS_PER_WORD || bytes != UNITS_PER_WORD))
+    return;
+
+  asf = *args_so_far;
+  /* Align arguments requiring more than word alignment to a double-word
+     boundary (or an even register number if the argument will get passed
+     in registers).  */
+  if ((asf & 1) != 0
+      && (mode == DImode || mode == DFmode
+	  || (type != 0 && TYPE_ALIGN (type) > BITS_PER_WORD)))
+    asf++;
+
+  if (asf + words > 8)
+    return;
+
+  (*args_so_far) = asf + words;
+}
+
+/* Perform any needed actions needed for a function that is receiving a
+   variable number of arguments.
+
+   CUM is as above.
+
+   MODE and TYPE are the mode and type of the current parameter.
+
+   PRETEND_SIZE is a variable that should be set to the amount of stack
+   that must be pushed by the prolog to pretend that our caller pushed
+   it.
+
+   Normally, this macro will push all remaining incoming registers on the
+   stack and set PRETEND_SIZE to the length of the registers pushed.  */
+
+void
+m88k_setup_incoming_varargs (cum, mode, type, pretend_size, no_rtl)
+     CUMULATIVE_ARGS *cum;
+     enum machine_mode mode;
+     tree type;
+     int *pretend_size;
+     int no_rtl;
+{
+  CUMULATIVE_ARGS next_cum;
+  tree fntype;
+  int stdarg_p;
+  int regcnt;
+
+  if (no_rtl)
+    return;
+
+  fntype = TREE_TYPE (current_function_decl);
+  stdarg_p = (TYPE_ARG_TYPES (fntype) != 0
+	     && (TREE_VALUE (tree_last (TYPE_ARG_TYPES (fntype)))
+		 != void_type_node));
+
+  /* For varargs, we do not want to skip the dummy va_dcl argument.
+     For stdargs, we do want to skip the last named argument.  */
+  next_cum = *cum;
+  if (stdarg_p)
+    m88k_function_arg_advance(&next_cum, mode, type, 1);
+
+  regcnt = next_cum < 8 ? 8 - next_cum : 0;
+  if (regcnt & 1)
+    regcnt++;
+  *pretend_size = regcnt * UNITS_PER_WORD;
 }
 
 /* Do what is necessary for `va_start'.  We look at the current function
@@ -2577,34 +2648,60 @@ struct rtx_def *
 m88k_builtin_saveregs ()
 {
   rtx addr;
-  tree fntype = TREE_TYPE (current_function_decl);
-  int argadj = ((!(TYPE_ARG_TYPES (fntype) != 0
-		   && (TREE_VALUE (tree_last (TYPE_ARG_TYPES (fntype)))
-		       != void_type_node)))
-		? -UNITS_PER_WORD : 0) + UNITS_PER_WORD - 1;
-  int fixed;
+  int regcnt, delta;
 
-  fixed = 0;
-  if (GET_CODE (current_function_arg_offset_rtx) == CONST_INT)
-    fixed = ((INTVAL (current_function_arg_offset_rtx) + argadj)
-	     / UNITS_PER_WORD);
+  if (! CONSTANT_P (current_function_arg_offset_rtx))
+    abort ();
 
-  /* Allocate the register space, and store it as the __va_reg member.  */
-  addr = assign_stack_local (BLKmode, 8 * UNITS_PER_WORD, -1);
+  regcnt = current_function_args_info < 8 ? 8 - current_function_args_info : 0;
+  delta = regcnt & 1;
+
+  /* Allocate the register space, which will be returned as the __va_reg
+     member. If the number of registers to copy is odd, we add an extra
+     word to align even-numbered registers to a doubleword boundary.  */
+  addr = assign_stack_local (BLKmode, (regcnt + delta) * UNITS_PER_WORD, -1);
   set_mem_alias_set (addr, get_varargs_alias_set ());
   RTX_UNCHANGING_P (addr) = 1;
   RTX_UNCHANGING_P (XEXP (addr, 0)) = 1;
 
   /* Now store the incoming registers.  */
-  if (fixed < 8)
-    move_block_from_reg (2 + fixed,
-			 adjust_address (addr, Pmode, fixed * UNITS_PER_WORD),
-			 8 - fixed,
-			 UNITS_PER_WORD * (8 - fixed));
+  if (regcnt != 0)
+    {
+      /* The following is equivalent to
+	 move_block_from_reg (2 + current_function_args_info,
+			      adjust_address (addr, Pmode,
+					      delta * UNITS_PER_WORD),
+			      regcnt, UNITS_PER_WORD * regcnt);
+	 but using double store instruction since the stack is properly
+	 aligned.  */
+      rtx dst = addr;
+      int regno = 2 + current_function_args_info;
+      int offs;
 
-  /* Return the address of the save area, but don't put it in a
+      if (delta != 0)
+	{
+	  dst = adjust_address (dst, Pmode, UNITS_PER_WORD);
+	  emit_move_insn (operand_subword (dst, 0, 1, BLKmode),
+			  gen_rtx_REG (SImode, regno));
+	  regno++;
+	}
+
+      offs = delta;
+      while (regno < 10)
+	{
+	  emit_move_insn (adjust_address (dst, DImode, offs * UNITS_PER_WORD),
+			  gen_rtx_REG (DImode, regno));
+	  offs += 2;
+	  regno += 2;
+        }
+    }
+
+  /* Return the address of the hypothetical save area containing all the
+     argument registers (to help va_arg() computations), but don't put it in a
      register.  This fails when not optimizing and produces worse code
      when optimizing.  */
+  addr = adjust_address (addr, Pmode,
+			 -(current_function_args_info - delta) * UNITS_PER_WORD);
   return XEXP (addr, 0);
 }
 
@@ -2647,6 +2744,12 @@ m88k_va_start (valist, nextarg)
 {
   tree field_reg, field_stk, field_arg;
   tree reg, stk, arg, t;
+  tree fntype;
+  int stdarg_p;
+  int offset;
+
+  if (! CONSTANT_P (current_function_arg_offset_rtx))
+    abort ();
 
   field_arg = TYPE_FIELDS (va_list_type_node);
   field_stk = TREE_CHAIN (field_arg);
@@ -2656,39 +2759,23 @@ m88k_va_start (valist, nextarg)
   stk = build (COMPONENT_REF, TREE_TYPE (field_stk), valist, field_stk);
   reg = build (COMPONENT_REF, TREE_TYPE (field_reg), valist, field_reg);
 
-  /* Fill in the ARG member.  */
-  {
-    tree fntype = TREE_TYPE (current_function_decl);
-    int argadj = ((!(TYPE_ARG_TYPES (fntype) != 0
-		     && (TREE_VALUE (tree_last (TYPE_ARG_TYPES (fntype)))
-			 != void_type_node)))
-		  ? -UNITS_PER_WORD : 0) + UNITS_PER_WORD - 1;
-    tree argsize;
+  fntype = TREE_TYPE (current_function_decl);
+  stdarg_p = (TYPE_ARG_TYPES (fntype) != 0
+	      && (TREE_VALUE (tree_last (TYPE_ARG_TYPES (fntype)))
+		  != void_type_node));
 
-    if (CONSTANT_P (current_function_arg_offset_rtx))
-      {
-	int fixed = (INTVAL (current_function_arg_offset_rtx)
-		     + argadj) / UNITS_PER_WORD;
-
-	argsize = build_int_2 (fixed, 0);
-      }
-    else
-      {
-	argsize = make_tree (integer_type_node,
-			     current_function_arg_offset_rtx);
-	argsize = fold (build (PLUS_EXPR, integer_type_node, argsize,
-			       build_int_2 (argadj, 0)));
-	argsize = fold (build (RSHIFT_EXPR, integer_type_node, argsize,
-			       build_int_2 (2, 0)));
-      }
-
-    t = build (MODIFY_EXPR, TREE_TYPE (arg), arg, argsize);
-    TREE_SIDE_EFFECTS (t) = 1;
-    expand_expr (t, const0_rtx, VOIDmode, EXPAND_NORMAL);
-  }
+  /* Fill in the __va_arg member.  */
+  t = build (MODIFY_EXPR, TREE_TYPE (arg), arg,
+	     build_int_2 (current_function_args_info, 0));
+  TREE_SIDE_EFFECTS (t) = 1;
+  expand_expr (t, const0_rtx, VOIDmode, EXPAND_NORMAL);
 
   /* Store the arg pointer in the __va_stk member.  */
+  offset = XINT (current_function_arg_offset_rtx, 0);
+  if (current_function_args_info >= 8 && ! stdarg_p)
+    offset -= UNITS_PER_WORD;
   t = make_tree (TREE_TYPE (stk), virtual_incoming_args_rtx);
+  t = build (PLUS_EXPR, TREE_TYPE (stk), t, build_int_2 (offset, 0));
   t = build (MODIFY_EXPR, TREE_TYPE (stk), stk, t);
   TREE_SIDE_EFFECTS (t) = 1;
   expand_expr (t, const0_rtx, VOIDmode, EXPAND_NORMAL);
@@ -2707,44 +2794,110 @@ m88k_va_arg (valist, type)
      tree valist, type;
 {
   tree field_reg, field_stk, field_arg;
-  tree reg, stk, arg, arg_align, base, t;
   int size, wsize, align, reg_p;
   rtx addr_rtx;
+  rtx lab_done;
 
   field_arg = TYPE_FIELDS (va_list_type_node);
   field_stk = TREE_CHAIN (field_arg);
   field_reg = TREE_CHAIN (field_stk);
 
-  arg = build (COMPONENT_REF, TREE_TYPE (field_arg), valist, field_arg);
-  stk = build (COMPONENT_REF, TREE_TYPE (field_stk), valist, field_stk);
-  reg = build (COMPONENT_REF, TREE_TYPE (field_reg), valist, field_reg);
-
   size = int_size_in_bytes (type);
   wsize = (size + UNITS_PER_WORD - 1) / UNITS_PER_WORD;
-  align = 1 << ((TYPE_ALIGN (type) / BITS_PER_UNIT) >> 3);
   reg_p = (AGGREGATE_TYPE_P (type)
 	   ? size == UNITS_PER_WORD && TYPE_ALIGN (type) == BITS_PER_WORD
 	   : size <= 2*UNITS_PER_WORD);
 
-  /* Align __va_arg to the (doubleword?) boundary above.  */
-  t = build (PLUS_EXPR, TREE_TYPE (arg), arg, build_int_2 (align - 1, 0));
-  arg_align = build (BIT_AND_EXPR, TREE_TYPE (t), t, build_int_2 (-align, -1));
-  arg_align = save_expr (arg_align);
+  addr_rtx = gen_reg_rtx (Pmode);
+  lab_done = gen_label_rtx ();
 
-  /* Decide if we should read from stack or regs.  */
-  t = build (LT_EXPR, integer_type_node, arg_align, build_int_2 (8, 0));
-  base = build (COND_EXPR, TREE_TYPE (reg), t, reg, stk);
+  /* Decide if we should read from stack or regs if the argument could have
+     been passed in registers.  */
+  if (reg_p) {
+    tree arg, arg_align, reg;
+    rtx lab_stack;
+    tree t;
+    rtx r;
 
-  /* Find the final address.  */
-  t = build (PLUS_EXPR, TREE_TYPE (base), base, arg_align);
-  addr_rtx = expand_expr (t, NULL_RTX, Pmode, EXPAND_NORMAL);
-  addr_rtx = copy_to_reg (addr_rtx);
+    lab_stack = gen_label_rtx ();
 
-  /* Increment __va_arg.  */
-  t = build (PLUS_EXPR, TREE_TYPE (arg), arg_align, build_int_2 (wsize, 0));
-  t = build (MODIFY_EXPR, TREE_TYPE (arg), arg, t);
-  TREE_SIDE_EFFECTS (t) = 1;
-  expand_expr (t, const0_rtx, VOIDmode, EXPAND_NORMAL);
+    /* Align __va_arg to a doubleword boundary if necessary.  */
+    arg = build (COMPONENT_REF, TREE_TYPE (field_arg), valist, field_arg);
+    align = TYPE_ALIGN (type) / BITS_PER_WORD;
+    if (align > 1)
+      {
+	t = build (PLUS_EXPR, TREE_TYPE (arg), arg, build_int_2 (align - 1, 0));
+	arg_align = build (BIT_AND_EXPR, TREE_TYPE (t), t,
+			   build_int_2 (-align, -1));
+	arg_align = save_expr (arg_align);
+      }
+    else
+      arg_align = arg;
+
+    /* Make sure the argument fits within the remainder of the saved
+       register area, and branch to the stack logic if not.  */
+    r = expand_expr (arg_align, NULL_RTX, TYPE_MODE (TREE_TYPE (arg_align)),
+		     EXPAND_NORMAL);
+    /* if (arg_align > 8 - wsize) goto lab_stack */
+    emit_cmp_and_jump_insns (r, GEN_INT (8 - wsize), GTU,
+			     GEN_INT (UNITS_PER_WORD), GET_MODE (r), 1,
+			     lab_stack);
+
+    /* Compute the argument address.  */
+    reg = build (COMPONENT_REF, TREE_TYPE (field_reg), valist, field_reg);
+    t = build (MULT_EXPR, TREE_TYPE (reg), arg_align,
+	       build_int_2 (UNITS_PER_WORD, 0));
+    t = build (PLUS_EXPR, TREE_TYPE (reg), reg, t);
+    TREE_SIDE_EFFECTS (t) = 1;
+
+    r = expand_expr (t, addr_rtx, Pmode, EXPAND_NORMAL);
+    if (r != addr_rtx)
+      emit_move_insn (addr_rtx, r);
+
+    /* Increment __va_arg.  */
+    t = build (PLUS_EXPR, TREE_TYPE (arg), arg_align, build_int_2 (wsize, 0));
+    t = build (MODIFY_EXPR, TREE_TYPE (arg), arg, t);
+    TREE_SIDE_EFFECTS (t) = 1;
+    expand_expr (t, const0_rtx, VOIDmode, EXPAND_NORMAL);
+
+    emit_jump_insn (gen_jump (lab_done));
+    emit_barrier ();
+
+    emit_label (lab_stack);
+  }
+
+  {
+    tree stk;
+    tree t;
+    rtx r;
+
+    stk = build (COMPONENT_REF, TREE_TYPE (field_stk), valist, field_stk);
+
+    /* Align __va_stk to the type boundary if necessary.  */
+    align = TYPE_ALIGN (type) / BITS_PER_UNIT;
+    if (align > UNITS_PER_WORD)
+      {
+        t = build (PLUS_EXPR, TREE_TYPE (stk), stk, build_int_2 (align - 1, 0));
+        t = build (BIT_AND_EXPR, TREE_TYPE (t), t, build_int_2 (-align, -1));
+	TREE_SIDE_EFFECTS (t) = 1;
+      }
+    else
+      t = stk;
+
+    /* Compute the argument address.  */
+    r = expand_expr (t, addr_rtx, Pmode, EXPAND_NORMAL);
+    if (r != addr_rtx)
+      emit_move_insn (addr_rtx, r);
+
+    /* Increment __va_stk.  */
+    t = build (PLUS_EXPR, TREE_TYPE (t), t,
+	       build_int_2 (wsize * UNITS_PER_WORD, 0));
+    t = build (MODIFY_EXPR, TREE_TYPE (stk), stk, t);
+    TREE_SIDE_EFFECTS (t) = 1;
+    expand_expr (t, const0_rtx, VOIDmode, EXPAND_NORMAL);
+  }
+
+  emit_label (lab_done);
 
   return addr_rtx;
 }
@@ -3361,4 +3514,60 @@ m88k_encode_section_info (decl, first)
 	       && TREE_STRING_LENGTH (decl) <= m88k_gp_threshold)
 	SYMBOL_REF_FLAG (XEXP (TREE_CST_RTL (decl), 0)) = 1;
     }
+}
+
+void
+m88k_override_options ()
+{
+  register int i;
+
+  if ((target_flags & MASK_88000) == 0)
+    target_flags |= CPU_DEFAULT;
+
+  if (TARGET_88110)
+    {
+      target_flags |= MASK_USE_DIV;
+      target_flags &= ~MASK_CHECK_ZERO_DIV;
+    }
+
+  m88k_cpu = (TARGET_88000 ? PROCESSOR_M88000
+	      : (TARGET_88100 ? PROCESSOR_M88100 : PROCESSOR_M88110));
+
+  if (TARGET_BIG_PIC)
+    flag_pic = 2;
+
+  if ((target_flags & MASK_EITHER_LARGE_SHIFT) == MASK_EITHER_LARGE_SHIFT)
+    error ("-mtrap-large-shift and -mhandle-large-shift are incompatible");
+
+  if (TARGET_SVR4)
+    {
+      for (i = 0; i < FIRST_PSEUDO_REGISTER; i++)
+	reg_names[i]--;
+      m88k_pound_sign = "#";
+    }
+  else
+    {
+      target_flags |= MASK_SVR3;
+      target_flags &= ~MASK_SVR4;
+    }
+
+  if (m88k_short_data)
+    {
+      const char *p = m88k_short_data;
+      while (*p)
+	if (ISDIGIT (*p))
+	  p++;
+	else
+	  {
+	    error ("invalid option `-mshort-data-%s'", m88k_short_data);
+	    break;
+	  }
+      m88k_gp_threshold = atoi (m88k_short_data);
+      if (m88k_gp_threshold > 0x7fffffff)
+	error ("-mshort-data-%s is too large ", m88k_short_data);
+      if (flag_pic)
+	error ("-mshort-data-%s and PIC are incompatible", m88k_short_data);
+    }
+  if (TARGET_OMIT_LEAF_FRAME_POINTER)	/* keep nonleaf frame pointers */
+    flag_omit_frame_pointer = 1;
 }

@@ -3390,6 +3390,16 @@ set_initial_elim_offsets ()
   num_not_at_initial_offset = 0;
 }
 
+/* Subroutine of set_initial_label_offsets called via for_each_eh_label.  */
+
+static void set_initial_eh_label_offset PARAMS ((rtx));
+static void
+set_initial_eh_label_offset (label)
+     rtx label;
+{
+  set_label_offsets (label, NULL_RTX, 1);
+}
+
 /* Initialize the known label offsets.
    Set a known offset for each forced label to be at the initial offset
    of each elimination.  We do this because we assume that all
@@ -3406,6 +3416,8 @@ set_initial_label_offsets ()
   for (x = forced_labels; x; x = XEXP (x, 1))
     if (XEXP (x, 0))
       set_label_offsets (XEXP (x, 0), NULL_RTX, 1);
+
+  for_each_eh_label (set_initial_eh_label_offset);
 }
 
 /* Set all elimination offsets to the known values for the code label given
@@ -8047,7 +8059,19 @@ static int
 reload_cse_noop_set_p (set)
      rtx set;
 {
-  return rtx_equal_for_cselib_p (SET_DEST (set), SET_SRC (set));
+  rtx dest, src;
+
+  dest = SET_DEST (set);
+  src = SET_SRC (set);
+
+  if (! rtx_equal_for_cselib_p (dest, src))
+    return 0;
+
+  if ((GET_CODE (dest) == MEM && MEM_VOLATILE_P (dest))
+      || (GET_CODE (src) == MEM && MEM_VOLATILE_P (src)))
+    return 0;
+
+  return 1;
 }
 
 /* Try to simplify INSN.  */

@@ -1,6 +1,5 @@
-/* LIB_SPEC appropriate for OpenBSD.  Include -lpthread if -pthread is
-   specified on the command line. */
-/*   Copyright (C) 2004 Free Software Foundation, Inc.
+/* Configuration file for an m68k OpenBSD target.
+   Copyright (C) 1999 Free Software Foundation, Inc.
 
 This file is part of GNU CC.
 
@@ -19,5 +18,14 @@ along with GNU CC; see the file COPYING.  If not, write to
 the Free Software Foundation, 59 Temple Place - Suite 330,
 Boston, MA 02111-1307, USA.  */
 
-#define OBSD_LIB_SPEC "%{pthread:-lpthread%{!shared:%{p|pg:_p}}} %{!shared:-lc%{p|pg:_p}}"
+/* m68k is an old configuration that does not yet use the TARGET_CPU_DEFAULT
+   framework. OpenBSD uses -m68020-60 by default.  */
+#define TARGET_DEFAULT \
+	(MASK_BITFIELD | MASK_68881 | MASK_68020 | MASK_68040 | MASK_68060)
 
+#define MOTOROLA		/* Use Motorola syntax */
+#define USE_GAS			/* But GAS wants jbsr instead of jsr */
+
+#define OBSD_HAS_DECLARE_FUNCTION_NAME
+#define OBSD_HAS_DECLARE_FUNCTION_SIZE
+#define OBSD_HAS_DECLARE_OBJECT

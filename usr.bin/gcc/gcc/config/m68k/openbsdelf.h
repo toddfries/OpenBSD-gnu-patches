@@ -1,11 +1,5 @@
-/* Definitions of target machine for GNU compiler,
-   for m68k (including m68010) NetBSD platforms using the
-   ELF object format.
-   Copyright (C) 2002 Free Software Foundation, Inc.
-   Contributed by Wasabi Systems. Inc.
-
-   This file is derived from <m68k/m68kv4.h>, <m68k/m68kelf.h>,
-   and <m68k/linux.h>.
+/* Configuration file for an m68k OpenBSD target.
+   Copyright (C) 1999 Free Software Foundation, Inc.
 
 This file is part of GNU CC.
 
@@ -24,98 +18,67 @@ along with GNU CC; see the file COPYING.  If not, write to
 the Free Software Foundation, 59 Temple Place - Suite 330,
 Boston, MA 02111-1307, USA.  */
 
-#define TARGET_OS_CPP_BUILTINS()		\
-  do						\
-    {						\
-      NETBSD_OS_CPP_BUILTINS_ELF();		\
-      builtin_define ("__m68k__");		\
-      builtin_define ("__SVR4_ABI__");		\
-      builtin_define ("__motorola__");		\
-      builtin_assert ("cpu=m68k");		\
-      builtin_assert ("machine=m68k");		\
-    }						\
+/* Define __HAVE_68881__ in preprocessor, unless -msoft-float is specified.
+   This will control the use of inline 68881 insns in certain macros.  */
+#undef CPP_SPEC
+#define CPP_SPEC "%{!msoft-float:-D__HAVE_68881__ -D__HAVE_FPU__} " \
+		 OBSD_CPP_SPEC
+
+/* Run-time target specifications.  */
+#define TARGET_OS_CPP_BUILTINS()			\
+  do							\
+    {							\
+      OPENBSD_OS_CPP_BUILTINS_ELF();			\
+      builtin_define ("__m68k__");			\
+      builtin_define ("__SVR4_ABI__");			\
+      builtin_define ("__motorola__");			\
+      builtin_define ("__mc68000__");			\
+      builtin_define ("__mc68020__");			\
+    }							\
   while (0)
 
-/* Default target comes from config.gcc */
-#undef TARGET_DEFAULT
-#define TARGET_DEFAULT TARGET_CPU_DEFAULT
-
-
-/* Don't try using XFmode on the 68010.  */ 
-#undef LONG_DOUBLE_TYPE_SIZE
-#define LONG_DOUBLE_TYPE_SIZE			\
-  ((TARGET_68020 || TARGET_68040 || TARGET_68040_ONLY || \
-    TARGET_68060) ? 96 : 64)
-
-#ifdef __mc68010__
-#define LIBGCC2_LONG_DOUBLE_TYPE_SIZE 64
-#else
-#define LIBGCC2_LONG_DOUBLE_TYPE_SIZE 96
-#endif
-
-#define EXTRA_SPECS \
-  { "cpp_cpu_default_spec", CPP_CPU_DEFAULT_SPEC }, \
-  { "cpp_cpu_spec",         CPP_CPU_SPEC }, \
-  { "cpp_fpu_spec",         CPP_FPU_SPEC }, \
-  { "asm_default_spec",     ASM_DEFAULT_SPEC }, \
-  { "netbsd_cpp_spec",      NETBSD_CPP_SPEC }, \
-  { "netbsd_entry_point",   NETBSD_ENTRY_POINT },
-
-
-#define CPP_CPU_SPEC \
-  "%{m68010:-D__mc68010__} \
-   %{m68020:-D__mc68020__} \
-   %{m68030:-D__mc68030__} \
-   %{m68040:-D__mc68040__} \
-   %(cpp_cpu_default_spec)"
-
-
-#undef TARGET_VERSION
-#if TARGET_DEFAULT & MASK_68020
-#define TARGET_VERSION fprintf (stderr, " (NetBSD/m68k ELF)");
-#define CPP_CPU_DEFAULT_SPEC "%{!m680*:-D__mc68020__}"
-#define ASM_DEFAULT_SPEC "%{!m680*:-m68020}"
-#else
-#define TARGET_VERSION fprintf (stderr, " (NetBSD/68010 ELF)");
-#define CPP_CPU_DEFAULT_SPEC "%{!m680*:-D__mc68010__}"
-#define ASM_DEFAULT_SPEC "%{!m680*:-m68010}"
-#endif
-
-
-#if TARGET_DEFAULT & MASK_68881
-#define CPP_FPU_SPEC "%{!msoft-float:-D__HAVE_68881__ -D__HAVE_FPU__}"
-#else
-#define CPP_FPU_SPEC "%{m68881:-D__HAVE_68881__ -D__HAVE_FPU__}"
-#endif
-
-
-/* Provide a CPP_SPEC appropriate for NetBSD m68k targets.  Currently we
-   deal with the GCC option '-posix', as well as an indication as to
-   whether or not use of the FPU is allowed.  */
-
-#undef CPP_SPEC
-#define CPP_SPEC \
-  "%(netbsd_cpp_spec) %(cpp_cpu_spec) %(cpp_fpu_spec)"
-
-
-/* Provide an ASM_SPEC appropriate for NetBSD m68k ELF targets.  We pass
-   on some CPU options, as well as PIC code generation options.  */
-
+/* m68k as needs to know about the processor subtype.  */
 #undef ASM_SPEC
-#define ASM_SPEC \
-  " %| %(asm_default_spec) \
-    %{m68010} %{m68020} %{m68030} %{m68040} %{m68060} \
-    %{fpic:-k} %{fPIC:-k -K}"
-
-/* Provide a LINK_SPEC appropriate for a NetBSD/m68k ELF target.  */
+#define ASM_SPEC "%| %{m68030} %{m68040} %{m68060} %{fpic:-k} %{fPIC:-k -K}"
 
 #undef LINK_SPEC
-#define LINK_SPEC NETBSD_LINK_SPEC_ELF
+#define LINK_SPEC \
+  "%{!shared:%{!nostdlib:%{!r*:%{!e*:-e __start}}}} \
+   %{shared:-shared} %{R*} \
+   %{static:-Bstatic} \
+   %{!static:-Bdynamic} \
+   %{assert*} \
+   %{!dynamic-linker:-dynamic-linker /usr/libexec/ld.so}"
 
-#define NETBSD_ENTRY_POINT "_start"
+/* As an elf system, we need crtbegin/crtend stuff.  */
+#undef STARTFILE_SPEC
+#define STARTFILE_SPEC "\
+        %{!shared: %{pg:gcrt0%O%s} %{!pg:%{p:gcrt0%O%s} %{!p:crt0%O%s}} \
+        crtbegin%O%s} %{shared:crtbeginS%O%s}"
+#undef ENDFILE_SPEC
+#define ENDFILE_SPEC "%{!shared:crtend%O%s} %{shared:crtendS%O%s}"
 
-/* Output assembler code to FILE to increment profiler label # LABELNO
-   for profiling a function only.  */
+/* Layout of source language data types.  */
+
+/* This must agree with <machine/_types.h> */
+#undef SIZE_TYPE
+#define SIZE_TYPE "long unsigned int"
+
+#undef PTRDIFF_TYPE
+#define PTRDIFF_TYPE "long int"
+
+#undef INTMAX_TYPE
+#define INTMAX_TYPE "long long int"
+
+#undef UINTMAX_TYPE
+#define UINTMAX_TYPE "long long unsigned int"
+
+#undef WCHAR_TYPE
+#define WCHAR_TYPE "int"
+
+#undef WCHAR_TYPE_SIZE
+#define WCHAR_TYPE_SIZE 32
+
 
 #undef FUNCTION_PROFILER
 #define FUNCTION_PROFILER(FILE, LABELNO)				\
@@ -128,24 +91,6 @@ do									\
       fprintf (FILE, "\tjbsr __mcount\n");				\
   }									\
 while (0)
-
-
-/* Make gcc agree with <machine/ansi.h>  */
-
-#undef SIZE_TYPE
-#define SIZE_TYPE "unsigned int"
-
-#undef PTRDIFF_TYPE
-#define PTRDIFF_TYPE "int"
-
-
-/* XXX
-   Here is a bunch of stuff lifted from m68kelf.h.  We don't use that
-   file directly, because it has a lot of baggage we don't want.  */
-
-#define MOTOROLA	/* Use Motorola syntax */
-#define USE_GAS		/* But GAS wants jbsr instead of jsr */
-
 
 /* The prefix for register names.  Note that REGISTER_NAMES
    is supposed to include this prefix.  Also note that this is NOT an

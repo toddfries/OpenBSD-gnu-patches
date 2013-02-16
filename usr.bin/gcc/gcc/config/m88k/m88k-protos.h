@@ -82,7 +82,6 @@ extern void output_function_profiler PARAMS ((FILE *, int, const char *));
 extern void output_ascii PARAMS ((FILE *, const char *, int,
 				  const char *, int));
 extern void output_label PARAMS ((int));
-extern struct rtx_def *m88k_builtin_saveregs PARAMS ((void));
 extern void m88k_setup_incoming_varargs PARAMS ((CUMULATIVE_ARGS *,
 						 enum machine_mode, tree, int *,
 						 int));
@@ -95,6 +94,9 @@ extern struct rtx_def *m88k_function_arg PARAMS ((CUMULATIVE_ARGS,
 						  int));
 extern void m88k_function_arg_advance PARAMS ((CUMULATIVE_ARGS *,
 					       enum machine_mode, tree, int));
+extern int m88k_function_arg_pass_by_reference PARAMS ((CUMULATIVE_ARGS *,
+							enum machine_mode,
+							tree, int));
 extern struct rtx_def *m88k_va_arg PARAMS ((tree, tree));
 extern tree m88k_build_va_list PARAMS ((void));
 #endif /* TREE_CODE */

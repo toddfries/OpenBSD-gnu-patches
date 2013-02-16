@@ -2243,6 +2243,17 @@ m88k_function_arg (args_so_far, mode, type, named)
     abort ();	/* m88k_function_arg argument `type' is NULL for BLKmode. */
 
   bytes = (mode != BLKmode) ? GET_MODE_SIZE (mode) : int_size_in_bytes (type);
+
+  /* Variable-sized types get passed by reference, which can be passed
+     in registers.  */
+  if (bytes < 0)
+    {
+      if (args_so_far > 8 - (POINTER_SIZE / BITS_PER_WORD))
+	return (rtx) 0;
+
+      return gen_rtx_REG (Pmode, 2 + args_so_far);
+    }
+
   words = (bytes + UNITS_PER_WORD - 1) / UNITS_PER_WORD;
 
   if ((args_so_far & 1) != 0
@@ -2280,6 +2291,18 @@ m88k_function_arg_advance (args_so_far, mode, type, named)
     mode = BLKmode;
 
   bytes = (mode != BLKmode) ? GET_MODE_SIZE (mode) : int_size_in_bytes (type);
+  asf = *args_so_far;
+
+  /* Variable-sized types get passed by reference, which can be passed
+     in registers.  */
+  if (bytes < 0)
+    {
+      if (asf <= 8 - (POINTER_SIZE / BITS_PER_WORD))
+	*args_so_far += POINTER_SIZE / BITS_PER_WORD;
+
+      return;
+    }
+
   words = (bytes + UNITS_PER_WORD - 1) / UNITS_PER_WORD;
 
   /* Struct and unions which are not exactly the size of a register are to be
@@ -2288,7 +2311,6 @@ m88k_function_arg_advance (args_so_far, mode, type, named)
       && (TYPE_ALIGN (type) != BITS_PER_WORD || bytes != UNITS_PER_WORD))
     return;
 
-  asf = *args_so_far;
   /* Align arguments requiring more than word alignment to a double-word
      boundary (or an even register number if the argument will get passed
      in registers).  */
@@ -2303,10 +2325,29 @@ m88k_function_arg_advance (args_so_far, mode, type, named)
   (*args_so_far) = asf + words;
 }
 
+/* A C expression that indicates when an argument must be passed by
+   reference.  If nonzero for an argument, a copy of that argument is
+   made in memory and a pointer to the argument is passed instead of
+   the argument itself.  The pointer is passed in whatever way is
+   appropriate for passing a pointer to that type.
+
+   On m88k, only variable sized types are passed by reference.  */
+
+int
+m88k_function_arg_pass_by_reference (cum, mode, type, named)
+     CUMULATIVE_ARGS *cum ATTRIBUTE_UNUSED;
+     enum machine_mode mode ATTRIBUTE_UNUSED;
+     tree type;
+     int named ATTRIBUTE_UNUSED;
+{
+  return type != 0 && int_size_in_bytes (type) < 0;
+}
+
 /* Perform any needed actions needed for a function that is receiving a
    variable number of arguments.
 
-   CUM is as above.
+   CUM is a variable of type CUMULATIVE_ARGS which gives info about
+    the preceding args and about the function being called.
 
    MODE and TYPE are the mode and type of the current parameter.
 
@@ -2328,10 +2369,7 @@ m88k_setup_incoming_varargs (cum, mode, type, pretend_size, no_rtl)
   CUMULATIVE_ARGS next_cum;
   tree fntype;
   int stdarg_p;
-  int regcnt;
-
-  if (no_rtl)
-    return;
+  int regcnt, delta;
 
   fntype = TREE_TYPE (current_function_decl);
   stdarg_p = (TYPE_ARG_TYPES (fntype) != 0
@@ -2345,48 +2383,29 @@ m88k_setup_incoming_varargs (cum, mode, type, pretend_size, no_rtl)
     m88k_function_arg_advance(&next_cum, mode, type, 1);
 
   regcnt = next_cum < 8 ? 8 - next_cum : 0;
-  if (regcnt & 1)
-    regcnt++;
-  *pretend_size = regcnt * UNITS_PER_WORD;
-}
-
-/* Do what is necessary for `va_start'.  We look at the current function
-   to determine if stdargs or varargs is used and spill as necessary. 
-   We return a pointer to the spill area.  */
-
-struct rtx_def *
-m88k_builtin_saveregs ()
-{
-  rtx addr;
-  int regcnt, delta;
-
-  if (! CONSTANT_P (current_function_arg_offset_rtx))
-    abort ();
-
-  regcnt = current_function_args_info < 8 ? 8 - current_function_args_info : 0;
   delta = regcnt & 1;
 
-  /* Allocate the register space, which will be returned as the __va_reg
-     member. If the number of registers to copy is odd, we add an extra
-     word to align even-numbered registers to a doubleword boundary.  */
-  addr = assign_stack_local (BLKmode, (regcnt + delta) * UNITS_PER_WORD, -1);
-  set_mem_alias_set (addr, get_varargs_alias_set ());
-  RTX_UNCHANGING_P (addr) = 1;
-  RTX_UNCHANGING_P (XEXP (addr, 0)) = 1;
-
-  /* Now store the incoming registers.  */
-  if (regcnt != 0)
+  if (! no_rtl && regcnt != 0)
     {
+      rtx mem, dst;
+      int set, regno, offs;
+
+      set = get_varargs_alias_set ();
+      mem = gen_rtx_MEM (BLKmode,
+			 plus_constant (virtual_incoming_args_rtx,
+					- (regcnt + delta) * UNITS_PER_WORD));
+      set_mem_alias_set (mem, set);
+
+      /* Now store the incoming registers.  */
       /* The following is equivalent to
-	 move_block_from_reg (2 + current_function_args_info,
-			      adjust_address (addr, Pmode,
+	 move_block_from_reg (2 + next_cum,
+			      adjust_address (mem, Pmode,
 					      delta * UNITS_PER_WORD),
 			      regcnt, UNITS_PER_WORD * regcnt);
 	 but using double store instruction since the stack is properly
 	 aligned.  */
-      rtx dst = addr;
-      int regno = 2 + current_function_args_info;
-      int offs;
+      regno = 2 + next_cum;
+      dst = mem;
 
       if (delta != 0)
 	{
@@ -2404,17 +2423,11 @@ m88k_builtin_saveregs ()
 	  offs += 2;
 	  regno += 2;
         }
+
+      *pretend_size = (regcnt + delta) * UNITS_PER_WORD;
     }
-
-  /* Return the address of the hypothetical save area containing all the
-     argument registers (to help va_arg() computations), but don't put it in a
-     register.  This fails when not optimizing and produces worse code
-     when optimizing.  */
-  addr = adjust_address (addr, Pmode,
-			 -(current_function_args_info - delta) * UNITS_PER_WORD);
-  return XEXP (addr, 0);
 }
-
+
 /* Define the `__builtin_va_list' type for the ABI.  */
 
 tree
@@ -2490,8 +2503,10 @@ m88k_va_start (valist, nextarg)
   TREE_SIDE_EFFECTS (t) = 1;
   expand_expr (t, const0_rtx, VOIDmode, EXPAND_NORMAL);
 
-  /* Tuck the return value from __builtin_saveregs into __va_reg.  */
-  t = make_tree (TREE_TYPE (reg), expand_builtin_saveregs ());
+  /* Setup __va_reg */
+  t = make_tree (TREE_TYPE (reg), virtual_incoming_args_rtx);
+  t = build (PLUS_EXPR, TREE_TYPE (reg), t,
+	     build_int_2 (-8 * UNITS_PER_WORD, -1));
   t = build (MODIFY_EXPR, TREE_TYPE (reg), reg, t);
   TREE_SIDE_EFFECTS (t) = 1;
   expand_expr (t, const0_rtx, VOIDmode, EXPAND_NORMAL);
@@ -2504,7 +2519,7 @@ m88k_va_arg (valist, type)
      tree valist, type;
 {
   tree field_reg, field_stk, field_arg;
-  int size, wsize, align, reg_p;
+  int indirect_p, size, wsize, align, reg_p;
   rtx addr_rtx;
   rtx lab_done;
 
@@ -2513,10 +2528,22 @@ m88k_va_arg (valist, type)
   field_reg = TREE_CHAIN (field_stk);
 
   size = int_size_in_bytes (type);
-  wsize = (size + UNITS_PER_WORD - 1) / UNITS_PER_WORD;
-  reg_p = (AGGREGATE_TYPE_P (type)
-	   ? size == UNITS_PER_WORD && TYPE_ALIGN (type) == BITS_PER_WORD
-	   : size <= 2*UNITS_PER_WORD);
+  /* Variable sized types are passed by reference.  */
+  if (size < 0)
+    {
+      indirect_p = 1;
+      wsize = POINTER_SIZE / BITS_PER_WORD;
+      type = 0;
+      reg_p = 1;
+    }
+  else
+    {
+      indirect_p = 0;
+      wsize = (size + UNITS_PER_WORD - 1) / UNITS_PER_WORD;
+      reg_p = (AGGREGATE_TYPE_P (type)
+	       ? size == UNITS_PER_WORD && TYPE_ALIGN (type) == BITS_PER_WORD
+	       : size <= 2*UNITS_PER_WORD);
+    }
 
   addr_rtx = gen_reg_rtx (Pmode);
   lab_done = gen_label_rtx ();
@@ -2533,7 +2560,7 @@ m88k_va_arg (valist, type)
 
     /* Align __va_arg to a doubleword boundary if necessary.  */
     arg = build (COMPONENT_REF, TREE_TYPE (field_arg), valist, field_arg);
-    align = TYPE_ALIGN (type) / BITS_PER_WORD;
+    align = type == 0 ? 0 : TYPE_ALIGN (type) / BITS_PER_WORD;
     if (align > 1)
       {
 	t = build (PLUS_EXPR, TREE_TYPE (arg), arg, build_int_2 (align - 1, 0));
@@ -2584,7 +2611,7 @@ m88k_va_arg (valist, type)
     stk = build (COMPONENT_REF, TREE_TYPE (field_stk), valist, field_stk);
 
     /* Align __va_stk to the type boundary if necessary.  */
-    align = TYPE_ALIGN (type) / BITS_PER_UNIT;
+    align = type == 0 ? 0 : TYPE_ALIGN (type) / BITS_PER_UNIT;
     if (align > UNITS_PER_WORD)
       {
         t = build (PLUS_EXPR, TREE_TYPE (stk), stk, build_int_2 (align - 1, 0));
@@ -2608,6 +2635,13 @@ m88k_va_arg (valist, type)
   }
 
   emit_label (lab_done);
+
+  if (indirect_p)
+    {
+      rtx r = gen_rtx_MEM (Pmode, addr_rtx);
+      set_mem_alias_set (r, get_varargs_alias_set ());
+      emit_move_insn (addr_rtx, r);
+    }
 
   return addr_rtx;
 }

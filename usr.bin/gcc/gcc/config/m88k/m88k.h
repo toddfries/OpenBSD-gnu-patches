@@ -848,7 +848,8 @@ enum reg_class { NO_REGS, AP_REG, XRF_REGS, GENERAL_REGS, AGRF_REGS,
    made in memory and a pointer to the argument is passed instead of the
    argument itself.  The pointer is passed in whatever way is appropriate
    for passing a pointer to that type.  */
-#define FUNCTION_ARG_PASS_BY_REFERENCE(CUM, MODE, TYPE, NAMED) (0)
+#define FUNCTION_ARG_PASS_BY_REFERENCE(CUM, MODE, TYPE, NAMED) \
+  m88k_function_arg_pass_by_reference(&CUM, MODE, TYPE, NAMED)
 
 /* A C type for declaring a variable that is used as the first argument
    of `FUNCTION_ARG' and other related values.  It suffices to count
@@ -892,10 +893,6 @@ enum reg_class { NO_REGS, AP_REG, XRF_REGS, GENERAL_REGS, AGRF_REGS,
    variable number of arguments.  */
 #define SETUP_INCOMING_VARARGS(CUM,MODE,TYPE,PRETEND_SIZE,NO_RTL) \
   m88k_setup_incoming_varargs (& (CUM), MODE, TYPE, & (PRETEND_SIZE), NO_RTL)
-
-/* Generate necessary RTL for __builtin_saveregs().
-   ARGLIST is the argument list; see expr.c.  */
-#define EXPAND_BUILTIN_SAVEREGS() m88k_builtin_saveregs ()
 
 /* Define the `__builtin_va_list' type for the ABI.  */
 #define BUILD_VA_LIST_TYPE(VALIST) \

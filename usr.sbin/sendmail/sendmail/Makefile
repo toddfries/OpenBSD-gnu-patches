@@ -1,10 +1,9 @@
-#	$OpenBSD: Makefile,v 1.29 2013/08/06 19:05:57 miod Exp $
+#	$OpenBSD: Makefile,v 1.32 2014/04/15 20:55:42 miod Exp $
 
 PROG=	sendmail
 
 .include <bsd.own.mk>
 
-WANT_LIBWRAP=1
 WANT_LIBSM=1
 WANT_LIBSMUTIL=1
 
@@ -19,10 +18,6 @@ ENVDEF+= -DSASL
 CFLAGS+= -I/usr/local/include/sasl
 LDADD+= -lsasl2
 LDFLAGS+=-L/usr/local/lib
-.endif
-
-.if ${MACHINE} == "vax"
-LDFLAGS+=-Wl,--no-keep-memory
 .endif
 
 # Compile with milter support.
@@ -43,7 +38,7 @@ SRCS=	main.c alias.c arpadate.c bf.c collect.c conf.c control.c convtime.c \
 	recipient.c sasl.c savemail.c sfsasl.c shmticklib.c sm_resolve.c \
 	srvrsmtp.c stab.c stats.c sysexits.c timers.c tls.c trace.c udb.c \
 	usersmtp.c util.c version.c
-MAN=	aliases.5 mailq.8 newaliases.8 sendmail.8
+MAN=	mailq.8 sendmail.8
 MLINKS=	sendmail.8 hoststat.1 sendmail.8 purgestat.1
 BINDIR=	/usr/libexec/sendmail
 BINOWN=	root

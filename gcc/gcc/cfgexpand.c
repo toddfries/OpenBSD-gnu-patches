@@ -429,7 +429,21 @@ partition_stack_vars (void)
   if (n == 1)
     return;
 
-  qsort (stack_vars_sorted, n, sizeof (size_t), stack_var_size_cmp);
+  if (flag_stack_shuffle)
+    {
+      /* Fisher-Yates shuffle */
+      for (si = n - 1; si > 0; si--)
+	{
+	  size_t tmp;
+	  sj = arc4random_uniform(si);
+
+	  tmp = stack_vars_sorted[si];
+	  stack_vars_sorted[si] = stack_vars_sorted[sj];
+	  stack_vars_sorted[sj] = tmp;
+	}
+    }
+  else
+    qsort (stack_vars_sorted, n, sizeof (size_t), stack_var_size_cmp);
 
   /* Special case: detect when all variables conflict, and thus we can't
      do anything during the partitioning loop.  It isn't uncommon (with
@@ -945,13 +959,14 @@ add_stack_protection_conflicts (void)
 /* Create a decl for the guard at the top of the stack frame.  */
 
 static void
-create_stack_guard (void)
+create_stack_guard (bool protect)
 {
   tree guard = build_decl (VAR_DECL, NULL, ptr_type_node);
   TREE_THIS_VOLATILE (guard) = 1;
   TREE_USED (guard) = 1;
   expand_one_stack_var (guard);
-  cfun->stack_protect_guard = guard;
+  if (protect)
+    cfun->stack_protect_guard = guard;
 }
 
 /* Helper routine to check if a record or union contains an array field. */
@@ -1089,18 +1104,16 @@ expand_used_vars (void)
   switch (flag_stack_protect)
     {
     case SPCT_FLAG_ALL:
-      create_stack_guard ();
+      create_stack_guard (true);
       break;
 
     case SPCT_FLAG_STRONG:
-      if (gen_stack_protect_signal
-	  || current_function_calls_alloca || has_protected_decls)
-	create_stack_guard ();
+      create_stack_guard (gen_stack_protect_signal
+	  || current_function_calls_alloca || has_protected_decls);
       break;
 
     case SPCT_FLAG_DEFAULT:
-      if (current_function_calls_alloca || has_protected_decls)
-	create_stack_guard();
+      create_stack_guard(current_function_calls_alloca || has_protected_decls);
       break;
 
     default:
@@ -1110,19 +1123,22 @@ expand_used_vars (void)
   /* Assign rtl to each variable based on these partitions.  */
   if (stack_vars_num > 0)
     {
-      /* Reorder decls to be protected by iterating over the variables
-	 array multiple times, and allocating out of each phase in turn.  */
-      /* ??? We could probably integrate this into the qsort we did
-	 earlier, such that we naturally see these variables first,
-	 and thus naturally allocate things in the right order.  */
-      if (has_protected_decls)
+      if (!flag_stack_shuffle)
 	{
-	  /* Phase 1 contains only character arrays.  */
-	  expand_stack_vars (stack_protect_decl_phase_1);
+	  /* Reorder decls to be protected by iterating over the variables
+	     array multiple times, and allocating out of each phase in turn.  */
+	  /* ??? We could probably integrate this into the qsort we did
+	     earlier, such that we naturally see these variables first,
+	     and thus naturally allocate things in the right order.  */
+	  if (has_protected_decls)
+	    {
+	      /* Phase 1 contains only character arrays.  */
+	      expand_stack_vars (stack_protect_decl_phase_1);
 
-	  /* Phase 2 contains other kinds of arrays.  */
-	  if (flag_stack_protect == 2)
-	    expand_stack_vars (stack_protect_decl_phase_2);
+	      /* Phase 2 contains other kinds of arrays.  */
+	      if (flag_stack_protect == 2)
+		expand_stack_vars (stack_protect_decl_phase_2);
+	    }
 	}
 
       expand_stack_vars (NULL);
